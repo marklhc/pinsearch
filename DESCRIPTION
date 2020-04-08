@@ -16,3 +16,5 @@ Imports:
     stats
 Suggests: 
     MASS
+URL: https://github.com/marklhc/pinvsearch
+BugReports: https://github.com/marklhc/pinvsearch/issues
