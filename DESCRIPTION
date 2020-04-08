@@ -1,6 +1,6 @@
 Package: pinvsearch
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Specification search for partial factorial invariance
 Version: 0.1.0
 Author: person("Mark", "Lai", email = "marklhc@gmail.com",
   role = c("aut", "cre"))
