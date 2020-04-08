@@ -5,8 +5,10 @@ Version: 0.1.0
 Author: person("Mark", "Lai", email = "marklhc@gmail.com",
   role = c("aut", "cre"))
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: A function to automate specification search for identify 
+    noninvariant items in factorial invariance analyses. The package supports
+    continuous indicators with loadings, intercepts, and residuals (uniqueness)
+    invariance. 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
