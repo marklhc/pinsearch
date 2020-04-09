@@ -67,12 +67,12 @@ remove_cons <- function(object, item, group, op) {
 #' sam_config <- paste(
 #'   paste0('f =~ ', paste0("y", 1:6, collapse = " + "))
 #' )
-#' pinvSearch(sam_config, data = dat_sim, group = "group",
+#' pinSearch(sam_config, data = dat_sim, group = "group",
 #'            type = "intercepts")
 #' @export
-pinvSearch <- function(config_mod, data = NULL, group, ...,
-                       type = c("loadings", "intercepts", "residuals"),
-                       sig = .05) {
+pinSearch <- function(config_mod, data = NULL, group, ...,
+                      type = c("loadings", "intercepts", "residuals"),
+                      sig = .05) {
   type <- match.arg(type)
   base_fit <- lavaan::cfa(config_mod, group = group, data = data,
                           std.lv = TRUE, ...)

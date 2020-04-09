@@ -1,4 +1,4 @@
-Package: pinvsearch
+Package: pinsearch
 Type: Package
 Title: Specification search for partial factorial invariance
 Version: 0.1.0
@@ -18,5 +18,5 @@ Imports:
     stats
 Suggests: 
     MASS
-URL: https://github.com/marklhc/pinvsearch
-BugReports: https://github.com/marklhc/pinvsearch/issues
+URL: https://github.com/marklhc/pinsearch
+BugReports: https://github.com/marklhc/pinsearch/issues

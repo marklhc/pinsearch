@@ -1,34 +1,34 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# pinvsearch
+# pinsearch
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-The goal of pinvsearch is to automate the process of performing
+The goal of pinsearch is to automate the process of performing
 specification search in identifying noninvariant items to arrive at a
 partial factorial invariance model.
 
 ## Installation
 
-<!-- You can install the released version of pinvsearch from [CRAN](https://CRAN.R-project.org) with: -->
+<!-- You can install the released version of pinsearch from [CRAN](https://CRAN.R-project.org) with: -->
 
 <!-- ``` r -->
 
-<!-- install.packages("pinvsearch") -->
+<!-- install.packages("pinsearch") -->
 
 <!-- ``` -->
 
 <!-- And the development version from [GitHub](https://github.com/) with: -->
 
-You can install the development version of pinvsearch from
+You can install the development version of pinsearch from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("marklhc/pinvsearch")
+devtools::install_github("marklhc/pinsearch")
 ```
 
 ## Example
@@ -36,7 +36,7 @@ devtools::install_github("marklhc/pinvsearch")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(pinvsearch)
+library(pinsearch)
 library(lavaan)
 #> This is lavaan 0.6-5
 #> lavaan is BETA software! Please report any bugs.
@@ -44,8 +44,8 @@ HS.model <- '  visual =~ x1 + x2 + x3
               textual =~ x4 + x5 + x6
               speed   =~ x7 + x8 + x9 '
 # Output the final partial invariance model, and the noninvariant items
-pinvSearch(HS.model, data = HolzingerSwineford1939, 
-           group = "school", type = "intercepts")
+pinSearch(HS.model, data = HolzingerSwineford1939, 
+          group = "school", type = "intercepts")
 #> $`Partial Invariance Fit`
 #> lavaan 0.6-5 ended normally after 69 iterations
 #> 
