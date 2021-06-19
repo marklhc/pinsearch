@@ -70,7 +70,7 @@ remove_cons <- function(object, item, group, op) {
 #' pinSearch(sam_config, data = dat_sim, group = "group",
 #'            type = "intercepts")
 #' @export
-pinSearch <- function(config_mod, data = NULL, group, ...,
+pinSearch <- function(config_mod, data = NULL, group = NULL, ...,
                       type = c("loadings", "intercepts", "residuals"),
                       sig = .05) {
   type <- match.arg(type)
@@ -88,6 +88,7 @@ pinSearch <- function(config_mod, data = NULL, group, ...,
   ind_names <- new_fit@pta$vnames$ov.ind[[1]]
   types <- c("loadings", "intercepts", "residuals")
   n_type <- which(types == type)  # number of stages
+  start <- est <- se <- NULL
   pt0 <- subset(lavaan::parTable(new_fit),
                 select = -c(start, est, se))
   for (i in seq_len(n_type)) {

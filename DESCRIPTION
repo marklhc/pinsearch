@@ -17,6 +17,8 @@ Imports:
     lavaan,
     stats
 Suggests: 
+    testthat (>= 3.0.0),
     MASS
 URL: https://github.com/marklhc/pinsearch
 BugReports: https://github.com/marklhc/pinsearch/issues
+Config/testthat/edition: 3
