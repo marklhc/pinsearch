@@ -4,7 +4,6 @@
 # pinsearch
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 The goal of pinsearch is to automate the process of performing
@@ -14,13 +13,9 @@ partial factorial invariance model.
 ## Installation
 
 <!-- You can install the released version of pinsearch from [CRAN](https://CRAN.R-project.org) with: -->
-
 <!-- ``` r -->
-
 <!-- install.packages("pinsearch") -->
-
 <!-- ``` -->
-
 <!-- And the development version from [GitHub](https://github.com/) with: -->
 
 You can install the development version of pinsearch from
@@ -38,8 +33,8 @@ This is a basic example which shows you how to solve a common problem:
 ``` r
 library(pinsearch)
 library(lavaan)
-#> This is lavaan 0.6-5
-#> lavaan is BETA software! Please report any bugs.
+#> This is lavaan 0.6-9
+#> lavaan is FREE software! Please report any bugs.
 HS.model <- '  visual =~ x1 + x2 + x3
               textual =~ x4 + x5 + x6
               speed   =~ x7 + x8 + x9 '
@@ -47,13 +42,12 @@ HS.model <- '  visual =~ x1 + x2 + x3
 pinSearch(HS.model, data = HolzingerSwineford1939, 
           group = "school", type = "intercepts")
 #> $`Partial Invariance Fit`
-#> lavaan 0.6-5 ended normally after 69 iterations
+#> lavaan 0.6-9 ended normally after 69 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
-#>   Number of free parameters                         66
+#>   Number of model parameters                        66
 #>   Number of equality constraints                    16
-#>   Row rank of the constraints matrix                16
 #>                                                       
 #>   Number of observations per group:                   
 #>     Pasteur                                        156
@@ -69,7 +63,7 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 #>     Grant-White                                 58.253
 #> 
 #> $`Non-Invariant Items`
-#>   item group       type
-#> 1   x3     1 intercepts
-#> 2   x7     1 intercepts
+#>   lhs rhs group       type
+#> 1  x3         1 intercepts
+#> 2  x7         1 intercepts
 ```

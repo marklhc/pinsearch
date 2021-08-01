@@ -9,7 +9,7 @@ pinSearch(
   data = NULL,
   group = NULL,
   ...,
-  type = c("loadings", "intercepts", "residuals"),
+  type = c("loadings", "intercepts", "residuals", "residual.covariances"),
   sig_level = 0.05
 )
 }
@@ -25,7 +25,10 @@ defines the grouping variable in multiple-group CFA.}
 \item{...}{Additonal arguments passed to \code{\link[lavaan]{cfa}}.}
 
 \item{type}{Character variable indicating the stage of invariance to be
-searched.}
+searched. Currently supported options are "loadings", "intercepts",
+"residuals", and "residual.covariances", in an increasingly strict order.
+A stricter model (e.g., "residual.covariances") will have constraints of
+all previous stages.}
 
 \item{sig_level}{Significance level used to determine whether the parameter
 associated with the highest modification index should be removed. Default
