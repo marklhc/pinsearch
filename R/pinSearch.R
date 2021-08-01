@@ -6,29 +6,41 @@ lavaanify_cfa <- function(config_mod, ngroups, group.equal) {
                       auto.cov.y = TRUE, auto.th = TRUE, auto.delta = TRUE,
                       auto.efa = TRUE)
 }
+type2op <- function(type) {
+  switch(type,
+         loadings = "=~",
+         intercepts = "~1",
+         residuals = "~~",
+         residual.covariances = "~~")
+}
+# type2col <- function(type) {
+#   switch(type,
+#          loadings = "rhs",
+#          intercepts = "lhs",
+#          residuals = "lhs")
+# }
 op2col <- function(op) {
     switch(op,
            `=~` = "rhs",
            `~1` = "lhs",
            `~~` = "lhs")
 }
-remove_cons <- function(object, item, group, op) {
+remove_cons <- function(object, lhs, rhs, group, op) {
     # Remove constraints
-    col <- op2col(op)
-    matched <- if (op == "~~")
-        object$lhs == object$rhs
-    else
-        TRUE
+    # col <- op2col(op)
+    # matched <- if (op == "~~")
+    #     object$lhs == object$rhs
+    # else
+    #     TRUE
     # Identify row with the specified parameter
-    row_i <- which(object[[col]] == item & matched &
+    row_i <- which(object$lhs == lhs & object$rhs == rhs &
                        object$op == op & object$group == group)
     mi_plab <- object$plabel[row_i]
     object$label[row_i] <- ""
     if (length(mi_plab) == 0)
         return(object)
     ind_plabs <-
-        object$plabel[object$op == op & object[[col]] == item &
-                          matched]
+        object$plabel[object$op == op & object$lhs == lhs & object$rhs == rhs]
     pt_eq <- object[object$op == "==" &
                         object$lhs %in% ind_plabs &
                         object$rhs %in% ind_plabs,]
@@ -44,9 +56,9 @@ remove_cons <- function(object, item, group, op) {
     }
     pt_new
 }
-get_invmod <- function(object, op, mod_min, ind_names, pt0) {
+get_invmod <- function(object, type, mod_min, ind_names, pt0) {
     if (missing(pt0)) pt0 <- lavaan::parTable(object)
-    col <- op2col(op)
+    op <- type2op(type)
     pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0, ]
     mis <- lavaan::modindices(
         object,
@@ -56,13 +68,21 @@ get_invmod <- function(object, op, mod_min, ind_names, pt0) {
         free.remove = FALSE
     )
     # Only parameters in the original model
-    if (op == "~~") {
-        mis_ids <- rownames(mis)[mis[[col]] %in% ind_names &
+    if (type == "loadings") {
+        mis_ids <- rownames(mis)[mis$rhs %in% ind_names &
+                                     rownames(mis) %in% pt0_eq$id]
+    } else if (type == "intercepts") {
+        mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
+                                     rownames(mis) %in% pt0_eq$id]
+    } else if (type == "residuals") {
+        mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
                                      rownames(mis) %in% pt0_eq$id &
                                      mis$lhs == mis$rhs]
-    } else {
-        mis_ids <- rownames(mis)[mis[[col]] %in% ind_names &
-                                     rownames(mis) %in% pt0_eq$id]
+    } else if (type == "residual.covariances") {
+        mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
+                                     mis$rhs %in% ind_names &
+                                     rownames(mis) %in% pt0_eq$id &
+                                     mis$lhs != mis$rhs]
     }
     if (length(mis_ids) == 0) return(NULL)
     pt_mis <- pt0_eq[match(mis_ids, pt0_eq$id), ]
@@ -76,13 +96,36 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal) {
                        group.equal = group.equal)
   ninv_lds <- ninv_items[ninv_items$type == "loadings", ]
   for (j in seq_len(nrow(ninv_lds))) {
-      pt0 <- remove_cons(pt0, ninv_lds$item[j], ninv_lds$group[j], "=~")
+      pt0 <- remove_cons(pt0, lhs = ninv_lds$lhs[j], rhs = ninv_lds$rhs[j],
+                         group = ninv_lds$group[j], op = "=~")
       pt0 <-
-          remove_cons(pt0, ninv_lds$item[j], ninv_lds$group[j], "~1")
+          remove_cons(pt0, lhs = ninv_lds$rhs[j], rhs = "",
+                      group = ninv_lds$group[j], op = "~1")
   }
   ninv_ints <- ninv_items[ninv_items$type == "intercepts", ]
   for (j in seq_len(nrow(ninv_ints))) {
-      pt0 <- remove_cons(pt0, ninv_ints$item[j], ninv_ints$group[j], "~1")
+      pt0 <- remove_cons(pt0, lhs = ninv_ints$lhs[j], rhs = ninv_ints$rhs[j],
+                         group = ninv_ints$group[j], op = "~1")
+  }
+  ninv_res <- ninv_items[ninv_items$type == "residuals", ]
+  for (j in seq_len(nrow(ninv_res))) {
+      pt0 <- remove_cons(pt0, lhs = ninv_res$lhs[j], rhs = ninv_res$rhs[j],
+                         group = ninv_res$group[j], op = "~~")
+      # Get items covaried with item j
+      cov_items1 <- pt0[pt0$op == "~~" &
+                            pt0$lhs == ninv_res$lhs[j] &
+                            pt0$group == ninv_res$group[j] &
+                            pt0$lhs != pt0$rhs, ]
+      cov_items2 <- pt0[pt0$op == "~~" &
+                            pt0$rhs == ninv_res$lhs[j] &
+                            pt0$group == ninv_res$group[j] &
+                            pt0$lhs != pt0$rhs, ]
+      cov_items <- rbind(cov_items1, cov_items2)
+      for (k in seq_len(nrow(cov_items))) {
+          pt0 <- remove_cons(pt0, lhs = cov_items$lhs[k],
+                             rhs = cov_items$rhs[k],
+                             group = cov_items$group[k], op = "~~")
+      }
   }
   pt0$id <- seq_len(nrow(pt0))
   pt0
@@ -97,7 +140,10 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal) {
 #'   defines the grouping variable in multiple-group CFA.
 #' @param ... Additonal arguments passed to \code{\link[lavaan]{cfa}}.
 #' @param type Character variable indicating the stage of invariance to be
-#'   searched.
+#'   searched. Currently supported options are "loadings", "intercepts",
+#'   "residuals", and "residual.covariances", in an increasingly strict order.
+#'   A stricter model (e.g., "residual.covariances") will have constraints of
+#'   all previous stages.
 #' @param sig_level Significance level used to determine whether the parameter
 #'   associated with the highest modification index should be removed. Default
 #'   is .05.
@@ -132,7 +178,8 @@ pinSearch <- function(config_mod,
                       data = NULL,
                       group = NULL,
                       ...,
-                      type = c("loadings", "intercepts", "residuals"),
+                      type = c("loadings", "intercepts", "residuals",
+                               "residual.covariances"),
                       sig_level = .05) {
     type <- match.arg(type)
     base_fit <- lavaan::cfa(config_mod, group = group, data = data,
@@ -140,14 +187,15 @@ pinSearch <- function(config_mod,
     # stored_fit <- list()
     ngp <- lavaan::lavInspect(base_fit, "ngroups")
     ninv_items <- data.frame(
-        items = character(),
+        lhs = character(),
+        rhs = character(),
         group = numeric(),
         type = character(),
         stringsAsFactors = FALSE
     )
     chisq_cv <- stats::qchisq(sig_level, 1, lower.tail = FALSE)
     ind_names <- get_ovnames(base_fit)
-    types <- c("loadings", "intercepts", "residuals")
+    types <- c("loadings", "intercepts", "residuals", "residual.covariances")
     n_type <- which(types == type)  # number of stages
     for (i in seq_len(n_type)) {
         typei <- types[i]
@@ -169,31 +217,33 @@ pinSearch <- function(config_mod,
                 ...
             )
         }
-        if (lavaan::lavTestLRT(base_fit, new_fit)[2, "Pr(>Chisq)"] >= sig_level) {
+        lrt_base_new <- lavaan::lavTestLRT(base_fit, new_fit)
+        if ((lrt_base_new[2, "Chisq diff"] == 0 &
+             lrt_base_new[2, "Df diff"] == 0) ||
+            lrt_base_new[2, "Pr(>Chisq)"] >= sig_level) {
             base_fit <- new_fit
             next  # skip to next stage
         } else {
             if (typei == "loadings") {
                 mi_op <- "=~"
-                mi_col <- "rhs"
             } else if (typei == "intercepts") {
                 mi_op <- "~1"
-                mi_col <- "lhs"
-            } else if (typei == "residuals") {
+            } else if (typei %in% c("residuals", "residual.covariances")) {
                 mi_op <- "~~"
-                mi_col <- "lhs"
             }
-            largest_mi_row <- get_invmod(new_fit, op = mi_op,
+            largest_mi_row <- get_invmod(new_fit, type = typei,
                                          mod_min = chisq_cv,
                                          ind_names = ind_names)
             while (!is.null(largest_mi_row)) {
                 mi_gp <- largest_mi_row$group
-                mi_ind <- largest_mi_row[[mi_col]]
-                pt0 <- remove_cons(pt0, item = mi_ind, group = mi_gp,
-                                   op = mi_op)
+                mi_lhs <- largest_mi_row$lhs
+                mi_rhs <- largest_mi_row$rhs
+                pt0 <- remove_cons(pt0, lhs = mi_lhs, rhs = mi_rhs,
+                                   group = mi_gp, op = mi_op)
                 ninv_items <- rbind(ninv_items,
                                     data.frame(
-                                        item = mi_ind,
+                                        lhs = mi_lhs,
+                                        rhs = mi_rhs,
                                         group = mi_gp,
                                         type = typei
                                     ))
@@ -207,7 +257,7 @@ pinSearch <- function(config_mod,
                     std.lv = TRUE,
                     ...
                 )
-                largest_mi_row <- get_invmod(new_fit, op = mi_op,
+                largest_mi_row <- get_invmod(new_fit, type = typei,
                                              mod_min = chisq_cv,
                                              ind_names = ind_names)
             }
