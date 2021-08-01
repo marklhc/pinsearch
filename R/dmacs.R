@@ -36,6 +36,7 @@
 #'       pooled_item_sd = c(1, 1, 1, 1),
 #'       latent_mean = 0,
 #'       latent_sd = 1)
+#' @export
 dmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
                   latent_mean = 0, latent_sd = 1) {
   if (nrow(intercepts) != 2) {
@@ -66,7 +67,7 @@ dmacs_pairwise <-
     if (is.null(gp_names)) {
       gp_names <- seq_len(nrow(loading_mat))
     }
-    ds <- combn(
+    ds <- utils::combn(
       gp_names,
       m = 2,
       FUN = function(x) {
@@ -81,7 +82,7 @@ dmacs_pairwise <-
       simplify = FALSE
     )
     ds <- do.call(rbind, ds)
-    rownames(ds) <- combn(gp_names,
+    rownames(ds) <- utils::combn(gp_names,
                           m = 2,
                           FUN = paste,
                           collapse = " vs ")
@@ -113,24 +114,25 @@ getpt <- function(pt, type = c("load", "int", "uniq", "equality"),
 # Compute pooled SD
 pooledvar <- function(vars, ns) {
   vars <- matrix(vars, ncol = length(ns))
-  apply(vars, MARGIN = 1, weighted.mean, w = ns - 1)
+  apply(vars, MARGIN = 1, stats::weighted.mean, w = ns - 1)
 }
 
 dmacs_lavaan <- function(object) {
-  stopifnot(lavInspect(object, what = "ngroups") == 2)
+  stopifnot(lavaan::lavInspect(object, what = "ngroups") == 2)
   pt <- lavaan::parTable(object)
   ind_names <- object@pta$vnames$ov.ind[[1]]
   pt_par <- getpt(pt, type = c("load", "int"), ind_names = ind_names)
   pt_eq <- getpt(pt, type = "equality", ind_names = ind_names)
   ninv_par <- setdiff(pt_par$plabel, unique(c(pt_eq$lhs, pt_eq$rhs)))
+  plabel <- NULL
   ninv_ov <-
     unique(unlist(subset(pt_par, plabel %in% ninv_par)[c("lhs", "rhs")]))
   ninv_ov <- intersect(ninv_ov, ind_names)
   pars <- lavaan::lavInspect(object, what = "est")
-  sampstat <- lavInspect(object, "sampstat")
+  sampstat <- lavaan::lavInspect(object, "sampstat")
   vars <- vapply(sampstat, function(x) diag(x$cov)[ninv_ov],
                  FUN.VALUE = numeric(length(ninv_ov)))
-  ns <- lavInspect(object, "nobs")
+  ns <- lavaan::lavInspect(object, "nobs")
   pooled_item_sd <- sqrt(pooledvar(vars, ns))
   intercept_mat <- lapply(
     pars,
