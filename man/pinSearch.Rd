@@ -7,10 +7,10 @@
 pinSearch(
   config_mod,
   data = NULL,
-  group,
+  group = NULL,
   ...,
   type = c("loadings", "intercepts", "residuals"),
-  sig = 0.05
+  sig_level = 0.05
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ defines the grouping variable in multiple-group CFA.}
 \item{type}{Character variable indicating the stage of invariance to be
 searched.}
 
-\item{sig}{Significance level used to determine whether the parameter
+\item{sig_level}{Significance level used to determine whether the parameter
 associated with the highest modification index should be removed. Default
 is .05.}
 }
@@ -45,20 +45,20 @@ set.seed(14)  # for reproducible results
 mod_ninv <- "f =~ c(1, 0.8, .6)*y1 + c(0.8, 1.2, 1.0)*y2"
 mod_inv <- paste0("1*y", 3:6, collapse = " + ")
 sim_mod <- paste(
-  paste(mod_ninv, "+", mod_inv),
-  "f ~~ c(1, 1.3, 1.5)*f
-   f ~ c(0, 0.5, 1.0)*1
-   y1 ~ c(0, 0.3, 0)*1
-   y3 ~ c(0.3, 0, -0.3)*1
-   y1 ~~ c(1, .5, 1)*y1",
-  sep = "\n"
+    paste(mod_ninv, "+", mod_inv),
+    "f ~~ c(1, 1.3, 1.5)*f
+     f ~ c(0, 0.5, 1.0)*1
+     y1 ~ c(0, 0.3, 0)*1
+     y3 ~ c(0.3, 0, -0.3)*1
+     y1 ~~ c(1, .5, 1)*y1",
+    sep = "\n"
 )
 # The uniqueness of each item is assumed to be 1.0
 dat_sim = simulateData(sim_mod, sample.nobs = c(100, 100, 100))
 # Fit configural model:
 sam_config <- paste(
-  paste0('f =~ ', paste0("y", 1:6, collapse = " + "))
+    paste0('f =~ ', paste0("y", 1:6, collapse = " + "))
 )
 pinSearch(sam_config, data = dat_sim, group = "group",
-           type = "intercepts")
+          type = "intercepts")
 }
