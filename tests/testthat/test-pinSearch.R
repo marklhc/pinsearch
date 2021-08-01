@@ -88,3 +88,12 @@ test_that("pinSearch() works properly for noninvariant residual covariances", {
                          "residual.covariances"), c(2, 1, 2, 1)))
 })
 
+test_that("pinSearch() works properly for HolzingerSwineford1939 example", {
+    HS.model <- ' visual  =~ x1 + x2 + x3 + x9
+                  textual =~ x4 + x5 + x6
+                  speed   =~ x7 + x8 + x9 '
+    ps6 <- pinSearch(HS.model, data = HolzingerSwineford1939,
+              group = "school", type = "intercepts")
+    expect_identical(ps6[[2]]$lhs, c("x3", "x7"))
+    expect_identical(ps6[[2]]$type, rep("intercepts", 2))
+})
