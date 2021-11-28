@@ -13,9 +13,9 @@
 #'   standardized mean difference on an item due to measurement noninvariance,
 #'   and is analogous to the Cohen's d effect size.
 #'
-#' @param loadings An \eqn{2 \times p} matrix of factor loadings, where p
+#' @param loadings A \eqn{2 \times p} matrix of factor loadings, where p
 #'   is the number of items.
-#' @param intercepts An \eqn{2 \times p} matrix of measurement intercepts.
+#' @param intercepts A \eqn{2 \times p} matrix of measurement intercepts.
 #' @param pooled_item_sd A numeric vector of length p of the pooled standard
 #'   deviation (SD) of the items across groups.
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
@@ -118,12 +118,16 @@ pooledvar <- function(vars, ns) {
 }
 
 dmacs_lavaan <- function(object) {
-  stopifnot(lavaan::lavInspect(object, what = "ngroups") == 2)
+  stopifnot("Currently only support models with two groups" =
+              lavaan::lavInspect(object, what = "ngroups") == 2)
   pt <- lavaan::parTable(object)
   ind_names <- object@pta$vnames$ov.ind[[1]]
   pt_par <- getpt(pt, type = c("load", "int"), ind_names = ind_names)
   pt_eq <- getpt(pt, type = "equality", ind_names = ind_names)
   ninv_par <- setdiff(pt_par$plabel, unique(c(pt_eq$lhs, pt_eq$rhs)))
+  # Remove pairs of values that are not free
+  ninv_par <- subset(pt_par, subset = plabel %in% ninv_par &
+                       free != 0)$plabel
   plabel <- NULL
   ninv_ov <-
     unique(unlist(subset(pt_par, plabel %in% ninv_par)[c("lhs", "rhs")]))
