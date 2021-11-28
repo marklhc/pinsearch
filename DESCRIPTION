@@ -1,7 +1,7 @@
 Package: pinsearch
 Type: Package
 Title: Specification search for partial factorial invariance
-Version: 0.1.1
+Version: 0.1.2
 Author: person("Mark", "Lai", email = "marklhc@gmail.com",
   role = c("aut", "cre"))
 Maintainer: The package maintainer <yourself@somewhere.net>

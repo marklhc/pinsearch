@@ -66,4 +66,39 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 #>   lhs rhs group       type
 #> 1  x3         1 intercepts
 #> 2  x7         1 intercepts
+# Compute dmacs effect size (added in version 0.1.2)
+pinSearch(HS.model, data = HolzingerSwineford1939, 
+          group = "school", type = "intercepts",
+          effect_size = TRUE)
+#> $`Partial Invariance Fit`
+#> lavaan 0.6-9 ended normally after 69 iterations
+#> 
+#>   Estimator                                         ML
+#>   Optimization method                           NLMINB
+#>   Number of model parameters                        66
+#>   Number of equality constraints                    16
+#>                                                       
+#>   Number of observations per group:                   
+#>     Pasteur                                        156
+#>     Grant-White                                    145
+#>                                                       
+#> Model Test User Model:
+#>                                                       
+#>   Test statistic                               129.422
+#>   Degrees of freedom                                58
+#>   P-value (Chi-square)                           0.000
+#>   Test statistic for each group:
+#>     Pasteur                                     71.170
+#>     Grant-White                                 58.253
+#> 
+#> $`Non-Invariant Items`
+#>   lhs rhs group       type
+#> 1  x3         1 intercepts
+#> 2  x7         1 intercepts
+#> 
+#> $dmacs
+#>                        x3-visual x7-visual x3-textual x7-textual  x3-speed
+#> Pasteur vs Grant-White 0.4824515 0.4161323  0.4824515  0.4161323 0.4824515
+#>                         x7-speed
+#> Pasteur vs Grant-White 0.4161323
 ```
