@@ -147,6 +147,8 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal) {
 #' @param sig_level Significance level used to determine whether the parameter
 #'   associated with the highest modification index should be removed. Default
 #'   is .05.
+#' @param effect_size Logical; whether to compute dmacs effect size or not
+#'   (default). This is an experimental feature.
 #'
 #' @return The sum of \code{x} and \code{y}.
 #' @examples
@@ -180,7 +182,8 @@ pinSearch <- function(config_mod,
                       ...,
                       type = c("loadings", "intercepts", "residuals",
                                "residual.covariances"),
-                      sig_level = .05) {
+                      sig_level = .05,
+                      effect_size = FALSE) {
     type <- match.arg(type)
     base_fit <- lavaan::cfa(config_mod, group = group, data = data,
                             std.lv = TRUE, ...)
@@ -264,6 +267,10 @@ pinSearch <- function(config_mod,
             base_fit <- new_fit
         }
     }
-    list(`Partial Invariance Fit` = new_fit,
-         `Non-Invariant Items` = ninv_items)
+    out <- list(`Partial Invariance Fit` = new_fit,
+                `Non-Invariant Items` = ninv_items)
+    if (effect_size) {
+        out$dmacs <- dmacs_lavaan(new_fit)
+    }
+    out
 }

@@ -10,7 +10,8 @@ pinSearch(
   group = NULL,
   ...,
   type = c("loadings", "intercepts", "residuals", "residual.covariances"),
-  sig_level = 0.05
+  sig_level = 0.05,
+  effect_size = FALSE
 )
 }
 \arguments{
@@ -33,6 +34,9 @@ all previous stages.}
 \item{sig_level}{Significance level used to determine whether the parameter
 associated with the highest modification index should be removed. Default
 is .05.}
+
+\item{effect_size}{Logical; whether to compute dmacs effect size or not
+(default). This is an experimental feature.}
 }
 \value{
 The sum of \code{x} and \code{y}.
