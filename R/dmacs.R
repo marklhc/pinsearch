@@ -126,11 +126,12 @@ dmacs_lavaan <- function(object) {
   pt_eq <- getpt(pt, type = "equality", ind_names = ind_names)
   ninv_par <- setdiff(pt_par$plabel, unique(c(pt_eq$lhs, pt_eq$rhs)))
   # Remove pairs of values that are not free
-  ninv_par <- subset(pt_par, subset = plabel %in% ninv_par &
-                       free != 0)$plabel
+  free <- NULL
+  ninv_par <- pt_par$plabel[pt_par$plabel %in% ninv_par & pt_par$free != 0]
   plabel <- NULL
-  ninv_ov <-
-    unique(unlist(subset(pt_par, plabel %in% ninv_par)[c("lhs", "rhs")]))
+  ninv_ov <- unique(unlist(
+      pt_par[pt_par$plabel %in% ninv_par, c("lhs", "rhs")]
+  ))
   ninv_ov <- intersect(ninv_ov, ind_names)
   pars <- lavaan::lavInspect(object, what = "est")
   sampstat <- lavaan::lavInspect(object, "sampstat")

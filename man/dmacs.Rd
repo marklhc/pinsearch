@@ -13,9 +13,9 @@ dmacs(
 )
 }
 \arguments{
-\item{intercepts}{An \eqn{2 \times p} matrix of measurement intercepts.}
+\item{intercepts}{A \eqn{2 \times p} matrix of measurement intercepts.}
 
-\item{loadings}{An \eqn{2 \times p} matrix of factor loadings, where p
+\item{loadings}{A \eqn{2 \times p} matrix of factor loadings, where p
 is the number of items.}
 
 \item{pooled_item_sd}{A numeric vector of length p of the pooled standard
