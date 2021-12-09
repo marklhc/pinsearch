@@ -1,5 +1,8 @@
-lavaanify_cfa <- function(config_mod, ngroups, group.equal) {
+lavaanify_cfa <- function(config_mod, ngroups, group.equal, varTable,
+                          parameterization = "theta") {
     lavaan::lavaanify(config_mod, meanstructure = TRUE, ngroups = ngroups,
+                      parameterization = parameterization,
+                      varTable = varTable,
                       group.equal = group.equal,
                       std.lv = TRUE, int.ov.free = TRUE, int.lv.free = FALSE,
                       auto.var = TRUE, auto.cov.lv.x = TRUE,
@@ -10,6 +13,7 @@ type2op <- function(type) {
   switch(type,
          loadings = "=~",
          intercepts = "~1",
+         thresholds = "|",
          residuals = "~~",
          residual.covariances = "~~")
 }
@@ -71,7 +75,7 @@ get_invmod <- function(object, type, mod_min, ind_names, pt0) {
     if (type == "loadings") {
         mis_ids <- rownames(mis)[mis$rhs %in% ind_names &
                                      rownames(mis) %in% pt0_eq$id]
-    } else if (type == "intercepts") {
+    } else if (type %in% c("intercepts", "thresholds")) {
         mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
                                      rownames(mis) %in% pt0_eq$id]
     } else if (type == "residuals") {
@@ -90,10 +94,14 @@ get_invmod <- function(object, type, mod_min, ind_names, pt0) {
     pt_mis <- pt_mis[pt_mis$free >= 0, ]
     mis[rownames(pt_mis)[1], ]
 }
-initialize_partable <- function(mod, ngp, ninv_items, group.equal) {
+initialize_partable <- function(mod, ngp, ninv_items, group.equal,
+                                varTable,
+                                parameterization = "theta") {
   pt0 <- lavaanify_cfa(mod,
                        ngroups = ngp,
-                       group.equal = group.equal)
+                       group.equal = group.equal,
+                       parameterization = parameterization,
+                       varTable = varTable)
   ninv_lds <- ninv_items[ninv_items$type == "loadings", ]
   for (j in seq_len(nrow(ninv_lds))) {
       pt0 <- remove_cons(pt0, lhs = ninv_lds$lhs[j], rhs = ninv_lds$rhs[j],
@@ -106,6 +114,11 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal) {
   for (j in seq_len(nrow(ninv_ints))) {
       pt0 <- remove_cons(pt0, lhs = ninv_ints$lhs[j], rhs = ninv_ints$rhs[j],
                          group = ninv_ints$group[j], op = "~1")
+  }
+  ninv_thres <- ninv_items[ninv_items$type == "thresholds", ]
+  for (j in seq_len(nrow(ninv_thres))) {
+      pt0 <- remove_cons(pt0, lhs = ninv_thres$lhs[j], rhs = ninv_thres$rhs[j],
+                         group = ninv_thres$group[j], op = "|")
   }
   ninv_res <- ninv_items[ninv_items$type == "residuals", ]
   for (j in seq_len(nrow(ninv_res))) {
@@ -179,14 +192,18 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal) {
 pinSearch <- function(config_mod,
                       data = NULL,
                       group = NULL,
+                      ordered = NULL,
+                      parameterization = "theta",
                       ...,
-                      type = c("loadings", "intercepts", "residuals",
-                               "residual.covariances"),
+                      type = c("loadings", "intercepts", "thresholds",
+                               "residuals", "residual.covariances"),
                       sig_level = .05,
                       effect_size = FALSE) {
     type <- match.arg(type)
     base_fit <- lavaan::cfa(config_mod, group = group, data = data,
-                            std.lv = TRUE, ...)
+                            ordered = ordered,
+                            parameterization = parameterization,
+                            std.lv = TRUE)
     # stored_fit <- list()
     ngp <- lavaan::lavInspect(base_fit, "ngroups")
     ninv_items <- data.frame(
@@ -198,23 +215,38 @@ pinSearch <- function(config_mod,
     )
     chisq_cv <- stats::qchisq(sig_level, 1, lower.tail = FALSE)
     ind_names <- get_ovnames(base_fit)
-    types <- c("loadings", "intercepts", "residuals", "residual.covariances")
+    if (!is.null(ordered)) {
+        types <- c("loadings", "thresholds", "residual.covariances")
+        # add constraints on unique variances
+        config_mod <- paste(c(config_mod,
+                              paste(ind_names, "~~ 1 *", ind_names)),
+                            collapse = "\n")
+    } else {
+        types <- c("loadings", "intercepts", "residuals",
+                   "residual.covariances")
+    }
     n_type <- which(types == type)  # number of stages
     for (i in seq_len(n_type)) {
         typei <- types[i]
         if (i == 1) {
             new_fit <- lavaan::cfa(config_mod, group = group, data = data,
+                                   ordered = ordered,
+                                   parameterization = parameterization,
                                    std.lv = TRUE,
                                    group.equal = "loadings", ...)
             pt0 <- lavaan::parTable(new_fit)
         } else if (i >= 2) {
             pt0 <- initialize_partable(config_mod, ngp = ngp,
                                        ninv_items = ninv_items,
-                                       group.equal = types[seq_len(i)])
+                                       group.equal = types[seq_len(i)],
+                                       varTable = base_fit@Data@ov,
+                                       parameterization = parameterization)
             new_fit <- lavaan::cfa(
                 pt0,
                 group = group,
                 data = data,
+                ordered = ordered,
+                parameterization = parameterization,
                 group.equal = types[seq_len(i)],
                 std.lv = TRUE,
                 ...
@@ -227,13 +259,14 @@ pinSearch <- function(config_mod,
             base_fit <- new_fit
             next  # skip to next stage
         } else {
-            if (typei == "loadings") {
-                mi_op <- "=~"
-            } else if (typei == "intercepts") {
-                mi_op <- "~1"
-            } else if (typei %in% c("residuals", "residual.covariances")) {
-                mi_op <- "~~"
-            }
+            # if (typei == "loadings") {
+            #     mi_op <- "=~"
+            # } else if (typei == "intercepts") {
+            #     mi_op <- "~1"
+            # } else if (typei %in% c("residuals", "residual.covariances")) {
+            #     mi_op <- "~~"
+            # }
+            mi_op <- type2op(typei)
             largest_mi_row <- get_invmod(new_fit, type = typei,
                                          mod_min = chisq_cv,
                                          ind_names = ind_names)
