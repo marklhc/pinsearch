@@ -330,7 +330,11 @@ pinSearch <- function(config_mod,
     out <- list(`Partial Invariance Fit` = new_fit,
                 `Non-Invariant Items` = ninv_items)
     if (effect_size) {
-        out$dmacs <- dmacs_lavaan(new_fit)
+        if (!is.null(ordered)) {
+            warning("Effect size for ordered items is not yet supported.")
+        } else {
+            out$dmacs <- dmacs_lavaan(new_fit)
+        }
     }
     out
 }
