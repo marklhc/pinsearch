@@ -151,6 +151,10 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal,
 #' @param data A data frame to be passed to \code{\link[lavaan]{cfa}}.
 #' @param group Character indicating the variable name in \code{data} that
 #'   defines the grouping variable in multiple-group CFA.
+#' @param ordered Character vector indicating names of variables to be treated
+#'   as binary or ordinal. IF \code{NULL}, all items are treated as continuous.
+#' @param parameterization Character, either "theta" or "delta". "theta" should
+#'   be used for invariance testing, and is the only method tested.
 #' @param ... Additonal arguments passed to \code{\link[lavaan]{cfa}}.
 #' @param type Character variable indicating the stage of invariance to be
 #'   searched. Currently supported options are "loadings", "intercepts",
@@ -203,7 +207,7 @@ pinSearch <- function(config_mod,
     base_fit <- lavaan::cfa(config_mod, group = group, data = data,
                             ordered = ordered,
                             parameterization = parameterization,
-                            std.lv = TRUE)
+                            std.lv = TRUE, ...)
     # stored_fit <- list()
     ngp <- lavaan::lavInspect(base_fit, "ngroups")
     ninv_items <- data.frame(
@@ -217,13 +221,30 @@ pinSearch <- function(config_mod,
     ind_names <- get_ovnames(base_fit)
     if (!is.null(ordered)) {
         types <- c("loadings", "thresholds", "residual.covariances")
-        # add constraints on unique variances
-        config_mod <- paste(c(config_mod,
-                              paste(ind_names, "~~ 1 *", ind_names)),
-                            collapse = "\n")
+        if (parameterization == "theta") {
+            # add constraints on unique variances
+            config_mod <- paste(c(config_mod,
+                                  paste(ind_names, "~~ 1 *", ind_names)),
+                                collapse = "\n")
+            message("Unique variances are constrained to 1 for identification")
+        }
+        if (parameterization == "delta") {
+            # add constraints on unique variances
+            config_mod <- paste(c(config_mod,
+                                  paste(ind_names, "~*~ 1 *", ind_names)),
+                                collapse = "\n")
+            warning("Delta parameterization has not been tested ",
+                    "and likely results in untrustworthy results.")
+        }
+        if (!type %in% types) {
+            stop("`type = ", type, "` cannot be used with ordered items")
+        }
     } else {
         types <- c("loadings", "intercepts", "residuals",
                    "residual.covariances")
+        if (!type %in% types) {
+            stop("`type = ", type, "` cannot be used with continuous items")
+        }
     }
     n_type <- which(types == type)  # number of stages
     for (i in seq_len(n_type)) {
@@ -251,6 +272,10 @@ pinSearch <- function(config_mod,
                 std.lv = TRUE,
                 ...
             )
+        }
+        if (types[i] == "residual.covariances" &&
+            base_fit@test$standard$df >= new_fit@test$standard$df) {
+            next
         }
         lrt_base_new <- lavaan::lavTestLRT(base_fit, new_fit)
         if ((lrt_base_new[2, "Chisq diff"] == 0 &
@@ -289,6 +314,8 @@ pinSearch <- function(config_mod,
                     pt0,
                     group = group,
                     data = data,
+                    ordered = ordered,
+                    parameterization = parameterization,
                     group.equal = types[seq_len(i)],
                     std.lv = TRUE,
                     ...

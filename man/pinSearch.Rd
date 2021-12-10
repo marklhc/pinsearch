@@ -8,8 +8,10 @@ pinSearch(
   config_mod,
   data = NULL,
   group = NULL,
+  ordered = NULL,
+  parameterization = "theta",
   ...,
-  type = c("loadings", "intercepts", "residuals", "residual.covariances"),
+  type = c("loadings", "intercepts", "thresholds", "residuals", "residual.covariances"),
   sig_level = 0.05,
   effect_size = FALSE
 )
@@ -22,6 +24,12 @@ pinSearch(
 
 \item{group}{Character indicating the variable name in \code{data} that
 defines the grouping variable in multiple-group CFA.}
+
+\item{ordered}{Character vector indicating names of variables to be treated
+as binary or ordinal. IF \code{NULL}, all items are treated as continuous.}
+
+\item{parameterization}{Character, either "theta" or "delta". "theta" should
+be used for invariance testing, and is the only method tested.}
 
 \item{...}{Additonal arguments passed to \code{\link[lavaan]{cfa}}.}
 
