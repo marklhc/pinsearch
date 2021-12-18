@@ -47,3 +47,21 @@ test_that("dmacs_lavaan() works properly for noninvariant data", {
   expect_gt(dmacs_ps3[1, "y1-f"], dmacs_ps3[1, "y2-f"])
   expect_lt(dmacs_ps3[1, "y4-f"], dmacs_ps3[1, "y5-f"])
 })
+
+# Ordered items
+lambda <- rbind(c(1.323, 0.875), c(1.323, 0.875))
+thres <- rbind(c(-2.211, -0.728, 1.468, -0.014, 0.404, 1.438),
+               c(-2.211, -0.728, 1.468, -0.635, 0.404, 1.438))
+colnames(thres) <- rep(1:2, each = 3)
+test_that("dmacs_ordered() computes a sensible number", {
+    d4 <- dmacs_ordered(thres, loadings = lambda, pooled_item_sd = 1)
+    expect_equal(c(d4), c(0, 0.19029), tolerance = 0.0001)
+})
+
+test_that("dmacs_ordered() works for binary items", {
+    thres_bin <- rbind(c(-2.211, 1.438),
+                       c(-2.211, 1.7))
+    colnames(thres_bin) <- c(1, 2)
+    d5 <- dmacs_ordered(thres_bin, loadings = lambda, pooled_item_sd = 1)
+    expect_length(d5, n = 2)
+})
