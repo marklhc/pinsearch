@@ -34,10 +34,11 @@ be used for invariance testing, and is the only method tested.}
 \item{...}{Additonal arguments passed to \code{\link[lavaan]{cfa}}.}
 
 \item{type}{Character variable indicating the stage of invariance to be
-searched. Currently supported options are "loadings", "intercepts",
-"residuals", and "residual.covariances", in an increasingly strict order.
-A stricter model (e.g., "residual.covariances") will have constraints of
-all previous stages.}
+searched. Currently supported options are (a) for continuous indicators,
+"loadings", "intercepts", "residuals", and "residual.covariances", and
+(b) "loadings", "thresholds", "residual.covariances", in an increasingly
+strict order. A stricter model (e.g., "residual.covariances") will have
+constraints of all previous stages.}
 
 \item{sig_level}{Significance level used to determine whether the parameter
 associated with the highest modification index should be removed. Default
