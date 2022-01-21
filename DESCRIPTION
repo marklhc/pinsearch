@@ -1,8 +1,8 @@
 Package: pinsearch
 Type: Package
 Title: Specification search for partial factorial invariance
-Version: 0.1.2.5
-Author: person("Mark", "Lai", email = "marklhc@gmail.com",
+Version: 0.1.2.8
+Authors@R: person("Mark", "Lai", email = "marklhc@gmail.com",
   role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9196-7406"))
 Description: A function to automate specification search for identify 
     noninvariant items in factorial invariance analyses. The package supports
@@ -11,7 +11,6 @@ Description: A function to automate specification search for identify
     with loadings, thresholds, and residual covariances invariance.
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 7.1.2
 Imports: 
     lavaan,
