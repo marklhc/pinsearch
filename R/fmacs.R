@@ -56,7 +56,7 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
             dloading^2 * (latent_sd^2 + latent_mean^2)
     )) / total_obs
     out <- sqrt(integral) / pooled_item_sd
-    matrix(out, nrow = 1, dimnames = list("fmacs", NULL))
+    matrix(out, nrow = 1, dimnames = list("fmacs", colnames(loadings)))
 }
 
 #' @rdname fmacs

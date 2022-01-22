@@ -55,6 +55,7 @@ dmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     #     rownames(out) <- paste(rownames(loadings), collapse = " vs ")
     # }
     rownames(out) <- "dmacs"
+    colnames(out) <- colnames(loadings)
     out
 }
 
@@ -117,9 +118,10 @@ dmacs_ordered <- function(thresholds, loadings,
         )$value
     }
     out <- matrix(sqrt(integrals) / pooled_item_sd, nrow = 1)
-    if (!is.null(rownames(loadings))) {
-        rownames(out) <- paste(rownames(loadings), collapse = " vs ")
-    }
+    # if (!is.null(rownames(loadings))) {
+    #     rownames(out) <- paste(rownames(loadings), collapse = " vs ")
+    # }
+    rownames(out) <- "dmacs"
     colnames(out) <- colnames(loadings)
     out
 }
