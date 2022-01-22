@@ -17,6 +17,7 @@ dmacs_ordered(
   thresholds,
   loadings,
   thetas = 1,
+  link = c("probit", "logit"),
   pooled_item_sd = NULL,
   latent_mean = 0,
   latent_sd = 1
@@ -40,9 +41,11 @@ matrix must have column names indicating to which item index each column
 corresponds.}
 
 \item{thetas}{Not currently used.}
+
+\item{link}{Link function for the model (probit or logit).}
 }
 \value{
-A numeric vector of length p of dMACS effect size.
+A 1 x p matrix of dMACS effect size.
 }
 \description{
 \code{dmacs} returns the dMACS effect size statistics given a set of loadings

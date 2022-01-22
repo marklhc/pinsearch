@@ -21,7 +21,7 @@ nu1 <- seq(-0.5, 0.5, length.out = 5)
 nu2 <- c(nu1[1:3], 0, 0)
 mean1 <- nu1
 
-test_that("dmacs_lavaan() works properly for invariant data", {
+test_that("es_lavaan() works properly for invariant data", {
   cov2 <- tcrossprod(lambda1) * 1.3 + diag(.5, 5)
   dimnames(cov2) <- list(paste0("y", 1:5), paste0("y", 1:5))
   mean2 <- lambda1 * .4 + nu1
@@ -30,10 +30,10 @@ test_that("dmacs_lavaan() works properly for invariant data", {
                  sample.mean = list(mean1, mean2),
                  sample.nobs = c(100, 100),
                  group.equal = c("loadings", "intercepts"))
-  expect_length(dmacs_lavaan(scalar1), 0)
+  expect_length(es_lavaan(scalar1), 0)
 })
 
-test_that("dmacs_lavaan() works properly for noninvariant data", {
+test_that("es_lavaan() works properly for noninvariant data", {
   cov2 <- tcrossprod(lambda2) * 1.3 + diag(.5, 5)
   dimnames(cov2) <- list(paste0("y", 1:5), paste0("y", 1:5))
   mean2 <- lambda2 * .4 + nu2
@@ -42,7 +42,7 @@ test_that("dmacs_lavaan() works properly for noninvariant data", {
                    sample.mean = list(mean1, mean2),
                    sample.nobs = c(10000, 10000),
                    type = "intercepts")
-  dmacs_ps3 <- dmacs_lavaan(ps3$`Partial Invariance Fit`)
+  dmacs_ps3 <- es_lavaan(ps3$`Partial Invariance Fit`)
   expect_length(dmacs_ps3, 4)
   expect_gt(dmacs_ps3[1, "y1-f"], dmacs_ps3[1, "y2-f"])
   expect_lt(dmacs_ps3[1, "y4-f"], dmacs_ps3[1, "y5-f"])

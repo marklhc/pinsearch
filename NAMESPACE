@@ -2,4 +2,6 @@
 
 export(dmacs)
 export(dmacs_ordered)
+export(fmacs)
+export(fmacs_ordered)
 export(pinSearch)

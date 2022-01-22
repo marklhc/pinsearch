@@ -165,8 +165,9 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal,
 #' @param sig_level Significance level used to determine whether the parameter
 #'   associated with the highest modification index should be removed. Default
 #'   is .05.
-#' @param effect_size Logical; whether to compute dmacs effect size or not
-#'   (default). This is an experimental feature.
+#' @param effect_size Logical; whether to compute dmacs (two groups) or
+#'   fmacs (> two groups) effect size or not (default).
+#'   This is an experimental feature.
 #'
 #' @return The sum of \code{x} and \code{y}.
 #' @examples
@@ -331,7 +332,7 @@ pinSearch <- function(config_mod,
     out <- list(`Partial Invariance Fit` = new_fit,
                 `Non-Invariant Items` = ninv_items)
     if (effect_size) {
-        out$dmacs <- dmacs_lavaan(new_fit)
+        out$effect_size <- es_lavaan(new_fit)
     }
     out
 }

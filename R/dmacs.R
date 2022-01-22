@@ -21,7 +21,7 @@
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
 #'
-#' @return A numeric vector of length p of dMACS effect size.
+#' @return A 1 x p matrix of dMACS effect size.
 #' @references Nye, C. & Drasgow, F. (2011). Effect size indices for
 #'   analyses of measurement equivalence: Understanding the practical
 #'   importance of differences between groups.
@@ -51,9 +51,10 @@ dmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     integral <- dintercept^2 + 2 * dintercept * dloading * latent_mean +
         dloading^2 * (latent_sd^2 + latent_mean^2)
     out <- sqrt(integral) / pooled_item_sd
-    if (!is.null(rownames(loadings))) {
-        rownames(out) <- paste(rownames(loadings), collapse = " vs ")
-    }
+    # if (!is.null(rownames(loadings))) {
+    #     rownames(out) <- paste(rownames(loadings), collapse = " vs ")
+    # }
+    rownames(out) <- "dmacs"
     out
 }
 
@@ -61,6 +62,7 @@ dmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
 #' @param thresholds A matrix with two rows for measurement thresholds. The
 #'     matrix must have column names indicating to which item index each column
 #'     corresponds.
+#' @param link Link function for the model (probit or logit).
 #' @param thetas Not currently used.
 #' @examples
 #' # Thresholds
@@ -78,6 +80,7 @@ dmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
 #' @export
 dmacs_ordered <- function(thresholds, loadings,
                           thetas = 1,
+                          link = c("probit", "logit"),
                           pooled_item_sd = NULL,
                           latent_mean = 0, latent_sd = 1) {
     if (ncol(thresholds) < ncol(loadings)) {
@@ -88,13 +91,11 @@ dmacs_ordered <- function(thresholds, loadings,
              " are for which items")
     }
     stopifnot(nrow(thresholds) == 2, nrow(loadings) == 2)
-    # if (ncol(thresholds[[1]]) != ncol(loadings)) {
-    #     stop("number of items do not match for thresholds and loadings")
-    # }
-    expected_item <- function(a, cs, eta, link = "probit") {
+    link <- match.arg(link)
+    expected_item <- function(a, cs, eta, li = link) {
         # Check the parameterization in lavaan
         nc <- length(cs)
-        pfun <- switch(link, logit = stats::plogis, probit = stats::pnorm)
+        pfun <- switch(li, logit = stats::plogis, probit = stats::pnorm)
         probs <- pfun(tcrossprod(rep(a, each = nc), eta) - cs)
         c(colSums(probs))
     }
@@ -193,11 +194,7 @@ var_from_thres <- function(thres) {
     sum(vals^2 * ps) - (sum(vals * ps))^2
 }
 
-dmacs_lavaan <- function(object) {
-    stopifnot(
-        "Currently only support models with two groups" =
-            lavaan::lavInspect(object, what = "ngroups") == 2
-    )
+es_lavaan <- function(object) {
     pt <- lavaan::parTable(object)
     ind_names <- object@pta$vnames$ov.ind[[1]]
     ordered <- length(lavaan::lavInspect(object, "ordered")) > 0
@@ -257,7 +254,12 @@ dmacs_lavaan <- function(object) {
                            }, x = x, FUN.VALUE = numeric(1)
                        ), FUN.VALUE = numeric(length(ninv_ov)))
         pooled_item_sd <- sqrt(pooledvar(vars, ns))
-        dmacs_ordered(
+        if (lavaan::lavInspect(object, what = "ngroups") > 2) {
+            es_fun <- fmacs_ordered
+        } else {
+            es_fun <- dmacs_ordered
+        }
+        es_fun(
             thresholds = thres_mat,
             loadings = loading_mat,
             pooled_item_sd = rep(pooled_item_sd, num_lvs)
@@ -275,7 +277,12 @@ dmacs_lavaan <- function(object) {
             diag(x$cov)[ninv_ov],
             FUN.VALUE = numeric(length(ninv_ov)))
         pooled_item_sd <- sqrt(pooledvar(vars, ns))
-        dmacs(
+        if (lavaan::lavInspect(object, what = "ngroups") > 2) {
+            es_fun <- fmacs
+        } else {
+            es_fun <- dmacs
+        }
+        es_fun(
             intercepts = intercept_mat,
             loadings = loading_mat,
             pooled_item_sd = rep(pooled_item_sd, num_lvs)

@@ -44,8 +44,9 @@ constraints of all previous stages.}
 associated with the highest modification index should be removed. Default
 is .05.}
 
-\item{effect_size}{Logical; whether to compute dmacs effect size or not
-(default). This is an experimental feature.}
+\item{effect_size}{Logical; whether to compute dmacs (two groups) or
+fmacs (> two groups) effect size or not (default).
+This is an experimental feature.}
 }
 \value{
 The sum of \code{x} and \code{y}.
