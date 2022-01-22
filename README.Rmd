@@ -61,6 +61,7 @@ A simulated example with ordinal data
 
 ```{r example-2}
 # Simulate data
+set.seed(2110)
 library(MASS)
 num_obs <- 500
 lambda1 <- seq(.9, .6, length.out = 7)

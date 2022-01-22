@@ -96,11 +96,9 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 #> 1  x3         1 intercepts
 #> 2  x7         1 intercepts
 #> 
-#> $dmacs
-#>                        x3-visual x7-visual x3-textual x7-textual  x3-speed
-#> Pasteur vs Grant-White 0.4824515 0.4161323  0.4824515  0.4161323 0.4824515
-#>                         x7-speed
-#> Pasteur vs Grant-White 0.4161323
+#> $effect_size
+#>       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed
+#> dmacs 0.4824515 0.4161323  0.4824515  0.4161323 0.4824515 0.4161323
 ```
 
 ## Example 2
@@ -109,6 +107,7 @@ A simulated example with ordinal data
 
 ``` r
 # Simulate data
+set.seed(2110)
 library(MASS)
 num_obs <- 500
 lambda1 <- seq(.9, .6, length.out = 7)
@@ -148,7 +147,7 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
           effect_size = TRUE)
 #> Unique variances are constrained to 1 for identification
 #> $`Partial Invariance Fit`
-#> lavaan 0.6-9 ended normally after 43 iterations
+#> lavaan 0.6-9 ended normally after 50 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -161,17 +160,17 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
 #>                                                       
 #> Model Test User Model:
 #>                                               Standard      Robust
-#>   Test Statistic                                21.980      32.588
+#>   Test Statistic                                37.432      59.473
 #>   Degrees of freedom                                50          50
-#>   P-value (Chi-square)                           1.000       0.973
-#>   Scaling correction factor                                  0.605
+#>   P-value (Chi-square)                           0.905       0.169
+#>   Scaling correction factor                                  0.599
 #>   Shift parameter for each group:                                 
-#>       1                                                     -1.875
-#>       2                                                     -1.875
+#>       1                                                     -1.514
+#>       2                                                     -1.514
 #>        simple second-order correction                             
 #>   Test statistic for each group:
-#>     1                                           12.160      18.228
-#>     2                                            9.820      14.360
+#>     1                                           20.066      31.991
+#>     2                                           17.366      27.482
 #> 
 #> $`Non-Invariant Items`
 #>   lhs rhs group       type
@@ -180,7 +179,7 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
 #> 3 yy4  t3     1 thresholds
 #> 4 yy5  t3     1 thresholds
 #> 
-#> $dmacs
-#>            yy2-f    yy4-f     yy5-f     yy7-f
-#> 1 vs 2 0.2446916 0.191393 0.1395843 0.1999788
+#> $effect_size
+#>           yy2-f    yy4-f     yy5-f     yy7-f
+#> dmacs 0.2513605 0.154518 0.1267884 0.2363205
 ```
