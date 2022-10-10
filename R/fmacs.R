@@ -57,7 +57,8 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
                   group_factor = seq_len(nrow(intercepts)),
                   latent_mean = 0, latent_sd = 1) {
     if (!is.null(num_obs)) {
-        weights <- num_obs
+        weights <- matrix(num_obs, nrow = nrow(intercepts),
+                          ncol = ncol(intercepts))
     }
     # total_obs <- colSums(num_obs)
     weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
