@@ -20,10 +20,11 @@
 #' @param intercepts A \eqn{G \times p} matrix of measurement intercepts.
 #' @param pooled_item_sd A numeric vector of length p of the pooled standard
 #'   deviation (SD) of the items across groups.
+#' @param num_obs A vector of length \eqn{G} of sample sizes. If not
+#'   \code{NULL}, the weights will be proportional to sample sizes, assuming
+#'   the same weights across items.
 #' @param weights A \eqn{G \times p} matrix of weights. Default assumes
 #'   equal weights across groups.
-#' @param num_obs A \eqn{G \times p} matrix of sample sizes. If specified, the
-#'   weights will be proportional to sample sizes.
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
 #'
@@ -51,8 +52,8 @@
 fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
                   # Allow weighted vs. unweighted options
                   # Accept character and matrix input?
-                  weights = 0 * intercepts + 1,
                   num_obs = NULL,
+                  weights = 0 * intercepts + 1,
                   group_factor = seq_len(nrow(intercepts)),
                   latent_mean = 0, latent_sd = 1) {
     if (!is.null(num_obs)) {
