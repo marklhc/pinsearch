@@ -11,7 +11,7 @@ Description: A function to automate specification search for identify
     with loadings, thresholds, and residual covariances invariance.
 License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Imports: 
     lavaan,
     stats

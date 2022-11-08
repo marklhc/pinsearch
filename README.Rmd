@@ -33,8 +33,8 @@ The goal of pinsearch is to automate the process of performing specification sea
 You can install the development version of pinsearch from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("marklhc/pinsearch")
+# install.packages("remotes")
+remotes::install_github("marklhc/pinsearch")
 ```
 ## Example
 

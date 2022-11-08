@@ -9,7 +9,9 @@ fmacs(
   intercepts,
   loadings = NULL,
   pooled_item_sd,
-  num_obs = 0 * intercepts + 1,
+  num_obs = NULL,
+  weights = 0 * intercepts + 1,
+  group_factor = seq_len(nrow(intercepts)),
   latent_mean = 0,
   latent_sd = 1
 )
@@ -18,7 +20,9 @@ fmacs_ordered(
   thresholds,
   loadings,
   thetas = 1,
-  num_obs = 0 * loadings + 1,
+  num_obs = NULL,
+  weights = 0 * loadings + 1,
+  group_factor = seq_len(nrow(loadings)),
   link = c("probit", "logit"),
   pooled_item_sd = NULL,
   latent_mean = 0,
@@ -34,8 +38,12 @@ is the number of items and G is the number of groups.}
 \item{pooled_item_sd}{A numeric vector of length p of the pooled standard
 deviation (SD) of the items across groups.}
 
-\item{num_obs}{A \eqn{G \times p} matrix of sample sizes. Default assumes
-sample sizes are equal across groups.}
+\item{num_obs}{A vector of length \eqn{G} of sample sizes. If not
+\code{NULL}, the weights will be proportional to sample sizes, assuming
+the same weights across items.}
+
+\item{weights}{A \eqn{G \times p} matrix of weights. Default assumes
+equal weights across groups.}
 
 \item{latent_mean}{latent factor mean for the reference group. Default to 0.}
 
@@ -81,6 +89,13 @@ fmacs(lambda,
       pooled_item_sd = c(1, 1, 1, 1),
       latent_mean = 0,
       latent_sd = 1)
+# With contrast (Group 1 & 2 vs. Group 3)
+fmacs(lambda,
+      loadings = nu,
+      pooled_item_sd = c(1, 1, 1, 1),
+      group_factor = c(1, 1, 2),
+      latent_mean = 0,
+      latent_sd = 1)
 # Thresholds
 lambda <- rbind(c(.8, .5, .7, .5),
                 c(.8, .5, .4, .6),
@@ -93,6 +108,13 @@ colnames(tau) <- c(1, 1, 1, 2, 2, 2, 3, 4)
 fmacs_ordered(tau,
               loadings = lambda,
               pooled_item_sd = c(1, 1, 1, 1),
+              latent_mean = 0,
+              latent_sd = 1)
+# With contrast (Group 1 & 2 vs. Group 3)
+fmacs_ordered(tau,
+              loadings = lambda,
+              pooled_item_sd = c(1, 1, 1, 1),
+              group_factor = c(1, 2, 1),
               latent_mean = 0,
               latent_sd = 1)
 }
