@@ -65,3 +65,8 @@ test_that("dmacs_ordered() works for binary items", {
     d5 <- dmacs_ordered(thres_bin, loadings = lambda, pooled_item_sd = 1)
     expect_length(d5, n = 2)
 })
+
+test_that("Error without 'pooled_sd' argument", {
+    expect_error(dmacs(rbind(c(0.3, 0.8), c(0.5, 1))))
+    # Can compute for ordered . . .
+})

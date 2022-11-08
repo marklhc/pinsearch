@@ -116,10 +116,19 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
 #'               pooled_item_sd = c(1, 1, 1, 1),
 #'               latent_mean = 0,
 #'               latent_sd = 1)
+#' # With contrast (Group 1 & 2 vs. Group 3)
+#' fmacs_ordered(tau,
+#'               loadings = lambda,
+#'               pooled_item_sd = c(1, 1, 1, 1),
+#'               group_factor = c(1, 2, 1),
+#'               latent_mean = 0,
+#'               latent_sd = 1)
 #' @export
 fmacs_ordered <- function(thresholds, loadings,
                           thetas = 1,
-                          num_obs = 0 * loadings + 1,
+                          num_obs = NULL,
+                          weights = 0 * loadings + 1,
+                          group_factor = seq_len(nrow(loadings)),
                           link = c("probit", "logit"),
                           pooled_item_sd = NULL,
                           latent_mean = 0, latent_sd = 1) {
@@ -129,6 +138,10 @@ fmacs_ordered <- function(thresholds, loadings,
     if (is.null(colnames(thresholds))) {
         stop("thresholds should have column names to indicate which thresholds",
              " are for which items")
+    }
+    if (!is.null(num_obs)) {
+        weights <- matrix(num_obs, nrow = nrow(thresholds),
+                          ncol = ncol(thresholds))
     }
     link <- match.arg(link)
     expected_item <- function(a, cs, eta, li = link) {
@@ -142,7 +155,10 @@ fmacs_ordered <- function(thresholds, loadings,
     thres_list <- split(seq_len(ncol(thresholds)),
                         as.numeric(colnames(thresholds)))
     integrals <- rep(NA, length(thres_list))
-    total_obs <- colSums(num_obs)
+    weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
+    # ww <- apply(weights, 2, function(v, g = group_factor) {
+    #     ave(v, g, FUN = function(x) x / sum(x))
+    # })
     for (j in seq_along(integrals)) {
         integrals[j] <- stats::integrate(
             function(x) {
@@ -151,11 +167,19 @@ fmacs_ordered <- function(thresholds, loadings,
                     expected_item(loadings[i, j], cs = th[i, ], eta = x)
                 })
                 exp_y <- do.call(rbind, exp_y)
-                mean_exp_y <- crossprod(num_obs[, j], exp_y) / total_obs[j]
-                crossprod(num_obs[, j],
-                          sweep(exp_y, MARGIN = 2, STATS = mean_exp_y) ^ 2) /
-                    total_obs[j] *
-                    stats::dnorm(x, mean = latent_mean, sd = latent_sd)
+                # mean_exp_y <- crossprod(num_obs[, j], exp_y) / total_obs[j]
+                mean_exp_y <- crossprod(weights[, j], exp_y)
+                ww <- ave(weights[, j], group_factor,
+                          FUN = function(x) x / sum(x))
+                group_exp_y <-
+                    apply(ww * exp_y, 2, function(v, g = group_factor) {
+                        ave(v, g, FUN = sum)
+                    })
+                crossprod(
+                    weights[, j],
+                    sweep(group_exp_y, MARGIN = 2, STATS = mean_exp_y) ^ 2) *
+                    stats::dnorm(x, mean = latent_mean, sd = latent_sd
+                    )
             },
             lower = -Inf, upper = Inf
         )$value
