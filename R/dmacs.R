@@ -189,8 +189,8 @@ pooledvar <- function(vars, ns) {
     apply(vars, MARGIN = 1, stats::weighted.mean, w = ns - 1)
 }
 
-var_from_thres <- function(thres) {
-    cum_ps <- stats::pnorm(thres)
+var_from_thres <- function(thres, mean = 0, sd = 1) {
+    cum_ps <- stats::pnorm(thres, mean = mean, sd = sd)
     ps <- diff(c(0, cum_ps, 1))
     vals <- seq_len(length(thres) + 1) - 1
     sum(vals^2 * ps) - (sum(vals * ps))^2
@@ -214,7 +214,9 @@ es_lavaan <- function(object) {
     ninv_par <-
         pt_par$plabel[pt_par$plabel %in% ninv_par & pt_par$free != 0]
     plabel <- NULL
-    ninv_ov <- unique(unlist(pt_par[pt_par$plabel %in% ninv_par, c("lhs", "rhs")]))
+    ninv_ov <- unique(unlist(
+        pt_par[pt_par$plabel %in% ninv_par, c("lhs", "rhs")]
+    ))
     ninv_ov <- intersect(ninv_ov, ind_names)
     pars <- lavaan::lavInspect(object, what = "est")
     num_lvs <- length(object@pta$vnames$lv[[1]])
@@ -264,6 +266,8 @@ es_lavaan <- function(object) {
         es_fun(
             thresholds = thres_mat,
             loadings = loading_mat,
+            latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
+            latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
             pooled_item_sd = rep(pooled_item_sd, num_lvs)
         )
     } else {
