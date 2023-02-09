@@ -196,28 +196,39 @@ var_from_thres <- function(thres, mean = 0, sd = 1) {
     sum(vals^2 * ps) - (sum(vals * ps))^2
 }
 
+check_inv <- function(ind, par_type, pt) {
+    pt_par <- getpt(pt, type = par_type, ind_names = ind)
+    sum(pt$lhs %in% pt_par$plabel & pt$rhs %in% pt_par$plabel &
+            pt$op == "==") >= nrow(pt_par) - length(par_type) -
+        sum(pt_par$free == 0)
+}
+
 es_lavaan <- function(object) {
     pt <- lavaan::parTable(object)
     ind_names <- object@pta$vnames$ov.ind[[1]]
     ordered <- length(lavaan::lavInspect(object, "ordered")) > 0
     if (ordered) {
-        par_type <- c("load", "thres")
+        par_type <- c("load", "thres", "uniq")
     } else {
         par_type <- c("load", "int")
     }
-    pt_par <- getpt(pt, type = par_type, ind_names = ind_names)
-    pt_eq <- getpt(pt, type = "equality", ind_names = ind_names)
-    ninv_par <-
-        setdiff(pt_par$plabel, unique(c(pt_eq$lhs, pt_eq$rhs)))
-    # Remove pairs of values that are not free
-    free <- NULL
-    ninv_par <-
-        pt_par$plabel[pt_par$plabel %in% ninv_par & pt_par$free != 0]
-    plabel <- NULL
-    ninv_ov <- unique(unlist(
-        pt_par[pt_par$plabel %in% ninv_par, c("lhs", "rhs")]
-    ))
-    ninv_ov <- intersect(ninv_ov, ind_names)
+    inv_ind <- vapply(ind_names, FUN = check_inv,
+                      FUN.VALUE = logical(1),
+                      par_type = par_type, pt = pt)
+    ninv_ov <- ind_names[which(!inv_ind)]
+    # pt_par <- getpt(pt, type = par_type, ind_names = ind_names)
+    # pt_eq <- getpt(pt, type = "equality", ind_names = ind_names)
+    # ninv_par <-
+    #     setdiff(pt_par$plabel, unique(c(pt_eq$lhs, pt_eq$rhs)))
+    # # Remove pairs of values that are not free
+    # free <- NULL
+    # ninv_par <-
+    #     pt_par$plabel[pt_par$plabel %in% ninv_par & pt_par$free != 0]
+    # plabel <- NULL
+    # ninv_ov <- unique(unlist(
+    #     pt_par[pt_par$plabel %in% ninv_par, c("lhs", "rhs")]
+    # ))
+    # ninv_ov <- intersect(ninv_ov, ind_names)
     pars <- lavaan::lavInspect(object, what = "est")
     num_lvs <- length(object@pta$vnames$lv[[1]])
     loading_mat <- lapply(
