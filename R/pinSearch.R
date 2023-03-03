@@ -92,7 +92,8 @@ get_invmod <- function(object, type, mod_min, ind_names, pt0) {
     pt_mis <- pt0_eq[match(mis_ids, pt0_eq$id), ]
     # Only parameters that are free
     pt_mis <- pt_mis[pt_mis$free >= 0, ]
-    mis[rownames(pt_mis)[1], ]
+    list(misrow = mis[rownames(pt_mis)[1], ],
+         nmod = nrow(pt_mis))
 }
 initialize_partable <- function(mod, ngp, ninv_items, group.equal,
                                 varTable,
@@ -168,8 +169,13 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal,
 #' @param effect_size Logical; whether to compute dmacs (two groups) or
 #'   fmacs (> two groups) effect size or not (default).
 #'   This is an experimental feature.
+#' @param progress Logical; an experimental feature of showing a progress bar
+#'   if \code{TRUE}. Because the number of steps is unknown until the stopping
+#'   criteria are reached, the progress bar may be inaccurate.
 #'
 #' @return The sum of \code{x} and \code{y}.
+#'
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #' @examples
 #' library(lavaan)
 #' library(MASS)
@@ -204,7 +210,8 @@ pinSearch <- function(config_mod,
                       type = c("loadings", "intercepts", "thresholds",
                                "residuals", "residual.covariances"),
                       sig_level = .05,
-                      effect_size = FALSE) {
+                      effect_size = FALSE,
+                      progress = FALSE) {
     type <- match.arg(type)
     base_fit <- lavaan::cfa(config_mod, group = group, data = data,
                             ordered = ordered,
@@ -251,6 +258,7 @@ pinSearch <- function(config_mod,
     n_type <- which(types == type)  # number of stages
     for (i in seq_len(n_type)) {
         typei <- types[i]
+        if (progress) message("\nSearching for ", typei, " noninvariance\n")
         if (i == 1) {
             new_fit <- lavaan::cfa(config_mod, group = group, data = data,
                                    ordered = ordered,
@@ -294,9 +302,15 @@ pinSearch <- function(config_mod,
             #     mi_op <- "~~"
             # }
             mi_op <- type2op(typei)
-            largest_mi_row <- get_invmod(new_fit, type = typei,
-                                         mod_min = chisq_cv,
-                                         ind_names = ind_names)
+            current_mod <- get_invmod(new_fit, type = typei,
+                                      mod_min = chisq_cv,
+                                      ind_names = ind_names)
+            largest_mi_row <- current_mod$misrow
+            if (progress) {
+                total_mod <- remain_mod <- current_mod$nmod
+                pb <- txtProgressBar(min = 0, max = total_mod, style = 3)
+                pb_count <- 0
+            }
             while (!is.null(largest_mi_row)) {
                 mi_gp <- largest_mi_row$group
                 mi_lhs <- largest_mi_row$lhs
@@ -310,6 +324,10 @@ pinSearch <- function(config_mod,
                                         group = mi_gp,
                                         type = typei
                                     ))
+                if (progress) {
+                    pb_count <- max(total_mod - remain_mod + 1, pb_count + 1)
+                    setTxtProgressBar(pb, pb_count)
+                }
                 # new_fit <- lavaan::update(new_fit, model = pt0,
                 #                           group.equal = types[seq_len(i)])
                 new_fit <- lavaan::cfa(
@@ -322,13 +340,16 @@ pinSearch <- function(config_mod,
                     std.lv = TRUE,
                     ...
                 )
-                largest_mi_row <- get_invmod(new_fit, type = typei,
-                                             mod_min = chisq_cv,
-                                             ind_names = ind_names)
+                current_mod <- get_invmod(new_fit, type = typei,
+                                          mod_min = chisq_cv,
+                                          ind_names = ind_names)
+                largest_mi_row <- current_mod$misrow
+                remain_mod <- current_mod$nmod
             }
             base_fit <- new_fit
         }
     }
+    if (progress) close(pb)
     out <- list(`Partial Invariance Fit` = new_fit,
                 `Non-Invariant Items` = ninv_items)
     if (effect_size) {

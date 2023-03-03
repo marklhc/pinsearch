@@ -13,7 +13,8 @@ pinSearch(
   ...,
   type = c("loadings", "intercepts", "thresholds", "residuals", "residual.covariances"),
   sig_level = 0.05,
-  effect_size = FALSE
+  effect_size = FALSE,
+  progress = FALSE
 )
 }
 \arguments{
@@ -47,6 +48,10 @@ is .05.}
 \item{effect_size}{Logical; whether to compute dmacs (two groups) or
 fmacs (> two groups) effect size or not (default).
 This is an experimental feature.}
+
+\item{progress}{Logical; an experimental feature of showing a progress bar
+if \code{TRUE}. Because the number of steps is unknown until the stopping
+criteria are reached, the progress bar may be inaccurate.}
 }
 \value{
 The sum of \code{x} and \code{y}.
