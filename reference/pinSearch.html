@@ -57,7 +57,8 @@
 <span>  <span class="va">...</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span>, <span class="st">"thresholds"</span>, <span class="st">"residuals"</span>, <span class="st">"residual.covariances"</span><span class="op">)</span>,</span>
 <span>  sig_level <span class="op">=</span> <span class="fl">0.05</span>,</span>
-<span>  effect_size <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  effect_size <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -111,6 +112,12 @@ is .05.</p></dd>
 fmacs (&gt; two groups) effect size or not (default).
 This is an experimental feature.</p></dd>
 
+
+<dt>progress</dt>
+<dd><p>Logical; an experimental feature of showing a progress bar
+if <code>TRUE</code>. Because the number of steps is unknown until the stopping
+criteria are reached, the progress bar may be inaccurate.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -122,7 +129,7 @@ This is an experimental feature.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> This is lavaan 0.6-13</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> This is lavaan 0.6-14</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> lavaan is FREE software! Please report any bugs.</span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.stats.ox.ac.uk/pub/MASS4/" class="external-link">MASS</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Simulate random data</span></span></span>
@@ -147,7 +154,7 @@ This is an experimental feature.</p></dd>
 <span class="r-in"><span><span class="fu">pinSearch</span><span class="op">(</span><span class="va">sam_config</span>, data <span class="op">=</span> <span class="va">dat_sim</span>, group <span class="op">=</span> <span class="st">"group"</span>,</span></span>
 <span class="r-in"><span>          type <span class="op">=</span> <span class="st">"intercepts"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`Partial Invariance Fit`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lavaan 0.6.13 ended normally after 58 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lavaan 0.6.14 ended normally after 58 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                         ML</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
