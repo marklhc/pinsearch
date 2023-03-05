@@ -210,6 +210,7 @@ pinSearch <- function(config_mod,
                       type = c("loadings", "intercepts", "thresholds",
                                "residuals", "residual.covariances"),
                       sig_level = .05,
+                      control_fdr = FALSE,
                       effect_size = FALSE,
                       progress = FALSE) {
     type <- match.arg(type)
@@ -226,7 +227,6 @@ pinSearch <- function(config_mod,
         type = character(),
         stringsAsFactors = FALSE
     )
-    chisq_cv <- stats::qchisq(sig_level, 1, lower.tail = FALSE)
     ind_names <- get_ovnames(base_fit)
     if (!is.null(ordered)) {
         types <- c("loadings", "thresholds", "residual.covariances")
@@ -289,8 +289,9 @@ pinSearch <- function(config_mod,
             next
         }
         lrt_base_new <- lavaan::lavTestLRT(base_fit, new_fit)
+        df_diff <- lrt_base_new[2, "Df diff"]
         if ((lrt_base_new[2, "Chisq diff"] == 0 &
-             lrt_base_new[2, "Df diff"] == 0) ||
+             df_diff == 0) ||
             lrt_base_new[2, "Pr(>Chisq)"] >= sig_level) {
             base_fit <- new_fit
             next  # skip to next stage
@@ -303,8 +304,14 @@ pinSearch <- function(config_mod,
             #     mi_op <- "~~"
             # }
             mi_op <- type2op(typei)
+            if (!control_fdr) {
+                p_enter <- sig_level
+            } else {
+                p_enter <- sig_level / (df_diff + 1 - (1 - sig_level))
+            }
+            min_mod <- stats::qchisq(p_enter, 1, lower.tail = FALSE)
             current_mod <- get_invmod(new_fit, type = typei,
-                                      mod_min = chisq_cv,
+                                      mod_min = min_mod,
                                       ind_names = ind_names)
             largest_mi_row <- current_mod$misrow
             if (progress) {
@@ -312,6 +319,7 @@ pinSearch <- function(config_mod,
                 pb <- txtProgressBar(min = 0, max = total_mod, style = 3)
                 pb_count <- 0
             }
+            num_free <- 1
             while (!is.null(largest_mi_row)) {
                 mi_gp <- largest_mi_row$group
                 mi_lhs <- largest_mi_row$lhs
@@ -341,8 +349,14 @@ pinSearch <- function(config_mod,
                     std.lv = TRUE,
                     ...
                 )
+                if (control_fdr) {
+                    num_free <- num_free + 1
+                    p_enter <- num_free * sig_level /
+                        (df_diff + 1 - num_free * (1 - sig_level))
+                    min_mod <- stats::qchisq(p_enter, 1, lower.tail = FALSE)
+                }
                 current_mod <- get_invmod(new_fit, type = typei,
-                                          mod_min = chisq_cv,
+                                          mod_min = min_mod,
                                           ind_names = ind_names)
                 largest_mi_row <- current_mod$misrow
                 remain_mod <- current_mod$nmod
