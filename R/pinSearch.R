@@ -258,7 +258,8 @@ pinSearch <- function(config_mod,
     n_type <- which(types == type)  # number of stages
     for (i in seq_len(n_type)) {
         typei <- types[i]
-        if (progress) message("\nSearching for ", typei, " noninvariance\n")
+        if (progress) message("\n[", i, "/", n_type, "] Searching for ",
+                              typei, " noninvariance\n")
         if (i == 1) {
             new_fit <- lavaan::cfa(config_mod, group = group, data = data,
                                    ordered = ordered,
