@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # pinsearch
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/marklhc/pinsearch/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/marklhc/pinsearch/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of pinsearch is to automate the process of performing specification search in identifying noninvariant items to arrive at a partial factorial invariance model. 
@@ -33,8 +34,8 @@ The goal of pinsearch is to automate the process of performing specification sea
 You can install the development version of pinsearch from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("marklhc/pinsearch")
+# install.packages("remotes")
+remotes::install_github("marklhc/pinsearch")
 ```
 ## Example
 
