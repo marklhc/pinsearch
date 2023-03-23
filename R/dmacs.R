@@ -198,8 +198,11 @@ var_from_thres <- function(thres, mean = 0, sd = 1) {
 
 check_inv <- function(ind, par_type, pt) {
     pt_par <- getpt(pt, type = par_type, ind_names = ind)
+    npar_uniq <- nrow(unique(
+        pt_par[pt_par$free != 0, c("lhs", "op", "rhs")]
+    ))
     sum(pt$lhs %in% pt_par$plabel & pt$rhs %in% pt_par$plabel &
-            pt$op == "==") >= nrow(pt_par) - length(par_type) -
+            pt$op == "==") >= nrow(pt_par) - npar_uniq -
         sum(pt_par$free == 0)
 }
 
@@ -271,16 +274,23 @@ es_lavaan <- function(object) {
         pooled_item_sd <- sqrt(pooledvar(vars, ns))
         if (lavaan::lavInspect(object, what = "ngroups") > 2) {
             es_fun <- fmacs_ordered
+            fmacs_ordered(
+                thresholds = thres_mat,
+                loadings = loading_mat,
+                latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
+                latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
+                pooled_item_sd = rep(pooled_item_sd, num_lvs),
+                num_obs = ns
+            )
         } else {
-            es_fun <- dmacs_ordered
+            dmacs_ordered(
+                thresholds = thres_mat,
+                loadings = loading_mat,
+                latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
+                latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
+                pooled_item_sd = rep(pooled_item_sd, num_lvs)
+            )
         }
-        es_fun(
-            thresholds = thres_mat,
-            loadings = loading_mat,
-            latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
-            latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
-            pooled_item_sd = rep(pooled_item_sd, num_lvs)
-        )
     } else {
         intercept_mat <- lapply(
             pars,
