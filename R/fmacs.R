@@ -63,14 +63,14 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     # total_obs <- colSums(num_obs)
     weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
     ww <- apply(weights, 2, function(v, g = group_factor) {
-        ave(v, g, FUN = function(x) x / sum(x))
+        stats::ave(v, g, FUN = function(x) x / sum(x))
     })
     if (!is.null(loadings)) {
         # mean_loading <- colSums(num_obs * loadings) / total_obs
         mean_loading <- colSums(weights * loadings)
         group_loadings <-
             apply(ww * loadings, 2, function(v, g = group_factor) {
-                ave(v, g, FUN = sum)
+                stats::ave(v, g, FUN = sum)
             })
         dloadings <- sweep(group_loadings, MARGIN = 2, STATS = mean_loading)
     } else {
@@ -80,7 +80,7 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     mean_intercept <- colSums(weights * intercepts)
     group_intercepts <-
         apply(ww * intercepts, 2, function(v, g = group_factor) {
-            ave(v, g, FUN = sum)
+            stats::ave(v, g, FUN = sum)
         })
     dintercepts <- sweep(group_intercepts, MARGIN = 2, STATS = mean_intercept)
     # integral <- colSums(num_obs * (
@@ -169,11 +169,11 @@ fmacs_ordered <- function(thresholds, loadings,
                 exp_y <- do.call(rbind, exp_y)
                 # mean_exp_y <- crossprod(num_obs[, j], exp_y) / total_obs[j]
                 mean_exp_y <- crossprod(weights[, j], exp_y)
-                ww <- ave(weights[, j], group_factor,
-                          FUN = function(x) x / sum(x))
+                ww <- stats::ave(weights[, j], group_factor,
+                                 FUN = function(x) x / sum(x))
                 group_exp_y <-
                     apply(ww * exp_y, 2, function(v, g = group_factor) {
-                        ave(v, g, FUN = sum)
+                        stats::ave(v, g, FUN = sum)
                     })
                 crossprod(
                     weights[, j],

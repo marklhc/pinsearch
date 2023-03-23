@@ -256,9 +256,9 @@ es_lavaan <- function(object) {
             }
         )
         thres_mat <- do.call(rbind, thres_mat)
-        thres_names <- unlist(
-            lapply(colnames(thres_mat), FUN = grep, x = ninv_ov)
-        )
+        thres_names <- match(gsub("\\|t.*$", replacement = "",
+                                  x = colnames(thres_mat)),
+                             table = ninv_ov)
         thres_mat <- t(rep(1, num_lvs)) %x% thres_mat
         colnames(thres_mat) <- t(rep(1, num_lvs)) %x% thres_names
         vars <- vapply(sampstat,
