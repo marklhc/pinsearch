@@ -273,24 +273,17 @@ es_lavaan <- function(object) {
                        ), FUN.VALUE = numeric(length(ninv_ov)))
         pooled_item_sd <- sqrt(pooledvar(vars, ns))
         if (lavaan::lavInspect(object, what = "ngroups") > 2) {
-            es_fun <- fmacs_ordered
-            fmacs_ordered(
-                thresholds = thres_mat,
-                loadings = loading_mat,
-                latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
-                latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
-                pooled_item_sd = rep(pooled_item_sd, num_lvs),
-                num_obs = ns
-            )
+            es_fun <- function(...) fmacs_ordered(..., num_obs = ns)
         } else {
-            dmacs_ordered(
-                thresholds = thres_mat,
-                loadings = loading_mat,
-                latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
-                latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
-                pooled_item_sd = rep(pooled_item_sd, num_lvs)
-            )
+            es_fun <- dmacs_ordered
         }
+        es_fun(
+            thresholds = thres_mat,
+            loadings = loading_mat,
+            latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
+            latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
+            pooled_item_sd = rep(pooled_item_sd, num_lvs)
+        )
     } else {
         intercept_mat <- lapply(
             pars,
@@ -305,7 +298,7 @@ es_lavaan <- function(object) {
             FUN.VALUE = numeric(length(ninv_ov)))
         pooled_item_sd <- sqrt(pooledvar(vars, ns))
         if (lavaan::lavInspect(object, what = "ngroups") > 2) {
-            es_fun <- fmacs
+            es_fun <- function(...) fmacs(..., num_obs = ns)
         } else {
             es_fun <- dmacs
         }
