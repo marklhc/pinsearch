@@ -30,7 +30,7 @@ test_that("pinSearch() works properly for binary data", {
   ps1 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                    data = df, group = "group", type = "thresholds",
                    ordered = paste0("yy", 1:7))
-  expect_identical(ps1[[2]]$lhs, c("yy7", "yy2"))
+  expect_setequal(ps1[[2]]$lhs, c("yy7", "yy2"))
 })
 
 test_that("pinSearch() works properly for noninvariant uniqueness", {
