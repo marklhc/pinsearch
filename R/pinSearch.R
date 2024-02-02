@@ -60,14 +60,14 @@ remove_cons <- function(object, lhs, rhs, group, op) {
     }
     pt_new
 }
-get_invmod <- function(object, type, mod_min, ind_names, pt0) {
+get_invmod <- function(object, type, alpha = .05, ind_names, pt0) {
     if (missing(pt0)) pt0 <- lavaan::parTable(object)
     op <- type2op(type)
     pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0, ]
     mis <- lavaan::modindices(
         object,
         op = op,
-        minimum.value = mod_min,
+        minimum.value = stats::qchisq(alpha, 1, lower.tail = FALSE),
         sort. = TRUE,
         free.remove = FALSE
     )
@@ -92,9 +92,27 @@ get_invmod <- function(object, type, mod_min, ind_names, pt0) {
     pt_mis <- pt0_eq[match(mis_ids, pt0_eq$id), ]
     # Only parameters that are free
     pt_mis <- pt_mis[pt_mis$free >= 0, ]
-    list(misrow = mis[rownames(pt_mis)[1], ],
-         nmod = nrow(pt_mis))
+    out <- mis[rownames(pt_mis)[1], ]
+    attr(out, "size") <- nrow(pt_mis)
+    out
 }
+
+get_invscore <- function(object, type, alpha = .05, ind_names, pt0, ...) {
+    if (missing(pt0)) pt0 <- lavaan::parTable(object)
+    op <- type2op(type)
+    pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0 & pt0$op == op, ]
+    # Find relevant constraints
+    pt0_cons <- pt0[pt0$op == "==", ]
+    cons_to_test <- which(pt0_cons$lhs %in% pt0_eq$plabel |
+        pt0_cons$rhs %in% pt0_eq$plabel)
+    mis <- lavaan::lavTestScore(object, release = cons_to_test, ...)
+    cons_to_free <- mis$uni[which.max(mis$uni$X2), ]
+    if (cons_to_free$p.value > alpha) return(NULL)
+    out <- pt0_eq[which(pt0_eq$plabel == cons_to_free$rhs), ]
+    attr(out, "size") <- sum(mis$uni$p.value < alpha)
+    out
+}
+
 initialize_partable <- function(mod, ngp, ninv_items, group.equal,
                                 varTable,
                                 parameterization = "theta") {
@@ -145,6 +163,11 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal,
   pt0
 }
 
+fdr_alpha <- function(i, m, q = .05) {
+    # Based on Benjamini & Gavrilov (2009)
+    i * q / (m + 1 - i * (1 - q))
+}
+
 #' Search for invariant loadings/intercepts.
 #'
 #' @param config_mod Syntax of a configural invariance model to be passed to
@@ -163,9 +186,16 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal,
 #'   (b) "loadings", "thresholds", "residual.covariances", in an increasingly
 #'   strict order. A stricter model (e.g., "residual.covariances") will have
 #'   constraints of all previous stages.
+#' @param test Character variable indicating the statistical test to be used
+#'   for specification search. Currently supported options are `"mod"` for
+#'   modification index using `lavaan::modindices()` and `"score"` for score
+#'   test statistic using `lavaan::lavTestScore()`.
 #' @param sig_level Significance level used to determine whether the parameter
 #'   associated with the highest modification index should be removed. Default
 #'   is .05.
+#' @param control_fdr Logical; whether to use adjust for false discovery rate
+#'   for multiple testing. If `TRUE`, the method by Benjamini & Gavrilov (2009)
+#'   will be used.
 #' @param effect_size Logical; whether to compute dmacs (two groups) or
 #'   fmacs (> two groups) effect size or not (default).
 #'   This is an experimental feature.
@@ -209,11 +239,13 @@ pinSearch <- function(config_mod,
                       ...,
                       type = c("loadings", "intercepts", "thresholds",
                                "residuals", "residual.covariances"),
+                      test = c("mod", "score"),
                       sig_level = .05,
                       control_fdr = FALSE,
                       effect_size = FALSE,
                       progress = FALSE) {
     type <- match.arg(type)
+    test <- match.arg(test)
     base_fit <- lavaan::cfa(config_mod, group = group, data = data,
                             ordered = ordered,
                             parameterization = parameterization,
@@ -256,16 +288,22 @@ pinSearch <- function(config_mod,
         }
     }
     n_type <- which(types == type)  # number of stages
+    fit_cfa <- function(mod, eq, ...) {
+        lavaan::cfa(mod,
+            group = group, data = data,
+            ordered = ordered,
+            parameterization = parameterization,
+            std.lv = TRUE,
+            group.equal = eq, ...
+        )
+    }
+    fn_get_inv <- switch(test, mod = get_invmod, score = get_invscore)
     for (i in seq_len(n_type)) {
         typei <- types[i]
         if (progress) message("\n[", i, "/", n_type, "] Searching for ",
                               typei, " noninvariance\n")
         if (i == 1) {
-            new_fit <- lavaan::cfa(config_mod, group = group, data = data,
-                                   ordered = ordered,
-                                   parameterization = parameterization,
-                                   std.lv = TRUE,
-                                   group.equal = "loadings", ...)
+            new_fit <- fit_cfa(config_mod, eq = "loadings", ...)
             pt0 <- lavaan::parTable(new_fit)
         } else if (i >= 2) {
             pt0 <- initialize_partable(config_mod, ngp = ngp,
@@ -273,16 +311,7 @@ pinSearch <- function(config_mod,
                                        group.equal = types[seq_len(i)],
                                        varTable = base_fit@Data@ov,
                                        parameterization = parameterization)
-            new_fit <- lavaan::cfa(
-                pt0,
-                group = group,
-                data = data,
-                ordered = ordered,
-                parameterization = parameterization,
-                group.equal = types[seq_len(i)],
-                std.lv = TRUE,
-                ...
-            )
+            new_fit <- fit_cfa(pt0, eq = types[seq_len(i)], ...)
         }
         if (types[i] == "residual.covariances" &&
             base_fit@test$standard$df >= new_fit@test$standard$df) {
@@ -290,7 +319,7 @@ pinSearch <- function(config_mod,
         }
         lrt_base_new <- lavaan::lavTestLRT(base_fit, new_fit)
         df_diff <- lrt_base_new[2, "Df diff"]
-        if ((lrt_base_new[2, "Chisq diff"] == 0 &
+        if ((lrt_base_new[2, "Chisq diff"] == 0 &&
              df_diff == 0) ||
             lrt_base_new[2, "Pr(>Chisq)"] >= sig_level) {
             base_fit <- new_fit
@@ -303,34 +332,32 @@ pinSearch <- function(config_mod,
             # } else if (typei %in% c("residuals", "residual.covariances")) {
             #     mi_op <- "~~"
             # }
-            mi_op <- type2op(typei)
+            op <- type2op(typei)
             if (!control_fdr) {
                 p_enter <- sig_level
             } else {
-                p_enter <- sig_level / (df_diff + 1 - (1 - sig_level))
+                num_free <- 1
+                p_enter <- fdr_alpha(num_free, m = df_diff, q = sig_level)
             }
-            min_mod <- stats::qchisq(p_enter, 1, lower.tail = FALSE)
-            current_mod <- get_invmod(new_fit, type = typei,
-                                      mod_min = min_mod,
+            row_to_free <- fn_get_inv(new_fit, type = typei,
+                                      alpha = p_enter,
                                       ind_names = ind_names)
-            largest_mi_row <- current_mod$misrow
             if (progress) {
-                total_mod <- remain_mod <- current_mod$nmod
+                total_mod <- remain_mod <- attr(row_to_free, which = "size")
                 pb <- txtProgressBar(min = 0, max = total_mod, style = 3)
                 pb_count <- 0
             }
-            num_free <- 1
-            while (!is.null(largest_mi_row)) {
-                mi_gp <- largest_mi_row$group
-                mi_lhs <- largest_mi_row$lhs
-                mi_rhs <- largest_mi_row$rhs
-                pt0 <- remove_cons(pt0, lhs = mi_lhs, rhs = mi_rhs,
-                                   group = mi_gp, op = mi_op)
+            while (!is.null(row_to_free)) {
+                to_free_gp <- row_to_free$group
+                to_free_lhs <- row_to_free$lhs
+                to_free_rhs <- row_to_free$rhs
+                pt0 <- remove_cons(pt0, lhs = to_free_lhs, rhs = to_free_rhs,
+                                   group = to_free_gp, op = op)
                 ninv_items <- rbind(ninv_items,
                                     data.frame(
-                                        lhs = mi_lhs,
-                                        rhs = mi_rhs,
-                                        group = mi_gp,
+                                        lhs = to_free_lhs,
+                                        rhs = to_free_rhs,
+                                        group = to_free_gp,
                                         type = typei
                                     ))
                 if (progress) {
@@ -339,27 +366,15 @@ pinSearch <- function(config_mod,
                 }
                 # new_fit <- lavaan::update(new_fit, model = pt0,
                 #                           group.equal = types[seq_len(i)])
-                new_fit <- lavaan::cfa(
-                    pt0,
-                    group = group,
-                    data = data,
-                    ordered = ordered,
-                    parameterization = parameterization,
-                    group.equal = types[seq_len(i)],
-                    std.lv = TRUE,
-                    ...
-                )
+                new_fit <- fit_cfa(pt0, eq = types[seq_len(i)], ...)
                 if (control_fdr) {
                     num_free <- num_free + 1
-                    p_enter <- num_free * sig_level /
-                        (df_diff + 1 - num_free * (1 - sig_level))
-                    min_mod <- stats::qchisq(p_enter, 1, lower.tail = FALSE)
+                    p_enter <- fdr_alpha(num_free, m = df_diff, q = sig_level)
                 }
-                current_mod <- get_invmod(new_fit, type = typei,
-                                          mod_min = min_mod,
+                row_to_free <- fn_get_inv(new_fit, type = typei,
+                                          alpha = p_enter,
                                           ind_names = ind_names)
-                largest_mi_row <- current_mod$misrow
-                remain_mod <- current_mod$nmod
+                remain_mod <- attr(row_to_free, which = "size")
             }
             base_fit <- new_fit
         }
@@ -371,4 +386,8 @@ pinSearch <- function(config_mod,
         out$effect_size <- es_lavaan(new_fit)
     }
     out
+}
+
+search_mi <- function(pt, sig_level = .05, control_fdr = FALSE) {
+    
 }
