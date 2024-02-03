@@ -169,6 +169,18 @@ fdr_alpha <- function(i, m, q = .05) {
 }
 
 #' Search for invariant loadings/intercepts.
+#' 
+#' @details Note that when an item has a non-invariant loading, the
+#'   corresponding intercept constraint will automatically be freed,
+#'   as intercept difference across groups is sensitive to the location
+#'   of the zero point for the latent variable and the item.
+#' 
+#' For a particular stage of invariance constraints, the Benjamini & 
+#'   Gavrilov method uses an adjusted \eqn{alpha} level of
+#'   \deqn{iq / [m + 1 - i(1 - q)]}
+#'   where \eqn{i} is the step index in the search, \eqn{m} is the
+#'   maximum number of constraints that can be freed, and \eqn{q} is
+#'   the desirable significance level.
 #'
 #' @param config_mod Syntax of a configural invariance model to be passed to
 #'   [lavaan::cfa()].

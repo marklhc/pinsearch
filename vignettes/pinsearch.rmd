@@ -92,13 +92,6 @@ pstrict_fit <- cfa(mod, data = HolzingerSwineford1939,
 pin_es(pstrict_fit)
 ```
 
-TODO: Need to create a documentation on
-
-- pinsearch proceeds by types of invariant constraints (loadings, intercepts, residuals, etc)
-- intercepts are freed when the corresponding loadings are freed.
-- residual variances do not depend on loadings and intercepts constraints
-- On residual covariances. 
-
 ## Cross-Loadings
 
 The function also supports models with cross-loadings. For example,
