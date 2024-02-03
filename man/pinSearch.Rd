@@ -12,16 +12,18 @@ pinSearch(
   parameterization = "theta",
   ...,
   type = c("loadings", "intercepts", "thresholds", "residuals", "residual.covariances"),
+  test = c("mod", "score"),
   sig_level = 0.05,
+  control_fdr = FALSE,
   effect_size = FALSE,
   progress = FALSE
 )
 }
 \arguments{
 \item{config_mod}{Syntax of a configural invariance model to be passed to
-\code{\link[lavaan]{cfa}}.}
+\code{\link[lavaan:cfa]{lavaan::cfa()}}.}
 
-\item{data}{A data frame to be passed to \code{\link[lavaan]{cfa}}.}
+\item{data}{A data frame to be passed to \code{\link[lavaan:cfa]{lavaan::cfa()}}.}
 
 \item{group}{Character indicating the variable name in \code{data} that
 defines the grouping variable in multiple-group CFA.}
@@ -32,7 +34,7 @@ as binary or ordinal. IF \code{NULL}, all items are treated as continuous.}
 \item{parameterization}{Character, either "theta" or "delta". "theta" should
 be used for invariance testing, and is the only method tested.}
 
-\item{...}{Additonal arguments passed to \code{\link[lavaan]{cfa}}.}
+\item{...}{Additonal arguments passed to \code{\link[lavaan:cfa]{lavaan::cfa()}}.}
 
 \item{type}{Character variable indicating the stage of invariance to be
 searched. Currently supported options are (a) for continuous indicators,
@@ -41,9 +43,18 @@ searched. Currently supported options are (a) for continuous indicators,
 strict order. A stricter model (e.g., "residual.covariances") will have
 constraints of all previous stages.}
 
+\item{test}{Character variable indicating the statistical test to be used
+for specification search. Currently supported options are \code{"mod"} for
+modification index using \code{lavaan::modindices()} and \code{"score"} for score
+test statistic using \code{lavaan::lavTestScore()}.}
+
 \item{sig_level}{Significance level used to determine whether the parameter
 associated with the highest modification index should be removed. Default
 is .05.}
+
+\item{control_fdr}{Logical; whether to use adjust for false discovery rate
+for multiple testing. If \code{TRUE}, the method by Benjamini & Gavrilov (2009)
+will be used.}
 
 \item{effect_size}{Logical; whether to compute dmacs (two groups) or
 fmacs (> two groups) effect size or not (default).
@@ -54,7 +65,15 @@ if \code{TRUE}. Because the number of steps is unknown until the stopping
 criteria are reached, the progress bar may be inaccurate.}
 }
 \value{
-The sum of \code{x} and \code{y}.
+A list of three elements:
+\itemize{
+\item{\verb{Partial Invariance Fit}}{A \code{\link[lavaan:lavaan-class]{lavaan::lavaan}}
+object containing the final partial invariance model.}
+\item{\verb{Non-Invariant Items}}{A data frame of non-invariant
+parameters.}
+\item{\code{effect_size}}{Effect size statistics obtained from
+\code{\link[=pin_es]{pin_es()}}.}
+}
 }
 \description{
 Search for invariant loadings/intercepts.

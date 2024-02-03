@@ -54,20 +54,20 @@ A 1 x p matrix of fMACS effect size.
 }
 \description{
 \code{fmacs} returns the fMACS effect size statistics given a set of loadings
-  and intercepts.
+and intercepts.
 }
 \details{
 The \eqn{f_\text{MACS}} effect size is defined as
 \deqn{f_{\text{MACS}, i} = \frac{1}{\mathit{SD}_{iP}}
   \sqrt{\int [(\nu_{ij} - \bar{\nu}_j) +
               (\lambda_{ij} - \bar{\lambda}_j) \eta]^2 f(\eta) d \eta}}
-  where \eqn{\lambda} is the loading and \eqn{\nu} is the intercept,
-  and j indexes group. The effect size reflects the square root of
-  the ratio between the variance in observed item score due to
-  measurement noninvariance and the variance of the observed item scores.
-  \eqn{f_\text{MACS}} is analogous to the Cohen's f effect size. When there
-  are two groups with equal sample sizes, \eqn{f_\text{MACS}} =
-  \eqn{f_\text{MACS}} / 2
+where \eqn{\lambda} is the loading and \eqn{\nu} is the intercept,
+and j indexes group. The effect size reflects the square root of
+the ratio between the variance in observed item score due to
+measurement noninvariance and the variance of the observed item scores.
+\eqn{f_\text{MACS}} is analogous to the Cohen's f effect size. When there
+are two groups with equal sample sizes, \eqn{f_\text{MACS}} =
+\eqn{f_\text{MACS}} / 2
 }
 \examples{
 lambda <- rbind(c(.7, .8, .7, .9),

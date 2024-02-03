@@ -1,6 +1,6 @@
 #' Compute dMACS effect size described in Nye & Drasgow (2011) for two groups.
 #'
-#' \code{dmacs} returns the dMACS effect size statistics given a set of loadings
+#' `dmacs` returns the dMACS effect size statistics given a set of loadings
 #'   and intercepts.
 #'
 #' The \eqn{d_\text{MACS}} effect size is defined as
@@ -196,6 +196,19 @@ var_from_thres <- function(thres) {
     sum(vals^2 * ps) - (sum(vals * ps))^2
 }
 
+#' Item-level effect size for non-invariance
+#' 
+#' For two groups, the function uses [dmacs()] to compute
+#'   \eqn{d_\text{MACS}}. For more than two groups, the function
+#'   uses [fmacs()] to compute \eqn{f_\text{MACS}}, a
+#'   generalisation of \eqn{d_\text{MACS}} similar to the 
+#'   Cohen's \eqn{f} effect size.
+#'
+#' @param object A CFA model of class [`lavaan::lavaan-class`]
+#'   fitted by [lavaan::cfa()]
+#' 
+#' @return A matrix of 1 row showing the effect size values for
+#'   each non-invariant item on each latent variable.
 es_lavaan <- function(object) {
     pt <- lavaan::parTable(object)
     ind_names <- object@pta$vnames$ov.ind[[1]]
@@ -291,3 +304,7 @@ es_lavaan <- function(object) {
         )
     }
 }
+
+#' @rdname es_lavaan
+#' @export
+pin_es <- es_lavaan

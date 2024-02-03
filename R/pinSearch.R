@@ -171,15 +171,15 @@ fdr_alpha <- function(i, m, q = .05) {
 #' Search for invariant loadings/intercepts.
 #'
 #' @param config_mod Syntax of a configural invariance model to be passed to
-#'   \code{\link[lavaan]{cfa}}.
-#' @param data A data frame to be passed to \code{\link[lavaan]{cfa}}.
-#' @param group Character indicating the variable name in \code{data} that
+#'   [lavaan::cfa()].
+#' @param data A data frame to be passed to [lavaan::cfa()].
+#' @param group Character indicating the variable name in `data` that
 #'   defines the grouping variable in multiple-group CFA.
 #' @param ordered Character vector indicating names of variables to be treated
-#'   as binary or ordinal. IF \code{NULL}, all items are treated as continuous.
+#'   as binary or ordinal. IF `NULL`, all items are treated as continuous.
 #' @param parameterization Character, either "theta" or "delta". "theta" should
 #'   be used for invariance testing, and is the only method tested.
-#' @param ... Additonal arguments passed to \code{\link[lavaan]{cfa}}.
+#' @param ... Additonal arguments passed to [lavaan::cfa()].
 #' @param type Character variable indicating the stage of invariance to be
 #'   searched. Currently supported options are (a) for continuous indicators,
 #'   "loadings", "intercepts", "residuals", and "residual.covariances", and
@@ -200,10 +200,19 @@ fdr_alpha <- function(i, m, q = .05) {
 #'   fmacs (> two groups) effect size or not (default).
 #'   This is an experimental feature.
 #' @param progress Logical; an experimental feature of showing a progress bar
-#'   if \code{TRUE}. Because the number of steps is unknown until the stopping
+#'   if `TRUE`. Because the number of steps is unknown until the stopping
 #'   criteria are reached, the progress bar may be inaccurate.
 #'
-#' @return The sum of \code{x} and \code{y}.
+#' @return A list of three elements:
+#' \itemize{
+#'   \item{`Partial Invariance Fit`}{A [`lavaan::lavaan-class`]
+#'     object containing the final partial invariance model.}
+#'   \item{`Non-Invariant Items`}{A data frame of non-invariant
+#'     parameters.}
+#'   \item{`effect_size`}{Effect size statistics obtained from
+#'     [pin_es()].}
+#' }
+#' 
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @examples
@@ -386,8 +395,4 @@ pinSearch <- function(config_mod,
         out$effect_size <- es_lavaan(new_fit)
     }
     out
-}
-
-search_mi <- function(pt, sig_level = .05, control_fdr = FALSE) {
-    
 }
