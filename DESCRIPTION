@@ -16,6 +16,8 @@ Imports:
     lavaan,
     stats
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0),
     MASS
 URL: https://github.com/marklhc/pinsearch,
