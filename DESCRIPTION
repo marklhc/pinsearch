@@ -23,3 +23,4 @@ URL: https://github.com/marklhc/pinsearch,
 BugReports: https://github.com/marklhc/pinsearch/issues
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
+VignetteBuilder: knitr
