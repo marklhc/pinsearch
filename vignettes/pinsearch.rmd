@@ -1,0 +1,153 @@
+---
+title: "(P)artial (in)variance specification search"
+author: "Mark Lai"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    df_print: paged
+vignette: >
+  %\VignetteIndexEntry{(P)artial (in)variance specification search}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This package implements the sequential specification search method for identifying parameters violating measurement invariance across groups. The method is discussed in, for example, [Yoon and Millsap (2007)](https://doi.org/10.1080/10705510701301677), and is a popular method for identifying a partial invariance model.
+
+## Workflow
+
+A suggested workflow for using the main function `pinSearch()` is
+
+1. Define the [`lavaan`](https://www.lavaan.ugent.be/) syntax for the configural invariance model.
+2. Conduct a `pinSearch()` with specific test statistic and stopping criteria. The default is to use modification indices as in Yoon and Millsap (2007), but the score test is also supported. The function returns a final partial invariance model and a list of noninvariant parameters in the search order.
+3. Obtain effect size statistics for the noninvariant items.
+
+## Example
+
+Here we use the classic data set by Holzinger & Swineford, with the goal of searching for a partial strict invariance model.
+
+```{r}
+library(pinsearch)
+library(lavaan)
+mod <-
+    " visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9 "
+# Output the final partial invariance model, and the noninvariant items
+ps1 <-
+    pinSearch(mod,
+        data = HolzingerSwineford1939,
+        group = "school", type = "residuals",
+        test = "mod"  # use modification indices for search (default)
+    )
+```
+
+Here are the noninvariant parameters:
+
+```{r}
+ps1$`Non-Invariant Items`
+```
+
+And the final partial invariance model
+
+```{r}
+ps1$`Partial Invariance Fit` |>
+    summary()
+```
+
+## Effect Size
+
+The package supports the $d_\text{MACS}$ effect size statistics by [Nye and Drasgow (2011)](https://doi.org/10.1037/a0022955) for noninvariant items, and the generalization to an $f_\text{bias}$ statistic for more than two groups.
+
+These can be obtained by setting the `effect_size = TRUE` argument:
+
+```{r}
+pinSearch(mod,
+    data = HolzingerSwineford1939,
+    group = "school", type = "residuals",
+    test = "mod",
+    effect_size = TRUE
+)
+```
+
+Note that in the above output, the effect sizes are printed three times for `x3` and `x7`, which have non-invariant intercepts. This is because there are three latent variables in the model, and the function allows for the possibility of cross-loadings. When each item is only loaded on one latent variable, user can ignore the duplicated values (we will try to fix this in future releases).
+
+Another possibility is to use the `pin_es()` function, which also works for partial invariance model not obtained from `pinSearch()`.
+
+```{r}
+# Fit the partial strict model by hand
+pstrict_fit <- cfa(mod, data = HolzingerSwineford1939,
+                   group = "school",
+                   group.equal = c("loadings", "intercepts",
+                                   "residuals"),
+                   group.partial = c("x3~1", "x7~1"))
+# Effect sizes
+pin_es(pstrict_fit)
+```
+
+TODO: Need to create a documentation on
+
+- pinsearch proceeds by types of invariant constraints (loadings, intercepts, residuals, etc)
+- intercepts are freed when the corresponding loadings are freed.
+- residual variances do not depend on loadings and intercepts constraints
+- On residual covariances. 
+
+## Cross-Loadings
+
+The function also supports models with cross-loadings. For example,
+
+```{r}
+mod2 <- "
+   visual  =~ x1 + x2 + x3 + x9
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+"
+ps2 <-
+    pinSearch(mod2,
+        data = HolzingerSwineford1939,
+        group = "school", type = "residuals",
+        test = "mod",
+        effect_size = TRUE
+    )
+ps2
+```
+
+It just happened in this examplle that the final results are not affected.
+
+## Score Test
+
+One can also use the score test instead of the modification indices, as [starting in version 0.6-17, `lavaan` recommends using that for equality constraints](https://lavaan.ugent.be/history/dot6.html#version-0.6-17). This can be achieved with `test = "score"`.
+
+```{r}
+pinSearch(mod2,
+    data = HolzingerSwineford1939,
+    group = "school", type = "residuals",
+    test = "score",
+    effect_size = TRUE
+)
+```
+
+The test is slightly more sensitive and identifies an additional non-invariant uniqueness for item `x7`.
+
+## Controlling for False Discovery Rate
+
+The function also supports adjusting for multiplicity by using a more stringent threshold for flagging a parameter as noninvariant, using the multistage false discovery rate procedure by [Benjamini & Gavrilov (2009)](https://projecteuclid.org/journals/annals-of-applied-statistics/volume-3/issue-1/A-simple-forward-selection-procedure-based-on-false-discovery-rate/10.1214/08-AOAS194.pdf) for forward selection. It is up for debate whether controlling for false discovery rate is as important in measurement/factorial invariance analyses as in other context, and it probably depends on whether one is interested in identifying non-invariant items or in inferences for the latent parameters. If this is of interest, one can use the `control_fdr = TRUE` option.
+
+```{r}
+pinSearch(mod2,
+    data = HolzingerSwineford1939,
+    group = "school", type = "residuals",
+    test = "score",
+    effect_size = TRUE,
+    control_fdr = TRUE
+)
+```
+
+The uniqueness for `x7` is no longer flagged.
