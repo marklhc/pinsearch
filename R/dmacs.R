@@ -280,7 +280,7 @@ es_lavaan <- function(object) {
         vars <- vapply(sampstat,
                        function(x) vapply(
                            ninv_ov, function(x, y) {
-                               th <- x$th[grep(y, names(x$th))]
+                               th <- x$th[grep(paste0(y, "\\|t"), names(x$th))]
                                var_from_thres(th)
                            }, x = x, FUN.VALUE = numeric(1)
                        ), FUN.VALUE = numeric(length(ninv_ov)))
