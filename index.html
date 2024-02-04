@@ -100,7 +100,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/marklhc/pinsearch" class="external-link">pinsearch</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-14</span></span>
+<span><span class="co">#&gt; This is lavaan 0.6-17</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span>
 <span><span class="va">HS.model</span> <span class="op">&lt;-</span> <span class="st">'  visual =~ x1 + x2 + x3</span></span>
 <span><span class="st">              textual =~ x4 + x5 + x6</span></span>
@@ -108,13 +108,19 @@
 <span><span class="co"># Output the final partial invariance model, and the noninvariant items</span></span>
 <span><span class="fu"><a href="reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, </span>
 <span>          group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"intercepts"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Searching for loadings noninvariance</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Searching for intercepts noninvariance</span></span>
-<span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |====================================================                  |  75%</span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.6.14 ended normally after 69 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6.17 ended normally after 69 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -141,15 +147,25 @@
 <span><span class="co"># Compute dmacs effect size (added in version 0.1.2)</span></span>
 <span><span class="fu"><a href="reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, </span>
 <span>          group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"intercepts"</span>,</span>
-<span>          effect_size <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>          effect_size <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>          progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Searching for loadings noninvariance</span></span>
+<span><span class="co">#&gt; [1/2] Searching for loadings noninvariance</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Searching for intercepts noninvariance</span></span>
-<span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |====================================================                  |  75%</span></span>
+<span><span class="co">#&gt; [2/2] Searching for intercepts noninvariance</span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
+<span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%</span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
+<span><span class="co">#&gt;   |                                                                              |====================================================                  |  75%</span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.6.14 ended normally after 69 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6.17 ended normally after 69 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -221,13 +237,27 @@
 <span>          ordered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"yy"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span>,</span>
 <span>          effect_size <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Unique variances are constrained to 1 for identification</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Searching for loadings noninvariance</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Searching for thresholds noninvariance</span></span>
-<span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==========================                                            |  38%  |                                                                              |============================================                          |  62%  |                                                                              |=============================================================         |  88%</span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
+<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
+<span><span class="co">#&gt;        or multiple constraints</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.6.14 ended normally after 49 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6.17 ended normally after 52 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -240,26 +270,26 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Test User Model:</span></span>
 <span><span class="co">#&gt;                                               Standard      Scaled</span></span>
-<span><span class="co">#&gt;   Test Statistic                                33.754      52.952</span></span>
+<span><span class="co">#&gt;   Test Statistic                                31.911      49.933</span></span>
 <span><span class="co">#&gt;   Degrees of freedom                                50          50</span></span>
-<span><span class="co">#&gt;   P-value (Chi-square)                           0.962       0.361</span></span>
-<span><span class="co">#&gt;   Scaling correction factor                                  0.733</span></span>
-<span><span class="co">#&gt;   Shift parameter                                            6.919</span></span>
+<span><span class="co">#&gt;   P-value (Chi-square)                           0.978       0.476</span></span>
+<span><span class="co">#&gt;   Scaling correction factor                                  0.745</span></span>
+<span><span class="co">#&gt;   Shift parameter                                            7.073</span></span>
 <span><span class="co">#&gt;     simple second-order correction                                </span></span>
 <span><span class="co">#&gt;   Test statistic for each group:</span></span>
-<span><span class="co">#&gt;     1                                           17.073      26.744</span></span>
-<span><span class="co">#&gt;     2                                           16.680      26.208</span></span>
+<span><span class="co">#&gt;     1                                           14.835      23.461</span></span>
+<span><span class="co">#&gt;     2                                           17.077      26.472</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
 <span><span class="co">#&gt;   lhs rhs group       type</span></span>
 <span><span class="co">#&gt; 1 yy2  t1     1 thresholds</span></span>
-<span><span class="co">#&gt; 2 yy4  t3     1 thresholds</span></span>
-<span><span class="co">#&gt; 3 yy7  t1     2 thresholds</span></span>
-<span><span class="co">#&gt; 4 yy5  t3     1 thresholds</span></span>
+<span><span class="co">#&gt; 2 yy7  t1     2 thresholds</span></span>
+<span><span class="co">#&gt; 3 yy5  t3     1 thresholds</span></span>
+<span><span class="co">#&gt; 4 yy4  t3     1 thresholds</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
 <span><span class="co">#&gt;           yy2-f     yy4-f     yy5-f     yy7-f</span></span>
-<span><span class="co">#&gt; dmacs 0.2482101 0.1868592 0.1466797 0.1797556</span></span></code></pre></div>
+<span><span class="co">#&gt; dmacs 0.2376422 0.1181811 0.1662268 0.2071426</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
