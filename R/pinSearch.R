@@ -168,7 +168,16 @@ fdr_alpha <- function(i, m, q = .05) {
     i * q / (m + 1 - i * (1 - q))
 }
 
-#' Search for invariant loadings/intercepts.
+#' Search for noninvariant parameters across groups.
+#' 
+#' The function implements the sequential selection method similar to
+#' that discussed in
+#' [Yoon and Millsap (2007)](https://doi.org/10.1080/10705510701301677).
+#' The function proceeds in the order of metric, scalar (threshold),
+#' and strict invariance. In each stage, invariance constraints in all 
+#' items, and the constraint associated with the biggest test 
+#' statistic above a predefined threshold is freed, before recomputing 
+#' the test statistic for the next constraint to free.
 #' 
 #' @details Note that when an item has a non-invariant loading, the
 #'   corresponding intercept constraint will automatically be freed,
@@ -224,7 +233,10 @@ fdr_alpha <- function(i, m, q = .05) {
 #'   \item{`effect_size`}{Effect size statistics obtained from
 #'     [pin_es()].}
 #' }
-#' 
+#' @references Yoon, M., & Millsap, R. E. (2007). Detecting violations of
+#'   factorial invariance using data-based specification searches: A 
+#'   Monte Carlo study. Structural Equation Modeling: A Multidisciplinary
+#'   Journal, 14(3), 435-463.
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @examples
