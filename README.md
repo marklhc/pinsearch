@@ -35,7 +35,7 @@ This is a basic example which shows you how to solve a common problem:
 ``` r
 library(pinsearch)
 library(lavaan)
-#> This is lavaan 0.6-14
+#> This is lavaan 0.6-17
 #> lavaan is FREE software! Please report any bugs.
 HS.model <- '  visual =~ x1 + x2 + x3
               textual =~ x4 + x5 + x6
@@ -43,13 +43,19 @@ HS.model <- '  visual =~ x1 + x2 + x3
 # Output the final partial invariance model, and the noninvariant items
 pinSearch(HS.model, data = HolzingerSwineford1939, 
           group = "school", type = "intercepts")
-#> 
-#> Searching for loadings noninvariance
-#> 
-#> Searching for intercepts noninvariance
-#>   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |====================================================                  |  75%
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
+
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
+
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
 #> $`Partial Invariance Fit`
-#> lavaan 0.6.14 ended normally after 69 iterations
+#> lavaan 0.6.17 ended normally after 69 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -76,15 +82,25 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 # Compute dmacs effect size (added in version 0.1.2)
 pinSearch(HS.model, data = HolzingerSwineford1939, 
           group = "school", type = "intercepts",
-          effect_size = TRUE)
+          effect_size = TRUE,
+          progress = TRUE)
 #> 
-#> Searching for loadings noninvariance
+#> [1/2] Searching for loadings noninvariance
 #> 
-#> 
-#> Searching for intercepts noninvariance
-#>   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |====================================================                  |  75%
+#> [2/2] Searching for intercepts noninvariance
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
+#>   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
+#>   |                                                                              |====================================================                  |  75%
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
 #> $`Partial Invariance Fit`
-#> lavaan 0.6.14 ended normally after 69 iterations
+#> lavaan 0.6.17 ended normally after 69 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -159,13 +175,27 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
           ordered = paste0("yy", 1:7),
           effect_size = TRUE)
 #> Unique variances are constrained to 1 for identification
-#> 
-#> Searching for loadings noninvariance
-#> 
-#> Searching for thresholds noninvariance
-#>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==========================                                            |  38%  |                                                                              |============================================                          |  62%  |                                                                              |=============================================================         |  88%
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
+
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
+
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
+
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
+
+#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
+#>        use lavTestScore() to assess the impact of releasing one 
+#>        or multiple constraints
 #> $`Partial Invariance Fit`
-#> lavaan 0.6.14 ended normally after 49 iterations
+#> lavaan 0.6.17 ended normally after 52 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -178,24 +208,24 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
 #> 
 #> Model Test User Model:
 #>                                               Standard      Scaled
-#>   Test Statistic                                33.754      52.952
+#>   Test Statistic                                31.911      49.933
 #>   Degrees of freedom                                50          50
-#>   P-value (Chi-square)                           0.962       0.361
-#>   Scaling correction factor                                  0.733
-#>   Shift parameter                                            6.919
+#>   P-value (Chi-square)                           0.978       0.476
+#>   Scaling correction factor                                  0.745
+#>   Shift parameter                                            7.073
 #>     simple second-order correction                                
 #>   Test statistic for each group:
-#>     1                                           17.073      26.744
-#>     2                                           16.680      26.208
+#>     1                                           14.835      23.461
+#>     2                                           17.077      26.472
 #> 
 #> $`Non-Invariant Items`
 #>   lhs rhs group       type
 #> 1 yy2  t1     1 thresholds
-#> 2 yy4  t3     1 thresholds
-#> 3 yy7  t1     2 thresholds
-#> 4 yy5  t3     1 thresholds
+#> 2 yy7  t1     2 thresholds
+#> 3 yy5  t3     1 thresholds
+#> 4 yy4  t3     1 thresholds
 #> 
 #> $effect_size
 #>           yy2-f     yy4-f     yy5-f     yy7-f
-#> dmacs 0.2482101 0.1868592 0.1466797 0.1797556
+#> dmacs 0.2376422 0.1181811 0.1662268 0.2071426
 ```
