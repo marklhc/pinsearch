@@ -93,7 +93,29 @@ test_that("pinSearch() works properly for HolzingerSwineford1939 example", {
                   textual =~ x4 + x5 + x6
                   speed   =~ x7 + x8 + x9 '
     ps6 <- pinSearch(HS.model, data = HolzingerSwineford1939,
-              group = "school", type = "intercepts")
+                     group = "school", type = "intercepts")
     expect_identical(ps6[[2]]$lhs, c("x3", "x7"))
     expect_identical(ps6[[2]]$type, rep("intercepts", 2))
+})
+
+test_that("pinSearch() gives less parameters with fdr control", {
+    HS.model <- ' visual  =~ x1 + x2 + x3 + x9
+                  textual =~ x4 + x5 + x6
+                  speed   =~ x7 + x8 + x9 '
+    ps7 <- pinSearch(HS.model, data = HolzingerSwineford1939,
+                     group = "school", type = "residuals",
+                     test = "score")
+    ps8 <- pinSearch(HS.model, data = HolzingerSwineford1939,
+                     group = "school", type = "residuals",
+                     test = "score", control_fdr = TRUE)
+    expect_lt(nrow(ps8[[2]]), expected = nrow(ps7[[2]]))
+})
+
+test_that("fdr_alpha() works as expected", {
+    test_p <- c(0.001, 0.007, 0.01, 0.04, 0.05, 0.2, 0.3, 0.3, 0.4)
+    num_p <- length(test_p)
+    for (i in seq_along(test_p)) {
+      test_p[i] < fdr_alpha(i, num_p) || break
+    }
+    expect_equal(i - 1, 3)
 })

@@ -1,6 +1,6 @@
 #' Compute fMACS effect size for two or more groups.
 #'
-#' \code{fmacs} returns the fMACS effect size statistics given a set of loadings
+#' `fmacs` returns the fMACS effect size statistics given a set of loadings
 #'   and intercepts.
 #'
 #' The \eqn{f_\text{MACS}} effect size is defined as

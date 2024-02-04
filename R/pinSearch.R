@@ -60,14 +60,14 @@ remove_cons <- function(object, lhs, rhs, group, op) {
     }
     pt_new
 }
-get_invmod <- function(object, type, mod_min, ind_names, pt0) {
+get_invmod <- function(object, type, alpha = .05, ind_names, pt0) {
     if (missing(pt0)) pt0 <- lavaan::parTable(object)
     op <- type2op(type)
     pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0, ]
     mis <- lavaan::modindices(
         object,
         op = op,
-        minimum.value = mod_min,
+        minimum.value = stats::qchisq(alpha, 1, lower.tail = FALSE),
         sort. = TRUE,
         free.remove = FALSE
     )
@@ -92,8 +92,27 @@ get_invmod <- function(object, type, mod_min, ind_names, pt0) {
     pt_mis <- pt0_eq[match(mis_ids, pt0_eq$id), ]
     # Only parameters that are free
     pt_mis <- pt_mis[pt_mis$free >= 0, ]
-    mis[rownames(pt_mis)[1], ]
+    out <- mis[rownames(pt_mis)[1], ]
+    attr(out, "size") <- nrow(pt_mis)
+    out
 }
+
+get_invscore <- function(object, type, alpha = .05, ind_names, pt0, ...) {
+    if (missing(pt0)) pt0 <- lavaan::parTable(object)
+    op <- type2op(type)
+    pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0 & pt0$op == op, ]
+    # Find relevant constraints
+    pt0_cons <- pt0[pt0$op == "==", ]
+    cons_to_test <- which(pt0_cons$lhs %in% pt0_eq$plabel |
+        pt0_cons$rhs %in% pt0_eq$plabel)
+    mis <- lavaan::lavTestScore(object, release = cons_to_test, ...)
+    cons_to_free <- mis$uni[which.max(mis$uni$X2), ]
+    if (cons_to_free$p.value > alpha) return(NULL)
+    out <- pt0_eq[which(pt0_eq$plabel == cons_to_free$rhs), ]
+    attr(out, "size") <- sum(mis$uni$p.value < alpha)
+    out
+}
+
 initialize_partable <- function(mod, ngp, ninv_items, group.equal,
                                 varTable,
                                 parameterization = "theta") {
@@ -144,32 +163,82 @@ initialize_partable <- function(mod, ngp, ninv_items, group.equal,
   pt0
 }
 
-#' Search for invariant loadings/intercepts.
+fdr_alpha <- function(i, m, q = .05) {
+    # Based on Benjamini & Gavrilov (2009)
+    i * q / (m + 1 - i * (1 - q))
+}
+
+#' Search for noninvariant parameters across groups.
+#' 
+#' The function implements the sequential selection method similar to
+#' that discussed in
+#' [Yoon and Millsap (2007)](https://doi.org/10.1080/10705510701301677).
+#' The function proceeds in the order of metric, scalar (threshold),
+#' and strict invariance. In each stage, invariance constraints in all 
+#' items, and the constraint associated with the biggest test 
+#' statistic above a predefined threshold is freed, before recomputing 
+#' the test statistic for the next constraint to free.
+#' 
+#' @details Note that when an item has a non-invariant loading, the
+#'   corresponding intercept constraint will automatically be freed,
+#'   as intercept difference across groups is sensitive to the location
+#'   of the zero point for the latent variable and the item.
+#' 
+#' For a particular stage of invariance constraints, the Benjamini & 
+#'   Gavrilov method uses an adjusted \eqn{alpha} level of
+#'   \deqn{iq / [m + 1 - i(1 - q)]}
+#'   where \eqn{i} is the step index in the search, \eqn{m} is the
+#'   maximum number of constraints that can be freed, and \eqn{q} is
+#'   the desirable significance level.
 #'
 #' @param config_mod Syntax of a configural invariance model to be passed to
-#'   \code{\link[lavaan]{cfa}}.
-#' @param data A data frame to be passed to \code{\link[lavaan]{cfa}}.
-#' @param group Character indicating the variable name in \code{data} that
+#'   [lavaan::cfa()].
+#' @param data A data frame to be passed to [lavaan::cfa()].
+#' @param group Character indicating the variable name in `data` that
 #'   defines the grouping variable in multiple-group CFA.
 #' @param ordered Character vector indicating names of variables to be treated
-#'   as binary or ordinal. IF \code{NULL}, all items are treated as continuous.
+#'   as binary or ordinal. IF `NULL`, all items are treated as continuous.
 #' @param parameterization Character, either "theta" or "delta". "theta" should
 #'   be used for invariance testing, and is the only method tested.
-#' @param ... Additonal arguments passed to \code{\link[lavaan]{cfa}}.
+#' @param ... Additonal arguments passed to [lavaan::cfa()].
 #' @param type Character variable indicating the stage of invariance to be
 #'   searched. Currently supported options are (a) for continuous indicators,
 #'   "loadings", "intercepts", "residuals", and "residual.covariances", and
 #'   (b) "loadings", "thresholds", "residual.covariances", in an increasingly
 #'   strict order. A stricter model (e.g., "residual.covariances") will have
 #'   constraints of all previous stages.
+#' @param test Character variable indicating the statistical test to be used
+#'   for specification search. Currently supported options are `"mod"` for
+#'   modification index using `lavaan::modindices()` and `"score"` for score
+#'   test statistic using `lavaan::lavTestScore()`.
 #' @param sig_level Significance level used to determine whether the parameter
 #'   associated with the highest modification index should be removed. Default
 #'   is .05.
+#' @param control_fdr Logical; whether to use adjust for false discovery rate
+#'   for multiple testing. If `TRUE`, the method by Benjamini & Gavrilov (2009)
+#'   will be used.
 #' @param effect_size Logical; whether to compute dmacs (two groups) or
 #'   fmacs (> two groups) effect size or not (default).
 #'   This is an experimental feature.
+#' @param progress Logical; an experimental feature of showing a progress bar
+#'   if `TRUE`. Because the number of steps is unknown until the stopping
+#'   criteria are reached, the progress bar may be inaccurate.
 #'
-#' @return The sum of \code{x} and \code{y}.
+#' @return A list of three elements:
+#' \itemize{
+#'   \item{`Partial Invariance Fit`}{A [`lavaan::lavaan-class`]
+#'     object containing the final partial invariance model.}
+#'   \item{`Non-Invariant Items`}{A data frame of non-invariant
+#'     parameters.}
+#'   \item{`effect_size`}{Effect size statistics obtained from
+#'     [pin_es()].}
+#' }
+#' @references Yoon, M., & Millsap, R. E. (2007). Detecting violations of
+#'   factorial invariance using data-based specification searches: A 
+#'   Monte Carlo study. Structural Equation Modeling: A Multidisciplinary
+#'   Journal, 14(3), 435-463.
+#'
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #' @examples
 #' library(lavaan)
 #' library(MASS)
@@ -203,9 +272,13 @@ pinSearch <- function(config_mod,
                       ...,
                       type = c("loadings", "intercepts", "thresholds",
                                "residuals", "residual.covariances"),
+                      test = c("mod", "score"),
                       sig_level = .05,
-                      effect_size = FALSE) {
+                      control_fdr = FALSE,
+                      effect_size = FALSE,
+                      progress = FALSE) {
     type <- match.arg(type)
+    test <- match.arg(test)
     base_fit <- lavaan::cfa(config_mod, group = group, data = data,
                             ordered = ordered,
                             parameterization = parameterization,
@@ -219,7 +292,6 @@ pinSearch <- function(config_mod,
         type = character(),
         stringsAsFactors = FALSE
     )
-    chisq_cv <- stats::qchisq(sig_level, 1, lower.tail = FALSE)
     ind_names <- get_ovnames(base_fit)
     if (!is.null(ordered)) {
         types <- c("loadings", "thresholds", "residual.covariances")
@@ -249,14 +321,22 @@ pinSearch <- function(config_mod,
         }
     }
     n_type <- which(types == type)  # number of stages
+    fit_cfa <- function(mod, eq, ...) {
+        lavaan::cfa(mod,
+            group = group, data = data,
+            ordered = ordered,
+            parameterization = parameterization,
+            std.lv = TRUE,
+            group.equal = eq, ...
+        )
+    }
+    fn_get_inv <- switch(test, mod = get_invmod, score = get_invscore)
     for (i in seq_len(n_type)) {
         typei <- types[i]
+        if (progress) message("\n[", i, "/", n_type, "] Searching for ",
+                              typei, " noninvariance\n")
         if (i == 1) {
-            new_fit <- lavaan::cfa(config_mod, group = group, data = data,
-                                   ordered = ordered,
-                                   parameterization = parameterization,
-                                   std.lv = TRUE,
-                                   group.equal = "loadings", ...)
+            new_fit <- fit_cfa(config_mod, eq = "loadings", ...)
             pt0 <- lavaan::parTable(new_fit)
         } else if (i >= 2) {
             pt0 <- initialize_partable(config_mod, ngp = ngp,
@@ -264,24 +344,16 @@ pinSearch <- function(config_mod,
                                        group.equal = types[seq_len(i)],
                                        varTable = base_fit@Data@ov,
                                        parameterization = parameterization)
-            new_fit <- lavaan::cfa(
-                pt0,
-                group = group,
-                data = data,
-                ordered = ordered,
-                parameterization = parameterization,
-                group.equal = types[seq_len(i)],
-                std.lv = TRUE,
-                ...
-            )
+            new_fit <- fit_cfa(pt0, eq = types[seq_len(i)], ...)
         }
         if (types[i] == "residual.covariances" &&
             base_fit@test$standard$df >= new_fit@test$standard$df) {
             next
         }
         lrt_base_new <- lavaan::lavTestLRT(base_fit, new_fit)
-        if ((lrt_base_new[2, "Chisq diff"] == 0 &
-             lrt_base_new[2, "Df diff"] == 0) ||
+        df_diff <- lrt_base_new[2, "Df diff"]
+        if ((lrt_base_new[2, "Chisq diff"] == 0 &&
+             df_diff == 0) ||
             lrt_base_new[2, "Pr(>Chisq)"] >= sig_level) {
             base_fit <- new_fit
             next  # skip to next stage
@@ -293,42 +365,54 @@ pinSearch <- function(config_mod,
             # } else if (typei %in% c("residuals", "residual.covariances")) {
             #     mi_op <- "~~"
             # }
-            mi_op <- type2op(typei)
-            largest_mi_row <- get_invmod(new_fit, type = typei,
-                                         mod_min = chisq_cv,
-                                         ind_names = ind_names)
-            while (!is.null(largest_mi_row)) {
-                mi_gp <- largest_mi_row$group
-                mi_lhs <- largest_mi_row$lhs
-                mi_rhs <- largest_mi_row$rhs
-                pt0 <- remove_cons(pt0, lhs = mi_lhs, rhs = mi_rhs,
-                                   group = mi_gp, op = mi_op)
+            op <- type2op(typei)
+            if (!control_fdr) {
+                p_enter <- sig_level
+            } else {
+                num_free <- 1
+                p_enter <- fdr_alpha(num_free, m = df_diff, q = sig_level)
+            }
+            row_to_free <- fn_get_inv(new_fit, type = typei,
+                                      alpha = p_enter,
+                                      ind_names = ind_names)
+            if (progress) {
+                total_mod <- remain_mod <- attr(row_to_free, which = "size")
+                pb <- txtProgressBar(min = 0, max = total_mod, style = 3)
+                pb_count <- 0
+            }
+            while (!is.null(row_to_free)) {
+                to_free_gp <- row_to_free$group
+                to_free_lhs <- row_to_free$lhs
+                to_free_rhs <- row_to_free$rhs
+                pt0 <- remove_cons(pt0, lhs = to_free_lhs, rhs = to_free_rhs,
+                                   group = to_free_gp, op = op)
                 ninv_items <- rbind(ninv_items,
                                     data.frame(
-                                        lhs = mi_lhs,
-                                        rhs = mi_rhs,
-                                        group = mi_gp,
+                                        lhs = to_free_lhs,
+                                        rhs = to_free_rhs,
+                                        group = to_free_gp,
                                         type = typei
                                     ))
+                if (progress) {
+                    pb_count <- max(total_mod - remain_mod + 1, pb_count + 1)
+                    setTxtProgressBar(pb, pb_count)
+                }
                 # new_fit <- lavaan::update(new_fit, model = pt0,
                 #                           group.equal = types[seq_len(i)])
-                new_fit <- lavaan::cfa(
-                    pt0,
-                    group = group,
-                    data = data,
-                    ordered = ordered,
-                    parameterization = parameterization,
-                    group.equal = types[seq_len(i)],
-                    std.lv = TRUE,
-                    ...
-                )
-                largest_mi_row <- get_invmod(new_fit, type = typei,
-                                             mod_min = chisq_cv,
-                                             ind_names = ind_names)
+                new_fit <- fit_cfa(pt0, eq = types[seq_len(i)], ...)
+                if (control_fdr) {
+                    num_free <- num_free + 1
+                    p_enter <- fdr_alpha(num_free, m = df_diff, q = sig_level)
+                }
+                row_to_free <- fn_get_inv(new_fit, type = typei,
+                                          alpha = p_enter,
+                                          ind_names = ind_names)
+                remain_mod <- attr(row_to_free, which = "size")
             }
             base_fit <- new_fit
         }
     }
+    if (progress) close(pb)
     out <- list(`Partial Invariance Fit` = new_fit,
                 `Non-Invariant Items` = ninv_items)
     if (effect_size) {

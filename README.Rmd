@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # pinsearch
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/marklhc/pinsearch/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/marklhc/pinsearch/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of pinsearch is to automate the process of performing specification search in identifying noninvariant items to arrive at a partial factorial invariance model. 
@@ -52,7 +53,8 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 # Compute dmacs effect size (added in version 0.1.2)
 pinSearch(HS.model, data = HolzingerSwineford1939, 
           group = "school", type = "intercepts",
-          effect_size = TRUE)
+          effect_size = TRUE,
+          progress = TRUE)
 ```
 
 ## Example 2

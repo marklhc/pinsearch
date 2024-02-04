@@ -49,18 +49,18 @@ A 1 x p matrix of dMACS effect size.
 }
 \description{
 \code{dmacs} returns the dMACS effect size statistics given a set of loadings
-  and intercepts.
+and intercepts.
 }
 \details{
 The \eqn{d_\text{MACS}} effect size is defined as
-  (Nye & Drasgow, 2011, p. 968)
+(Nye & Drasgow, 2011, p. 968)
 \deqn{d_{\text{MACS}, i} = \frac{1}{\mathit{SD}_{iP}}
   \sqrt{\int [(\nu_{iR} - \nu{iF}) +
               (\lambda_{iR} - \lambda_{iF}) \eta]^2 f(\eta) d \eta}}
-  where \eqn{\lambda} is the loading and \eqn{\nu} is the intercept, F and R
-  denote the focal and the reference group. The effect size reflects the
-  standardized mean difference on an item due to measurement noninvariance,
-  and is analogous to the Cohen's d effect size.
+where \eqn{\lambda} is the loading and \eqn{\nu} is the intercept, F and R
+denote the focal and the reference group. The effect size reflects the
+standardized mean difference on an item due to measurement noninvariance,
+and is analogous to the Cohen's d effect size.
 }
 \examples{
 lambdaf <- c(.8, .5, .7, .5)
@@ -87,7 +87,7 @@ dmacs_ordered(tau,
 }
 \references{
 Nye, C. & Drasgow, F. (2011). Effect size indices for
-  analyses of measurement equivalence: Understanding the practical
-  importance of differences between groups.
-  Journal of Applied Psychology, 96(5), 966-980.
+analyses of measurement equivalence: Understanding the practical
+importance of differences between groups.
+Journal of Applied Psychology, 96(5), 966-980.
 }
