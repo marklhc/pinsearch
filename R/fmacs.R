@@ -25,6 +25,10 @@
 #'   the same weights across items.
 #' @param weights A \eqn{G \times p} matrix of weights. Default assumes
 #'   equal weights across groups.
+#' @param group_factor A vector of length \eqn{G} indicating grouping for 
+#'   contrast. For example, `c(1, 1, 2)` means contrasting Group 1 & 2 vs. 
+#'   Group 3. The default is to not combine any groups, meaning the 
+#'   omnibus effect is computed.
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
 #'
