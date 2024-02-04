@@ -7,6 +7,12 @@
     <loc>https://marklhc.github.io/pinsearch/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://marklhc.github.io/pinsearch/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://marklhc.github.io/pinsearch/articles/pinsearch.html</loc>
+  </url>
+  <url>
     <loc>https://marklhc.github.io/pinsearch/authors.html</loc>
   </url>
   <url>
@@ -14,6 +20,9 @@
   </url>
   <url>
     <loc>https://marklhc.github.io/pinsearch/reference/dmacs.html</loc>
+  </url>
+  <url>
+    <loc>https://marklhc.github.io/pinsearch/reference/es_lavaan.html</loc>
   </url>
   <url>
     <loc>https://marklhc.github.io/pinsearch/reference/fmacs.html</loc>
