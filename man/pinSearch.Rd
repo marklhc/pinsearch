@@ -12,7 +12,7 @@ pinSearch(
   parameterization = "theta",
   ...,
   type = c("loadings", "intercepts", "thresholds", "residuals", "residual.covariances"),
-  test = c("mod", "score"),
+  inv_test = c("mod", "score"),
   sig_level = 0.05,
   control_fdr = FALSE,
   effect_size = FALSE,
@@ -43,8 +43,8 @@ searched. Currently supported options are (a) for continuous indicators,
 strict order. A stricter model (e.g., "residual.covariances") will have
 constraints of all previous stages.}
 
-\item{test}{Character variable indicating the statistical test to be used
-for specification search. Currently supported options are \code{"mod"} for
+\item{inv_test}{Character variable indicating the statistical test to be
+used for specification search. Currently supported options are \code{"mod"} for
 modification index using \code{lavaan::modindices()} and \code{"score"} for score
 test statistic using \code{lavaan::lavTestScore()}.}
 

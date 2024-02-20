@@ -207,8 +207,8 @@ fdr_alpha <- function(i, m, q = .05) {
 #'   (b) "loadings", "thresholds", "residual.covariances", in an increasingly
 #'   strict order. A stricter model (e.g., "residual.covariances") will have
 #'   constraints of all previous stages.
-#' @param test Character variable indicating the statistical test to be used
-#'   for specification search. Currently supported options are `"mod"` for
+#' @param inv_test Character variable indicating the statistical test to be
+#'   used for specification search. Currently supported options are `"mod"` for
 #'   modification index using `lavaan::modindices()` and `"score"` for score
 #'   test statistic using `lavaan::lavTestScore()`.
 #' @param sig_level Significance level used to determine whether the parameter
@@ -272,13 +272,13 @@ pinSearch <- function(config_mod,
                       ...,
                       type = c("loadings", "intercepts", "thresholds",
                                "residuals", "residual.covariances"),
-                      test = c("mod", "score"),
+                      inv_test = c("mod", "score"),
                       sig_level = .05,
                       control_fdr = FALSE,
                       effect_size = FALSE,
                       progress = FALSE) {
     type <- match.arg(type)
-    test <- match.arg(test)
+    inv_test <- match.arg(inv_test)
     base_fit <- lavaan::cfa(config_mod, group = group, data = data,
                             ordered = ordered,
                             parameterization = parameterization,
@@ -330,7 +330,7 @@ pinSearch <- function(config_mod,
             group.equal = eq, ...
         )
     }
-    fn_get_inv <- switch(test, mod = get_invmod, score = get_invscore)
+    fn_get_inv <- switch(inv_test, mod = get_invmod, score = get_invscore)
     for (i in seq_len(n_type)) {
         typei <- types[i]
         if (progress) message("\n[", i, "/", n_type, "] Searching for ",

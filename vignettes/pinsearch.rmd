@@ -45,7 +45,7 @@ ps1 <-
     pinSearch(mod,
         data = HolzingerSwineford1939,
         group = "school", type = "residuals",
-        test = "mod"  # use modification indices for search (default)
+        inv_test = "mod"  # use modification indices for search (default)
     )
 ```
 
@@ -72,7 +72,7 @@ These can be obtained by setting the `effect_size = TRUE` argument:
 pinSearch(mod,
     data = HolzingerSwineford1939,
     group = "school", type = "residuals",
-    test = "mod",
+    inv_test = "mod",
     effect_size = TRUE
 )
 ```
@@ -106,7 +106,7 @@ ps2 <-
     pinSearch(mod2,
         data = HolzingerSwineford1939,
         group = "school", type = "residuals",
-        test = "mod",
+        inv_test = "mod",
         effect_size = TRUE
     )
 ps2
@@ -116,13 +116,13 @@ It just happened in this examplle that the final results are not affected.
 
 ## Score Test
 
-One can also use the score test instead of the modification indices, as [starting in version 0.6-17, `lavaan` recommends using that for equality constraints](https://lavaan.ugent.be/history/dot6.html#version-0.6-17). This can be achieved with `test = "score"`.
+One can also use the score test instead of the modification indices, as [starting in version 0.6-17, `lavaan` recommends using that for equality constraints](https://lavaan.ugent.be/history/dot6.html#version-0.6-17). This can be achieved with `inv_test = "score"`.
 
 ```{r}
 pinSearch(mod2,
     data = HolzingerSwineford1939,
     group = "school", type = "residuals",
-    test = "score",
+    inv_test = "score",
     effect_size = TRUE
 )
 ```
@@ -137,7 +137,7 @@ The function also supports adjusting for multiplicity by using a more stringent 
 pinSearch(mod2,
     data = HolzingerSwineford1939,
     group = "school", type = "residuals",
-    test = "score",
+    inv_test = "score",
     effect_size = TRUE,
     control_fdr = TRUE
 )
