@@ -86,7 +86,7 @@ the test statistic for the next constraint to free.</p>
 <span>  parameterization <span class="op">=</span> <span class="st">"theta"</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span>, <span class="st">"thresholds"</span>, <span class="st">"residuals"</span>, <span class="st">"residual.covariances"</span><span class="op">)</span>,</span>
-<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mod"</span>, <span class="st">"score"</span><span class="op">)</span>,</span>
+<span>  inv_test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mod"</span>, <span class="st">"score"</span><span class="op">)</span>,</span>
 <span>  sig_level <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  control_fdr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  effect_size <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -133,9 +133,9 @@ strict order. A stricter model (e.g., "residual.covariances") will have
 constraints of all previous stages.</p></dd>
 
 
-<dt>test</dt>
-<dd><p>Character variable indicating the statistical test to be used
-for specification search. Currently supported options are <code>"mod"</code> for
+<dt>inv_test</dt>
+<dd><p>Character variable indicating the statistical test to be
+used for specification search. Currently supported options are <code>"mod"</code> for
 modification index using <code><a href="https://rdrr.io/pkg/lavaan/man/modificationIndices.html" class="external-link">lavaan::modindices()</a></code> and <code>"score"</code> for score
 test statistic using <code><a href="https://rdrr.io/pkg/lavaan/man/lavTestScore.html" class="external-link">lavaan::lavTestScore()</a></code>.</p></dd>
 
