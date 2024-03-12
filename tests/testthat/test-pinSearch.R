@@ -104,10 +104,10 @@ test_that("pinSearch() gives less parameters with fdr control", {
                   speed   =~ x7 + x8 + x9 '
     ps7 <- pinSearch(HS.model, data = HolzingerSwineford1939,
                      group = "school", type = "residuals",
-                     test = "score")
+                     inv_test = "score")
     ps8 <- pinSearch(HS.model, data = HolzingerSwineford1939,
                      group = "school", type = "residuals",
-                     test = "score", control_fdr = TRUE)
+                     inv_test = "score", control_fdr = TRUE)
     expect_lt(nrow(ps8[[2]]), expected = nrow(ps7[[2]]))
 })
 
