@@ -119,3 +119,16 @@ test_that("fdr_alpha() works as expected", {
     }
     expect_equal(i - 1, 3)
 })
+
+test_that("pinSearch(..., inv_test = 'lrt') works", {
+    HS.model <- ' visual  =~ x1 + x2 + x3 + x9
+                  textual =~ x4 + x5 + x6
+                  speed   =~ x7 + x8 + x9 '
+    ps9 <- pinSearch(HS.model, data = HolzingerSwineford1939,
+                     group = "school", type = "residuals",
+                     inv_test = "lrt")
+    ps10 <- pinSearch(HS.model, data = HolzingerSwineford1939,
+                      group = "school", type = "residuals",
+                      inv_test = "lrt", control_fdr = TRUE)
+    expect_lt(nrow(ps10[[2]]), expected = nrow(ps9[[2]]))
+})
