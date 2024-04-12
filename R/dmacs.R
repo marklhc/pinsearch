@@ -216,10 +216,11 @@ check_inv <- function(ind, par_type, pt) {
 #'
 #' @param object A CFA model of class [`lavaan::lavaan-class`]
 #'   fitted by [lavaan::cfa()]
+#' @param ... Additional arguments passed to [dmacs()] or [fmacs()]
 #' 
 #' @return A matrix of 1 row showing the effect size values for
 #'   each non-invariant item on each latent variable.
-es_lavaan <- function(object) {
+es_lavaan <- function(object, ...) {
     pt <- lavaan::parTable(object)
     ind_names <- object@pta$vnames$ov.ind[[1]]
     ordered <- length(lavaan::lavInspect(object, "ordered")) > 0
@@ -318,7 +319,8 @@ es_lavaan <- function(object) {
         es_fun(
             intercepts = intercept_mat,
             loadings = loading_mat,
-            pooled_item_sd = rep(pooled_item_sd, num_lvs)
+            pooled_item_sd = rep(pooled_item_sd, num_lvs),
+            ...
         )
     }
 }
