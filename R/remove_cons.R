@@ -92,7 +92,7 @@ get_invlrt <- function(object, type, alpha = .05, ind_names, pt0, ...) {
     pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0 & pt0$op == op, ]
     # Find relevant constraints
     # pt0_cons <- pt0[pt0$op == "==", ]
-    to_extract <- c("Chisq diff", "RMSEA", "Pr(>Chisq)")
+    to_extract <- c("Chisq diff", "Pr(>Chisq)")
     lrt_mat <- matrix(
         nrow = nrow(pt0_eq), ncol = length(to_extract),
         dimnames = list(NULL, to_extract)
@@ -102,7 +102,7 @@ get_invlrt <- function(object, type, alpha = .05, ind_names, pt0, ...) {
             pt0, pt0_eq$lhs[i], pt0_eq$rhs[i], pt0_eq$group[i], op
         )
         if (nrow(pt0) == nrow(pt_new)) {
-            lrt_mat[i, ] <- c(0, 0, NA)
+            lrt_mat[i, ] <- c(0, NA)
         } else {
             lrt_i <- lavaan::lavTestLRT(
                 object,

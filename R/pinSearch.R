@@ -107,8 +107,9 @@ cfa2 <- function(...) {
 #'   constraints of all previous stages.
 #' @param inv_test Character variable indicating the statistical test to be
 #'   used for specification search. Currently supported options are `"mod"` for
-#'   modification index using `lavaan::modindices()` and `"score"` for score
-#'   test statistic using `lavaan::lavTestScore()`.
+#'   modification index using `lavaan::modindices()`, `"score"` for score
+#'   test statistic using `lavaan::lavTestScore()`, and (experimental) `"lrt"`
+#'   for likelihood ratio test statistic using `lavaan::lavTestLRT()`.
 #' @param sig_level Significance level used to determine whether the parameter
 #'   associated with the highest modification index should be removed. Default
 #'   is .05.
