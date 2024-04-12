@@ -92,7 +92,36 @@ get_invlrt <- function(object, type, alpha = .05, ind_names, pt0, ...) {
     pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0 & pt0$op == op, ]
     # Find relevant constraints
     # pt0_cons <- pt0[pt0$op == "==", ]
-    to_extract <- c("Chisq diff", "Pr(>Chisq)")
+    to_extract <- c("Chisq diff", "Df diff", "Pr(>Chisq)")
+    if (FALSE) {
+        # by item
+        par_sets <- split(pt0_eq, f = pt0_eq[c("lhs", "op", "rhs")])
+        lrt_mat <- matrix(
+            nrow = length(par_sets), ncol = length(to_extract),
+            dimnames = list(NULL, to_extract)
+        )
+        for (j in seq_along(par_sets)) {
+            set <- par_sets[[j]]
+            pt_new <- pt0
+            for (i in seq_len(nrow(set))) {
+                pt_new <- remove_cons(
+                    pt_new, set$lhs[i], set$rhs[i],
+                    set$group[i], op
+                )
+            }
+            if (nrow(pt0) == nrow(pt_new)) {
+                lrt_mat[j, ] <- c(0, 0, NA)
+            } else {
+                lrt_j <- lavaan::lavTestLRT(
+                    object,
+                    lavaan::cfa(pt_new, ...)
+                )
+                lrt_mat[j, ] <- as.numeric(lrt_j[2, to_extract])
+            }
+        }
+        if (min(lrt_mat[, "Pr(>Chisq)"]) > alpha) return(NULL)
+        pt0_eq <- par_sets[[which.min(lrt_mat[, "Pr(>Chisq)"])]]
+    }
     lrt_mat <- matrix(
         nrow = nrow(pt0_eq), ncol = length(to_extract),
         dimnames = list(NULL, to_extract)
@@ -102,7 +131,7 @@ get_invlrt <- function(object, type, alpha = .05, ind_names, pt0, ...) {
             pt0, pt0_eq$lhs[i], pt0_eq$rhs[i], pt0_eq$group[i], op
         )
         if (nrow(pt0) == nrow(pt_new)) {
-            lrt_mat[i, ] <- c(0, NA)
+            lrt_mat[i, ] <- c(0, 0, NA)
         } else {
             lrt_i <- lavaan::lavTestLRT(
                 object,
