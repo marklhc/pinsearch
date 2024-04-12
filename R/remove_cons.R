@@ -34,13 +34,15 @@ get_invmod <- function(object, type, alpha = .05, ind_names, pt0, ...) {
     if (missing(pt0)) pt0 <- lavaan::parTable(object)
     op <- type2op(type)
     pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0, ]
-    mis <- lavaan::modindices(
-        object,
-        op = op,
-        minimum.value = stats::qchisq(alpha, 1, lower.tail = FALSE),
-        sort. = TRUE,
-        free.remove = FALSE
-    )
+    suppressWarnings({
+        mis <- lavaan::modindices(
+            object,
+            op = op,
+            minimum.value = stats::qchisq(alpha, 1, lower.tail = FALSE),
+            sort. = TRUE,
+            free.remove = FALSE
+        )
+    })
     # TODO: See if ind_names is needed
     # Only parameters in the original model
     if (type == "loadings") {

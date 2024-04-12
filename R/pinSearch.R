@@ -270,15 +270,18 @@ pinSearch <- function(config_mod,
                 c(list(model = pt0, group.equal = types[seq_len(i)]), dots)
             )
         }
-        if (types[i] == "residual.covariances" &&
+        if (typei == "residual.covariances" &&
             base_fit@test$standard$df >= new_fit@test$standard$df) {
             next
         }
         lrt_base_new <- lavaan::lavTestLRT(base_fit, new_fit)
         df_diff <- lrt_base_new[2, "Df diff"]
-        if ((isTRUE(all.equal(lrt_base_new[2, "Chisq diff"], 0)) &&
-            df_diff == 0) ||
-            lrt_base_new[2, "Pr(>Chisq)"] >= sig_level) {
+        if (isTRUE(all.equal(lrt_base_new[2, "Chisq diff"], 0)) &&
+            df_diff == 0) {
+                message("All free ", typei, " are noninvariant!")
+                next
+            }
+        if (lrt_base_new[2, "Pr(>Chisq)"] >= sig_level) {
             base_fit <- new_fit
             next # skip to next stage
         } else {
