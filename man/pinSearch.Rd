@@ -6,13 +6,9 @@
 \usage{
 pinSearch(
   config_mod,
-  data = NULL,
-  group = NULL,
-  ordered = NULL,
-  parameterization = "theta",
   ...,
   type = c("loadings", "intercepts", "thresholds", "residuals", "residual.covariances"),
-  inv_test = c("mod", "score"),
+  inv_test = c("mod", "score", "lrt"),
   sig_level = 0.05,
   control_fdr = FALSE,
   effect_size = FALSE,
@@ -22,17 +18,6 @@ pinSearch(
 \arguments{
 \item{config_mod}{Syntax of a configural invariance model to be passed to
 \code{\link[lavaan:cfa]{lavaan::cfa()}}.}
-
-\item{data}{A data frame to be passed to \code{\link[lavaan:cfa]{lavaan::cfa()}}.}
-
-\item{group}{Character indicating the variable name in \code{data} that
-defines the grouping variable in multiple-group CFA.}
-
-\item{ordered}{Character vector indicating names of variables to be treated
-as binary or ordinal. IF \code{NULL}, all items are treated as continuous.}
-
-\item{parameterization}{Character, either "theta" or "delta". "theta" should
-be used for invariance testing, and is the only method tested.}
 
 \item{...}{Additonal arguments passed to \code{\link[lavaan:cfa]{lavaan::cfa()}}.}
 
@@ -102,7 +87,7 @@ the desirable significance level.
 library(lavaan)
 library(MASS)
 # Simulate random data
-set.seed(14)  # for reproducible results
+set.seed(14) # for reproducible results
 mod_ninv <- "f =~ c(1, 0.8, .6)*y1 + c(0.8, 1.2, 1.0)*y2"
 mod_inv <- paste0("1*y", 3:6, collapse = " + ")
 sim_mod <- paste(
@@ -115,13 +100,15 @@ sim_mod <- paste(
     sep = "\n"
 )
 # The uniqueness of each item is assumed to be 1.0
-dat_sim = simulateData(sim_mod, sample.nobs = c(100, 100, 100))
+dat_sim <- simulateData(sim_mod, sample.nobs = c(100, 100, 100))
 # Fit configural model:
 sam_config <- paste(
-    paste0('f =~ ', paste0("y", 1:6, collapse = " + "))
+    paste0("f =~ ", paste0("y", 1:6, collapse = " + "))
 )
-pinSearch(sam_config, data = dat_sim, group = "group",
-          type = "intercepts")
+pinSearch(sam_config,
+    data = dat_sim, group = "group",
+    type = "intercepts"
+)
 }
 \references{
 Yoon, M., & Millsap, R. E. (2007). Detecting violations of
