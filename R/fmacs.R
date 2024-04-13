@@ -20,8 +20,15 @@
 #' @param intercepts A \eqn{G \times p} matrix of measurement intercepts.
 #' @param pooled_item_sd A numeric vector of length p of the pooled standard
 #'   deviation (SD) of the items across groups.
-#' @param num_obs A \eqn{G \times p} matrix of sample sizes. Default assumes
-#'   sample sizes are equal across groups.
+#' @param num_obs A vector of length \eqn{G} of sample sizes. If not
+#'   \code{NULL}, the weights will be proportional to sample sizes, assuming
+#'   the same weights across items.
+#' @param weights A \eqn{G \times p} matrix of weights. Default assumes
+#'   equal weights across groups.
+#' @param group_factor A vector of length \eqn{G} indicating grouping for 
+#'   contrast. For example, `c(1, 1, 2)` means contrasting Group 1 & 2 vs. 
+#'   Group 3. The default is to not combine any groups, meaning the 
+#'   omnibus effect is computed.
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
 #'
@@ -38,23 +45,56 @@
 #'       pooled_item_sd = c(1, 1, 1, 1),
 #'       latent_mean = 0,
 #'       latent_sd = 1)
+#' # With contrast (Group 1 & 2 vs. Group 3)
+#' fmacs(lambda,
+#'       loadings = nu,
+#'       pooled_item_sd = c(1, 1, 1, 1),
+#'       group_factor = c(1, 1, 2),
+#'       latent_mean = 0,
+#'       latent_sd = 1)
 #' @export
 fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
-                  num_obs = 0 * intercepts + 1,
+                  # Allow weighted vs. unweighted options
+                  # Accept character and matrix input?
+                  num_obs = NULL,
+                  weights = 0 * intercepts + 1,
+                  group_factor = seq_len(nrow(intercepts)),
                   latent_mean = 0, latent_sd = 1) {
-    total_obs <- colSums(num_obs)
-    if (!is.null(loadings)) {
-        mean_loading <- colSums(num_obs * loadings) / total_obs
-        dloading <- sweep(loadings, MARGIN = 2, STATS = mean_loading)
-    } else {
-        dloading <- 0
+    if (!is.null(num_obs)) {
+        weights <- matrix(num_obs, nrow = nrow(intercepts),
+                          ncol = ncol(intercepts))
     }
-    mean_intercept <- colSums(num_obs * intercepts) / total_obs
-    dintercept <- sweep(intercepts, MARGIN = 2, STATS = mean_intercept)
-    integral <- colSums(num_obs * (
-        dintercept^2 + 2 * dintercept * dloading * latent_mean +
-            dloading^2 * (latent_sd^2 + latent_mean^2)
-    )) / total_obs
+    # total_obs <- colSums(num_obs)
+    weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
+    ww <- apply(weights, 2, function(v, g = group_factor) {
+        stats::ave(v, g, FUN = function(x) x / sum(x))
+    })
+    if (!is.null(loadings)) {
+        # mean_loading <- colSums(num_obs * loadings) / total_obs
+        mean_loading <- colSums(weights * loadings)
+        group_loadings <-
+            apply(ww * loadings, 2, function(v, g = group_factor) {
+                stats::ave(v, g, FUN = sum)
+            })
+        dloadings <- sweep(group_loadings, MARGIN = 2, STATS = mean_loading)
+    } else {
+        dloadings <- 0
+    }
+    # mean_intercept <- colSums(num_obs * intercepts) / total_obs
+    mean_intercept <- colSums(weights * intercepts)
+    group_intercepts <-
+        apply(ww * intercepts, 2, function(v, g = group_factor) {
+            stats::ave(v, g, FUN = sum)
+        })
+    dintercepts <- sweep(group_intercepts, MARGIN = 2, STATS = mean_intercept)
+    # integral <- colSums(num_obs * (
+    #     dintercept^2 + 2 * dintercept * dloading * latent_mean +
+    #         dloading^2 * (latent_sd^2 + latent_mean^2)
+    # )) / total_obs
+    integral <- colSums(weights * (
+        dintercepts^2 + 2 * dintercepts * dloadings * latent_mean +
+            dloadings^2 * (latent_sd^2 + latent_mean^2)
+    ))
     out <- sqrt(integral) / pooled_item_sd
     matrix(out, nrow = 1, dimnames = list("fmacs", colnames(loadings)))
 }
@@ -80,10 +120,19 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
 #'               pooled_item_sd = c(1, 1, 1, 1),
 #'               latent_mean = 0,
 #'               latent_sd = 1)
+#' # With contrast (Group 1 & 2 vs. Group 3)
+#' fmacs_ordered(tau,
+#'               loadings = lambda,
+#'               pooled_item_sd = c(1, 1, 1, 1),
+#'               group_factor = c(1, 2, 1),
+#'               latent_mean = 0,
+#'               latent_sd = 1)
 #' @export
 fmacs_ordered <- function(thresholds, loadings,
                           thetas = 1,
-                          num_obs = 0 * loadings + 1,
+                          num_obs = NULL,
+                          weights = 0 * loadings + 1,
+                          group_factor = seq_len(nrow(loadings)),
                           link = c("probit", "logit"),
                           pooled_item_sd = NULL,
                           latent_mean = 0, latent_sd = 1) {
@@ -93,6 +142,10 @@ fmacs_ordered <- function(thresholds, loadings,
     if (is.null(colnames(thresholds))) {
         stop("thresholds should have column names to indicate which thresholds",
              " are for which items")
+    }
+    if (!is.null(num_obs)) {
+        weights <- matrix(num_obs, nrow = nrow(thresholds),
+                          ncol = ncol(thresholds))
     }
     link <- match.arg(link)
     expected_item <- function(a, cs, eta, li = link) {
@@ -106,7 +159,10 @@ fmacs_ordered <- function(thresholds, loadings,
     thres_list <- split(seq_len(ncol(thresholds)),
                         as.numeric(colnames(thresholds)))
     integrals <- rep(NA, length(thres_list))
-    total_obs <- colSums(num_obs)
+    weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
+    # ww <- apply(weights, 2, function(v, g = group_factor) {
+    #     ave(v, g, FUN = function(x) x / sum(x))
+    # })
     for (j in seq_along(integrals)) {
         integrals[j] <- stats::integrate(
             function(x) {
@@ -115,11 +171,19 @@ fmacs_ordered <- function(thresholds, loadings,
                     expected_item(loadings[i, j], cs = th[i, ], eta = x)
                 })
                 exp_y <- do.call(rbind, exp_y)
-                mean_exp_y <- crossprod(num_obs[, j], exp_y) / total_obs[j]
-                crossprod(num_obs[, j],
-                          sweep(exp_y, MARGIN = 2, STATS = mean_exp_y) ^ 2) /
-                    total_obs[j] *
-                    stats::dnorm(x, mean = latent_mean, sd = latent_sd)
+                # mean_exp_y <- crossprod(num_obs[, j], exp_y) / total_obs[j]
+                mean_exp_y <- crossprod(weights[, j], exp_y)
+                ww <- stats::ave(weights[, j], group_factor,
+                                 FUN = function(x) x / sum(x))
+                group_exp_y <-
+                    apply(ww * exp_y, 2, function(v, g = group_factor) {
+                        stats::ave(v, g, FUN = sum)
+                    })
+                crossprod(
+                    weights[, j],
+                    sweep(group_exp_y, MARGIN = 2, STATS = mean_exp_y) ^ 2) *
+                    stats::dnorm(x, mean = latent_mean, sd = latent_sd
+                    )
             },
             lower = -Inf, upper = Inf
         )$value

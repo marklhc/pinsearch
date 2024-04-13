@@ -5,13 +5,15 @@
 \alias{pin_es}
 \title{Item-level effect size for non-invariance}
 \usage{
-es_lavaan(object)
+es_lavaan(object, ...)
 
-pin_es(object)
+pin_es(object, ...)
 }
 \arguments{
 \item{object}{A CFA model of class \code{\link[lavaan:lavaan-class]{lavaan::lavaan}}
 fitted by \code{\link[lavaan:cfa]{lavaan::cfa()}}}
+
+\item{...}{Additional arguments passed to \code{\link[=dmacs]{dmacs()}} or \code{\link[=fmacs]{fmacs()}}}
 }
 \value{
 A matrix of 1 row showing the effect size values for

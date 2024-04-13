@@ -8,9 +8,6 @@ tau <- rbind(c(-0.5, 0, 1, -0.3, 0.1, 0.5, -0.5),
              c(-0.5, 0, 1, -0.5, 0.3, 0.5, -1),
              c(-0.5, 0, 1, -0.5, 0.3, 0.5, -1))
 colnames(tau) <- c(1, 1, 1, 2, 2, 2, 3)
-ns <- rbind(c(100, 50, 100),
-            c(100, 50, 100),
-            c(100, 50, 100))
 
 test_that("fmacs() equals dmacs() / 2 in two groups", {
     f1 <- fmacs(nu[c(1, 3),], loadings = lambda[c(1, 3),], pooled_item_sd = 1)
@@ -34,4 +31,31 @@ test_that("fmacs() is larger with more different parameters", {
     expect_true(all(f5 > f4))
 })
 
+test_that("fmacs_ordered(..., group_factor) works", {
+    f6 <- fmacs_ordered(tau, loadings = lambda,
+                        pooled_item_sd = 1.5)
+    f6g <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = 1.5,
+                         group_factor = c(1, 1, 2))
+    expect_equal(f6[1], f6g[1])
+    expect_true(all(f6g[-1] < f6[-1]))
+    # f should be larger with more weights to group 3 for item 1
+    f7g <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = 1.5,
+                         num_obs = c(100, 50, 100),
+                         group_factor = c(1, 1, 2))
+    expect_gt(f7g[1], f6g[1])
+    # f should be larger with less weights to group 2 for item 3
+    expect_gt(f7g[3], f6g[3])
+    # f close to zero for item 3 with no weights for group 1
+    f8g <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = 1,
+                         num_obs = c(1, 1e5 - 1, 1e5),
+                         group_factor = c(1, 1, 2))
+    expect_equal(f8g[3], 0, tolerance = 1e-6)
+})
 
+test_that("Error without 'pooled_sd' argument", {
+    expect_error(fmacs(nu, loadings = lambda))
+    # Can compute for ordered . . .
+})
