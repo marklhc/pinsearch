@@ -30,8 +30,9 @@ constraints of all previous stages.}
 
 \item{inv_test}{Character variable indicating the statistical test to be
 used for specification search. Currently supported options are \code{"mod"} for
-modification index using \code{lavaan::modindices()} and \code{"score"} for score
-test statistic using \code{lavaan::lavTestScore()}.}
+modification index using \code{lavaan::modindices()}, \code{"score"} for score
+test statistic using \code{lavaan::lavTestScore()}, and (experimental) \code{"lrt"}
+for likelihood ratio test statistic using \code{lavaan::lavTestLRT()}.}
 
 \item{sig_level}{Significance level used to determine whether the parameter
 associated with the highest modification index should be removed. Default
