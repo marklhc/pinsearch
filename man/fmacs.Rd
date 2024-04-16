@@ -11,7 +11,8 @@ fmacs(
   pooled_item_sd,
   num_obs = NULL,
   weights = 0 * intercepts + 1,
-  group_factor = seq_len(nrow(intercepts)),
+  group_factor = NULL,
+  contrast = contr.sum(nrow(intercepts)),
   latent_mean = 0,
   latent_sd = 1
 )
@@ -49,6 +50,10 @@ equal weights across groups.}
 contrast. For example, \code{c(1, 1, 2)} means contrasting Group 1 & 2 vs.
 Group 3. The default is to not combine any groups, meaning the
 omnibus effect is computed.}
+
+\item{contrast}{A \eqn{p \times k} contrast matrix where
+\code{colSums(contrast)} = 0. Default is \code{contr.sum(p)} if \code{group_factor} is
+not specified.}
 
 \item{latent_mean}{latent factor mean for the reference group. Default to 0.}
 

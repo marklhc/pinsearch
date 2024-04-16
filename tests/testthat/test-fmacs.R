@@ -59,3 +59,47 @@ test_that("Error without 'pooled_sd' argument", {
     expect_error(fmacs(nu, loadings = lambda))
     # Can compute for ordered . . .
 })
+
+# fmacs(matrix(c(9, 5, 7, 11)), pooled_item_sd = 1,
+#       num_obs = c(10, 5, 16, 9))
+
+test_that("fmacs() works with contrast", code = {
+    # Compare to results from ANOVA
+    num_obs <- 5
+    err <- rnorm(num_obs)
+    err <- (err - mean(err))
+    err <- err / sqrt(mean(err^2))
+    mu2 <- c(5, 7, 9, 11, 6, 14, 8, 10)
+    group <- rep(LETTERS[1:4], each = num_obs * 2)
+    group2 <- rep(rep(1:2, each = num_obs), length(mu2) / 2)
+    y2 <- rep(mu2, each = num_obs) + err
+    aov2 <- aov(y2 ~ group * group2)
+    f2_aov <- summary(aov2)[[1]]$`Sum Sq`[1:3] / sum(aov2$residuals^2)
+    # Overall
+    quick_f <- function(...) {
+        fmacs(matrix(mu2), num_obs = rep(num_obs, length(mu2)),
+              pooled_item_sd = 1, ...)
+    }
+    f1 <- quick_f()
+    expect_equal(as.numeric(f1^2), sum(f2_aov))
+    # Contrast matrix
+    fac <- factor(group)
+    contrasts(fac) <- contr.sum(nlevels(fac))
+    fac2 <- factor(group2)
+    contrasts(fac2) <- contr.sum(nlevels(fac2))
+    contr <- unique(model.matrix(~ fac * fac2))
+    f2 <- quick_f(contrast = contr[, -1])
+    expect_equal(f1, f2)
+    # Main effect for group
+    f3 <- quick_f(contrast = contr[, 2:4])
+    f3g <- quick_f(group_factor = c(1, 1, 2, 2, 3, 3, 4, 4))
+    expect_equal(f3, f3g)
+    # Main effect for group
+    f4 <- quick_f(contrast = contr[, 5])
+    f4g <- quick_f(group_factor = c(1, 2, 1, 2, 1, 2, 1, 2))
+    expect_equal(f4, f4g)
+    # Interaction
+    f5 <- quick_f(contrast = contr[, 6:8])
+    expect_equal(as.numeric(c(f3, f4, f5)^2), f2_aov)
+    expect_equal(sum(c(f3, f4, f5)^2), as.numeric(f1^2))
+})
