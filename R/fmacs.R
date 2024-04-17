@@ -74,7 +74,7 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
     if (!is.null(group_factor)) {
         fac <- as.factor(group_factor)
-        contrasts(fac) <- contr.sum(nlevels(fac))
+        contrasts(fac) <- contr.sum(nlevels(fac)) / as.numeric(table(fac))
         contrast <- model.matrix(~ fac)[, -1, drop = FALSE]
     }
     contrast <- as.matrix(contrast)
