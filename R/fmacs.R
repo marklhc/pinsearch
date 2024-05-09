@@ -73,6 +73,8 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     # total_obs <- colSums(num_obs)
     weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
     if (!is.null(group_factor)) {
+        stopifnot(nrow(intercepts) == nrow(loadings),
+                  length(group_factor) == nrow(intercepts))
         fac <- as.factor(group_factor)
         contrasts(fac) <- contr.sum(nlevels(fac)) / as.numeric(table(fac))
         contrast <- model.matrix(~ fac)[, -1, drop = FALSE]
@@ -133,7 +135,8 @@ fmacs_ordered <- function(thresholds, loadings,
                           thetas = 1,
                           num_obs = NULL,
                           weights = 0 * loadings + 1,
-                          group_factor = seq_len(nrow(loadings)),
+                          group_factor = NULL,
+                          contrast = contr.sum(nrow(thresholds)),
                           link = c("probit", "logit"),
                           pooled_item_sd = NULL,
                           latent_mean = 0, latent_sd = 1) {
@@ -143,6 +146,17 @@ fmacs_ordered <- function(thresholds, loadings,
     if (is.null(colnames(thresholds))) {
         stop("thresholds should have column names to indicate which thresholds",
              " are for which items")
+    }
+    if (!is.null(group_factor)) {
+        stopifnot(nrow(thresholds) == nrow(loadings),
+                  length(group_factor) == nrow(thresholds))
+        fac <- as.factor(group_factor)
+        contrasts(fac) <- contr.sum(nlevels(fac)) / as.numeric(table(fac))
+        contrast <- model.matrix(~ fac)[, -1, drop = FALSE]
+    }
+    contrast <- as.matrix(contrast)
+    if (any(colSums(contrast) != 0)) {
+        warning("Contrast does not sum to 0, and results may not be correct.")
     }
     if (!is.null(num_obs)) {
         weights <- matrix(num_obs, nrow = nrow(thresholds),
@@ -165,6 +179,9 @@ fmacs_ordered <- function(thresholds, loadings,
     #     ave(v, g, FUN = function(x) x / sum(x))
     # })
     for (j in seq_along(integrals)) {
+        inv_ss_cont <- solve(
+            crossprod(contrast, contrast / weights[, j])
+        )
         integrals[j] <- stats::integrate(
             function(x) {
                 th <- thresholds[, thres_list[[j]], drop = FALSE]
@@ -172,19 +189,22 @@ fmacs_ordered <- function(thresholds, loadings,
                     expected_item(loadings[i, j], cs = th[i, ], eta = x)
                 })
                 exp_y <- do.call(rbind, exp_y)
+                cexp_y <- crossprod(contrast, exp_y)
                 # mean_exp_y <- crossprod(num_obs[, j], exp_y) / total_obs[j]
-                mean_exp_y <- crossprod(weights[, j], exp_y)
-                ww <- stats::ave(weights[, j], group_factor,
-                                 FUN = function(x) x / sum(x))
-                group_exp_y <-
-                    apply(ww * exp_y, 2, function(v, g = group_factor) {
-                        stats::ave(v, g, FUN = sum)
-                    })
-                crossprod(
-                    weights[, j],
-                    sweep(group_exp_y, MARGIN = 2, STATS = mean_exp_y) ^ 2) *
-                    stats::dnorm(x, mean = latent_mean, sd = latent_sd
-                    )
+                # mean_exp_y <- crossprod(weights[, j], exp_y)
+                # ww <- stats::ave(weights[, j], group_factor,
+                #                  FUN = function(x) x / sum(x))
+                # group_exp_y <-
+                #     apply(ww * exp_y, 2, function(v, g = group_factor) {
+                #         stats::ave(v, g, FUN = sum)
+                #     })
+                # crossprod(
+                #     weights[, j],
+                #     sweep(group_exp_y, MARGIN = 2, STATS = mean_exp_y) ^ 2) *
+                #     stats::dnorm(x, mean = latent_mean, sd = latent_sd
+                #     )
+                colSums(cexp_y * (inv_ss_cont %*% cexp_y)) *
+                    stats::dnorm(x, mean = latent_mean, sd = latent_sd)
             },
             lower = -Inf, upper = Inf
         )$value
