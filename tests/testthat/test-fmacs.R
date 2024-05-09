@@ -103,3 +103,16 @@ test_that("fmacs() works with contrast", code = {
     expect_equal(as.numeric(c(f3, f4, f5)^2), f2_aov)
     expect_equal(sum(c(f3, f4, f5)^2), as.numeric(f1^2))
 })
+
+test_that(
+    "Error when `group_factor` has incorrect length",
+    code = {
+        expect_error(
+            fmacs_ordered(tau,
+                loadings = lambda,
+                pooled_item_sd = 1.5,
+                group_factor = c(1, 1, 2, 3)
+            )
+        )
+    }
+)
