@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     df_print: kable
 vignette: >
-  %\VignetteIndexEntry{compare-cont-cat}
+  %\VignetteIndexEntry{Comparing Effect Size for Continuous and Categorical Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
