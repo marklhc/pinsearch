@@ -89,12 +89,12 @@ contfit <- cfa(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                group.equal = c("loadings", "intercepts"),
                group.partial = c("yy2~1", "yy4~1",
                                  "yy5~1", "yy7~1"))
-(dcont <- pin_es(contfit))
+(dcont <- pin_effsize(contfit))
 
 ps_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                     data = df, group = "group", type = "thresholds",
                     ordered = paste0("yy", 1:7))
-(dcat <- pin_es(ps_cat$`Partial Invariance Fit`))
+(dcat <- pin_effsize(ps_cat$`Partial Invariance Fit`))
 ```
 
 ```{r}
@@ -117,7 +117,7 @@ df2[, 1:7] <- as.integer(df2[, 1:7] >= 3)
 ps2_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                      data = df2, group = "group", type = "thresholds",
                      ordered = paste0("yy", 1:7))
-(dcat <- pin_es(ps2_cat$`Partial Invariance Fit`))
+(dcat <- pin_effsize(ps2_cat$`Partial Invariance Fit`))
 ```
 
 ```{r}

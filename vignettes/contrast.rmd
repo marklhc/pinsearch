@@ -76,11 +76,11 @@ knitr::kable(ps[[2]])
 
 ```{r}
 # Obtain fmacs effect size
-(f_omni <- pin_es(ps[[1]]))
+(f_omni <- pin_effsize(ps[[1]]))
 # fmacs by gender
-(f_gender <- pin_es(ps[[1]], group_factor = c(1, 1, 1, 2, 2, 2)))
+(f_gender <- pin_effsize(ps[[1]], group_factor = c(1, 1, 1, 2, 2, 2)))
 # fmacs by ethnicity
-(f_eth <- pin_es(ps[[1]], group_factor = c(1, 2, 3, 1, 2, 3)))
+(f_eth <- pin_effsize(ps[[1]], group_factor = c(1, 2, 3, 1, 2, 3)))
 # interaction (using contrast matrix)
 contr <- local({
     gen <- factor(c("F", "M"))
@@ -89,7 +89,7 @@ contr <- local({
     contrasts(eth) <- contr.sum(length(eth))
     model.matrix(~ gen * eth, data = expand.grid(eth = eth, gen = gen))
 })
-(f_int <- pin_es(ps[[1]], contrast = contr[, 5:6, drop = FALSE]))
+(f_int <- pin_effsize(ps[[1]], contrast = contr[, 5:6, drop = FALSE]))
 ```
 
 ```{r}

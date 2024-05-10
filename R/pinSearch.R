@@ -231,7 +231,7 @@ fdr_alpha <- function(i, m, q = .05) {
 #' - `Non-Invariant Items`: A data frame of non-invariant
 #'     parameters.
 #' - `effect_size`: Effect size statistics obtained from
-#'     [pin_es()].
+#'     [pin_effsize()].
 #' 
 #' @references Yoon, M., & Millsap, R. E. (2007). Detecting violations of
 #'   factorial invariance using data-based specification searches: A 

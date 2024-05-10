@@ -72,7 +72,7 @@ object containing the final partial invariance model.
 \item \verb{Non-Invariant Items}: A data frame of non-invariant
 parameters.
 \item \code{effect_size}: Effect size statistics obtained from
-\code{\link[=pin_es]{pin_es()}}.
+\code{\link[=pin_effsize]{pin_effsize()}}.
 }
 }
 \description{

@@ -328,4 +328,4 @@ es_lavaan <- function(object, ...) {
 
 #' @rdname es_lavaan
 #' @export
-pin_es <- es_lavaan
+pin_effsize <- es_lavaan

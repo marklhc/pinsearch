@@ -79,7 +79,7 @@ pinSearch(mod,
 
 Note that in the above output, the effect sizes are printed three times for `x3` and `x7`, which have non-invariant intercepts. This is because there are three latent variables in the model, and the function allows for the possibility of cross-loadings. When each item is only loaded on one latent variable, user can ignore the duplicated values (we will try to fix this in future releases).
 
-Another possibility is to use the `pin_es()` function, which also works for partial invariance model not obtained from `pinSearch()`.
+Another possibility is to use the `pin_effsize()` function, which also works for partial invariance model not obtained from `pinSearch()`.
 
 ```{r}
 # Fit the partial strict model by hand
@@ -89,7 +89,7 @@ pstrict_fit <- cfa(mod, data = HolzingerSwineford1939,
                                    "residuals"),
                    group.partial = c("x3~1", "x7~1"))
 # Effect sizes
-pin_es(pstrict_fit)
+pin_effsize(pstrict_fit)
 ```
 
 ## Cross-Loadings
