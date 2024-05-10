@@ -53,12 +53,12 @@ criteria are reached, the progress bar may be inaccurate.}
 \value{
 A list of three elements:
 \itemize{
-\item{\verb{Partial Invariance Fit}}{A \code{\link[lavaan:lavaan-class]{lavaan::lavaan}}
-object containing the final partial invariance model.}
-\item{\verb{Non-Invariant Items}}{A data frame of non-invariant
-parameters.}
-\item{\code{effect_size}}{Effect size statistics obtained from
-\code{\link[=pin_es]{pin_es()}}.}
+\item \verb{Partial Invariance Fit}: A \code{\link[lavaan:lavaan-class]{lavaan::lavaan}}
+object containing the final partial invariance model.
+\item \verb{Non-Invariant Items}: A data frame of non-invariant
+parameters.
+\item \code{effect_size}: Effect size statistics obtained from
+\code{\link[=pin_effsize]{pin_effsize()}}.
 }
 }
 \description{

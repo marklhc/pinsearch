@@ -2,12 +2,12 @@
 % Please edit documentation in R/dmacs.R
 \name{es_lavaan}
 \alias{es_lavaan}
-\alias{pin_es}
+\alias{pin_effsize}
 \title{Item-level effect size for non-invariance}
 \usage{
 es_lavaan(object, ...)
 
-pin_es(object, ...)
+pin_effsize(object, ...)
 }
 \arguments{
 \item{object}{A CFA model of class \code{\link[lavaan:lavaan-class]{lavaan::lavaan}}

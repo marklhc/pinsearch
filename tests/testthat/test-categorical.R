@@ -135,9 +135,9 @@ ps5_re <- cfa(' f =~ NA * yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7
               group.equal = c("loadings", "thresholds", "residuals"),
               group.partial = c("yy7|t1", "yy2|t1", "yy4|t3", "yy5|t3"),
               parameterization = "theta")
-test_that("`pin_es()` invariant with scaling", {
-    expect_equal(pin_es(ps5[[1]]),
-                 pin_es(ps5_re),
+test_that("`pin_effsize()` invariant with scaling", {
+    expect_equal(pin_effsize(ps5[[1]]),
+                 pin_effsize(ps5_re),
                  tolerance = 0.00001)
 })
 

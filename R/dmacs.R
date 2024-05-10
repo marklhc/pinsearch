@@ -296,7 +296,8 @@ es_lavaan <- function(object, ...) {
             loadings = loading_mat,
             latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
             latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
-            pooled_item_sd = rep(pooled_item_sd, num_lvs)
+            pooled_item_sd = rep(pooled_item_sd, num_lvs),
+            ...
         )
     } else {
         intercept_mat <- lapply(
@@ -327,4 +328,4 @@ es_lavaan <- function(object, ...) {
 
 #' @rdname es_lavaan
 #' @export
-pin_es <- es_lavaan
+pin_effsize <- es_lavaan
