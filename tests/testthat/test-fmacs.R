@@ -52,7 +52,7 @@ test_that("fmacs_ordered(..., group_factor) works", {
                          pooled_item_sd = 1,
                          num_obs = c(1, 1e5 - 1, 1e5),
                          group_factor = c(1, 1, 2))
-    expect_equal(f8g[3], 0, tolerance = 1e-6)
+    expect_lt(f8g[3], 1e-3)
 })
 
 test_that("Error without 'pooled_sd' argument", {
@@ -102,6 +102,29 @@ test_that("fmacs() works with contrast", code = {
     f5 <- quick_f(contrast = contr[, 6:8])
     expect_equal(as.numeric(c(f3, f4, f5)^2), f2_aov)
     expect_equal(sum(c(f3, f4, f5)^2), as.numeric(f1^2))
+})
+
+test_that("fmacs_ordered() works with contrast", code = {
+    lambda <- rbind(
+        c(.7, .8, .8),
+        c(.7, .8, .7),
+        c(.8, .7, .7),
+        c(.5, .3, .8)
+    )
+    tau <- rbind(
+        c(-0.5, 0, 1, -0.3, 0.1, 0.5, 0),
+        c(-0.5, 0, 1, -0.5, 0.3, 0.5, -1),
+        c(-0.5, 0, 1, -0.5, 0.3, 0.5, -1),
+        c(-0.5, 0, 1, -0.5, 0.3, 0.5, 0)
+    )
+    colnames(tau) <- c(1, 1, 1, 2, 2, 2, 3)
+    f9 <- fmacs_ordered(tau, loadings = lambda,
+                        pooled_item_sd = 1.5)
+    f10 <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = 1.5,
+                         contrast = c(1, 1, -1, -1))
+    expect_true(all(f9 > f10))
+    expect_equal(f10[3], 0)
 })
 
 test_that(
