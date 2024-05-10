@@ -345,9 +345,9 @@ intercepts. This is because there are three latent variables in the
 model, and the function allows for the possibility of cross-loadings.
 When each item is only loaded on one latent variable, user can ignore
 the duplicated values (we will try to fix this in future releases).</p>
-<p>Another possibility is to use the <code><a href="../reference/es_lavaan.html">pin_es()</a></code> function,
-which also works for partial invariance model not obtained from
-<code><a href="../reference/pinSearch.html">pinSearch()</a></code>.</p>
+<p>Another possibility is to use the <code><a href="../reference/es_lavaan.html">pin_effsize()</a></code>
+function, which also works for partial invariance model not obtained
+from <code><a href="../reference/pinSearch.html">pinSearch()</a></code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit the partial strict model by hand</span></span>
 <span><span class="va">pstrict_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">cfa</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
@@ -356,7 +356,7 @@ which also works for partial invariance model not obtained from
 <span>                                   <span class="st">"residuals"</span><span class="op">)</span>,</span>
 <span>                   group.partial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x3~1"</span>, <span class="st">"x7~1"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co"># Effect sizes</span></span>
-<span><span class="fu"><a href="../reference/es_lavaan.html">pin_es</a></span><span class="op">(</span><span class="va">pstrict_fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">pstrict_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
 <span><span class="co">#&gt; dmacs 0.4865945 0.4161159  0.4865945  0.4161159 0.4865945 0.4161159</span></span></code></pre></div>
 </div>

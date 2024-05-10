@@ -156,7 +156,7 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span>               group.equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span><span class="op">)</span>,</span>
 <span>               group.partial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yy2~1"</span>, <span class="st">"yy4~1"</span>,</span>
 <span>                                 <span class="st">"yy5~1"</span>, <span class="st">"yy7~1"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">(</span><span class="va">dcont</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_es</a></span><span class="op">(</span><span class="va">contfit</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">(</span><span class="va">dcont</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">contfit</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           yy2-f     yy4-f     yy5-f     yy7-f</span></span>
 <span><span class="co">#&gt; dmacs 0.1950139 0.1746383 0.1094671 0.2527195</span></span>
 <span></span>
@@ -179,7 +179,7 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
 <span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
 <span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_es</a></span><span class="op">(</span><span class="va">ps_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           yy2-f     yy4-f     yy5-f     yy7-f</span></span>
 <span><span class="co">#&gt; dmacs 0.2110674 0.1611903 0.1314062 0.2083824</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -211,7 +211,7 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
 <span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
 <span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_es</a></span><span class="op">(</span><span class="va">ps2_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps2_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           yy4-f     yy5-f</span></span>
 <span><span class="co">#&gt; dmacs 0.4098183 0.3721338</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
