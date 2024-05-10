@@ -1,10 +1,11 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
+pandoc: 3.1.11
+pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
   compare-cont-cat: compare-cont-cat.html
+  contrast: contrast.html
   pinsearch: pinsearch.html
-last_built: 2024-02-20T19:39Z
+last_built: 2024-05-10T21:48Z
 urls:
   reference: https://marklhc.github.io/pinsearch/reference
   article: https://marklhc.github.io/pinsearch/articles
