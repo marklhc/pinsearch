@@ -224,15 +224,15 @@ fdr_alpha <- function(i, m, q = .05) {
 #'   if `TRUE`. Because the number of steps is unknown until the stopping
 #'   criteria are reached, the progress bar may be inaccurate.
 #'
-#' @return A list of three elements:
-#' \itemize{
-#'   \item{`Partial Invariance Fit`}{A [`lavaan::lavaan-class`]
-#'     object containing the final partial invariance model.}
-#'   \item{`Non-Invariant Items`}{A data frame of non-invariant
-#'     parameters.}
-#'   \item{`effect_size`}{Effect size statistics obtained from
-#'     [pin_es()].}
-#' }
+#' @returns A list of three elements:
+#' 
+#' - `Partial Invariance Fit`: A [`lavaan::lavaan-class`]
+#'     object containing the final partial invariance model.
+#' - `Non-Invariant Items`: A data frame of non-invariant
+#'     parameters.
+#' - `effect_size`: Effect size statistics obtained from
+#'     [pin_es()].
+#' 
 #' @references Yoon, M., & Millsap, R. E. (2007). Detecting violations of
 #'   factorial invariance using data-based specification searches: A 
 #'   Monte Carlo study. Structural Equation Modeling: A Multidisciplinary

@@ -189,11 +189,21 @@ pooledvar <- function(vars, ns) {
     apply(vars, MARGIN = 1, stats::weighted.mean, w = ns - 1)
 }
 
-var_from_thres <- function(thres) {
-    cum_ps <- stats::pnorm(thres)
+var_from_thres <- function(thres, mean = 0, sd = 1) {
+    cum_ps <- stats::pnorm(thres, mean = mean, sd = sd)
     ps <- diff(c(0, cum_ps, 1))
     vals <- seq_len(length(thres) + 1) - 1
     sum(vals^2 * ps) - (sum(vals * ps))^2
+}
+
+check_inv <- function(ind, par_type, pt) {
+    pt_par <- getpt(pt, type = par_type, ind_names = ind)
+    npar_uniq <- nrow(unique(
+        pt_par[pt_par$free != 0, c("lhs", "op", "rhs")]
+    ))
+    sum(pt$lhs %in% pt_par$plabel & pt$rhs %in% pt_par$plabel &
+            pt$op == "==") >= nrow(pt_par) - npar_uniq -
+        sum(pt_par$free == 0)
 }
 
 #' Item-level effect size for non-invariance
@@ -206,29 +216,36 @@ var_from_thres <- function(thres) {
 #'
 #' @param object A CFA model of class [`lavaan::lavaan-class`]
 #'   fitted by [lavaan::cfa()]
+#' @param ... Additional arguments passed to [dmacs()] or [fmacs()]
 #' 
 #' @return A matrix of 1 row showing the effect size values for
 #'   each non-invariant item on each latent variable.
-es_lavaan <- function(object) {
+es_lavaan <- function(object, ...) {
     pt <- lavaan::parTable(object)
     ind_names <- object@pta$vnames$ov.ind[[1]]
     ordered <- length(lavaan::lavInspect(object, "ordered")) > 0
     if (ordered) {
-        par_type <- c("load", "thres")
+        par_type <- c("load", "thres", "uniq")
     } else {
         par_type <- c("load", "int")
     }
-    pt_par <- getpt(pt, type = par_type, ind_names = ind_names)
-    pt_eq <- getpt(pt, type = "equality", ind_names = ind_names)
-    ninv_par <-
-        setdiff(pt_par$plabel, unique(c(pt_eq$lhs, pt_eq$rhs)))
-    # Remove pairs of values that are not free
-    free <- NULL
-    ninv_par <-
-        pt_par$plabel[pt_par$plabel %in% ninv_par & pt_par$free != 0]
-    plabel <- NULL
-    ninv_ov <- unique(unlist(pt_par[pt_par$plabel %in% ninv_par, c("lhs", "rhs")]))
-    ninv_ov <- intersect(ninv_ov, ind_names)
+    inv_ind <- vapply(ind_names, FUN = check_inv,
+                      FUN.VALUE = logical(1),
+                      par_type = par_type, pt = pt)
+    ninv_ov <- ind_names[which(!inv_ind)]
+    # pt_par <- getpt(pt, type = par_type, ind_names = ind_names)
+    # pt_eq <- getpt(pt, type = "equality", ind_names = ind_names)
+    # ninv_par <-
+    #     setdiff(pt_par$plabel, unique(c(pt_eq$lhs, pt_eq$rhs)))
+    # # Remove pairs of values that are not free
+    # free <- NULL
+    # ninv_par <-
+    #     pt_par$plabel[pt_par$plabel %in% ninv_par & pt_par$free != 0]
+    # plabel <- NULL
+    # ninv_ov <- unique(unlist(
+    #     pt_par[pt_par$plabel %in% ninv_par, c("lhs", "rhs")]
+    # ))
+    # ninv_ov <- intersect(ninv_ov, ind_names)
     pars <- lavaan::lavInspect(object, what = "est")
     num_lvs <- length(object@pta$vnames$lv[[1]])
     loading_mat <- lapply(
@@ -252,32 +269,35 @@ es_lavaan <- function(object) {
             pars,
             FUN = function(x) {
                 th_names <- rownames(x$tau)
-                x$tau[grep(paste(ninv_ov, collapse = "|"), th_names),]
+                x$tau[grep(paste0(ninv_ov, "\\|t", collapse = "|"), th_names),]
             }
         )
         thres_mat <- do.call(rbind, thres_mat)
-        thres_names <- unlist(
-            lapply(colnames(thres_mat), FUN = grep, x = ninv_ov)
-        )
+        thres_names <- match(gsub("\\|t.$", replacement = "",
+                                  x = colnames(thres_mat)),
+                             table = ninv_ov)
         thres_mat <- t(rep(1, num_lvs)) %x% thres_mat
         colnames(thres_mat) <- t(rep(1, num_lvs)) %x% thres_names
         vars <- vapply(sampstat,
                        function(x) vapply(
                            ninv_ov, function(x, y) {
-                               th <- x$th[grep(y, names(x$th))]
+                               th <- x$th[grep(paste0(y, "\\|t"), names(x$th))]
                                var_from_thres(th)
                            }, x = x, FUN.VALUE = numeric(1)
                        ), FUN.VALUE = numeric(length(ninv_ov)))
         pooled_item_sd <- sqrt(pooledvar(vars, ns))
         if (lavaan::lavInspect(object, what = "ngroups") > 2) {
-            es_fun <- fmacs_ordered
+            es_fun <- function(...) fmacs_ordered(..., num_obs = ns)
         } else {
             es_fun <- dmacs_ordered
         }
         es_fun(
             thresholds = thres_mat,
             loadings = loading_mat,
-            pooled_item_sd = rep(pooled_item_sd, num_lvs)
+            latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
+            latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
+            pooled_item_sd = rep(pooled_item_sd, num_lvs),
+            ...
         )
     } else {
         intercept_mat <- lapply(
@@ -293,14 +313,15 @@ es_lavaan <- function(object) {
             FUN.VALUE = numeric(length(ninv_ov)))
         pooled_item_sd <- sqrt(pooledvar(vars, ns))
         if (lavaan::lavInspect(object, what = "ngroups") > 2) {
-            es_fun <- fmacs
+            es_fun <- function(...) fmacs(..., num_obs = ns)
         } else {
             es_fun <- dmacs
         }
         es_fun(
             intercepts = intercept_mat,
             loadings = loading_mat,
-            pooled_item_sd = rep(pooled_item_sd, num_lvs)
+            pooled_item_sd = rep(pooled_item_sd, num_lvs),
+            ...
         )
     }
 }

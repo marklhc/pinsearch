@@ -30,7 +30,7 @@ test_that("pinSearch() works properly for binary data", {
   ps1 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                    data = df, group = "group", type = "thresholds",
                    ordered = paste0("yy", 1:7))
-  expect_identical(ps1[[2]]$lhs, c("yy7", "yy2"))
+  expect_setequal(ps1[[2]]$lhs, c("yy7", "yy2"))
 })
 
 test_that("pinSearch() works properly for noninvariant uniqueness", {
@@ -107,10 +107,36 @@ for (j in seq_len(ncol(ystar3))) {
 }
 df <- rbind(cbind(y1, group = 1), cbind(y2, group = 2), cbind(y3, group = 3))
 
+ps5 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
+                 data = df, group = "group", type = "thresholds",
+                 ordered = paste0("yy", 1:7))
 test_that("Works for three groups and ordinal items", {
-    ps5 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
-                     data = df, group = "group", type = "thresholds",
-                     ordered = paste0("yy", 1:7))
     expect_equal(sort(with(ps5[[2]], paste(lhs, rhs))),
                  c("yy2 t1", "yy4 t3", "yy5 t3", "yy7 t1"))
 })
+
+# Use different scaling
+ps5_re <- cfa(' f =~ NA * yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7
+                f ~~ c(0.5, NA, NA) * f
+                f ~ c(1, NA, NA) * 1
+                yy1 ~~ 1 * yy1
+                yy2 ~~ 1 * yy2
+                yy3 ~~ 1 * yy3
+                yy4 ~~ 1 * yy4
+                yy5 ~~ 1 * yy5
+                yy6 ~~ 1 * yy6
+                yy7 ~~ 1 * yy7
+                yy2 | c(t2, t2, t23) * t1
+                yy4 | c(t4, t4, t43) * t3
+                yy5 | c(t5, t5, t53) * t3
+                yy7 | c(t7, t7, t73) * t1 ',
+              data = df, group = "group", ordered = TRUE,
+              group.equal = c("loadings", "thresholds", "residuals"),
+              group.partial = c("yy7|t1", "yy2|t1", "yy4|t3", "yy5|t3"),
+              parameterization = "theta")
+test_that("`pin_es()` invariant with scaling", {
+    expect_equal(pin_es(ps5[[1]]),
+                 pin_es(ps5_re),
+                 tolerance = 0.00001)
+})
+

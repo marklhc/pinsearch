@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     df_print: kable
 vignette: >
-  %\VignetteIndexEntry{compare-cont-cat}
+  %\VignetteIndexEntry{Comparing Effect Size for Continuous and Categorical Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -22,6 +22,7 @@ In this brief vignette, we compare the noninvariance effect size for treating Li
 library(pinsearch)
 library(lavaan)
 library(MASS, include.only = "mvrnorm")
+library(difR)
 ```
 
 Simulate a five-point example
@@ -103,3 +104,24 @@ data.frame(
         population = dpop[c(2, 4, 5, 7)])
 )
 ```
+
+Compared to Mantel-Haenszel (MH)
+
+```{r}
+# Dichotomous data (0, 1, 2 recoded to 0; 3, 4 recoded to 1)
+df2 <- df
+df2[, 1:7] <- as.integer(df2[, 1:7] >= 3)
+```
+
+```{r}
+ps2_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
+                     data = df2, group = "group", type = "thresholds",
+                     ordered = paste0("yy", 1:7))
+(dcat <- pin_es(ps2_cat$`Partial Invariance Fit`))
+```
+
+```{r}
+difMH(df2, group = "group", focal.name = 1, purify = TRUE)
+```
+
+The results are consistent.
