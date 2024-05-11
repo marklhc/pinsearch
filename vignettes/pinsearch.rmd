@@ -129,6 +129,21 @@ pinSearch(mod2,
 
 The test is slightly more sensitive and identifies an additional non-invariant uniqueness for item `x7`.
 
+## Likelihood Ratio Test (LRT)
+
+LRT is generally more accurate, but more computationally expensive.
+
+```{r}
+pinSearch(mod2,
+    data = HolzingerSwineford1939,
+    group = "school", type = "residuals",
+    inv_test = "lrt",
+    effect_size = TRUE
+)
+```
+
+In this example, the results using LRT are the same as the score test.
+
 ## Controlling for False Discovery Rate
 
 The function also supports adjusting for multiplicity by using a more stringent threshold for flagging a parameter as noninvariant, using the multistage false discovery rate procedure by [Benjamini & Gavrilov (2009)](https://projecteuclid.org/journals/annals-of-applied-statistics/volume-3/issue-1/A-simple-forward-selection-procedure-based-on-false-discovery-rate/10.1214/08-AOAS194.pdf) for forward selection. It is up for debate whether controlling for false discovery rate is as important in measurement/factorial invariance analyses as in other context, and it probably depends on whether one is interested in identifying non-invariant items or in inferences for the latent parameters. If this is of interest, one can use the `control_fdr = TRUE` option.
