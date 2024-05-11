@@ -27,10 +27,11 @@ for (j in seq_len(ncol(ystar2))) {
 df <- rbind(cbind(y1, group = 1), cbind(y2, group = 2))
 
 test_that("pinSearch() works properly for binary data", {
-  ps1 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
-                   data = df, group = "group", type = "thresholds",
-                   ordered = paste0("yy", 1:7))
-  expect_setequal(ps1[[2]]$lhs, c("yy7", "yy2"))
+    ps1 <- pinSearch(" f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ",
+        data = df, group = "group", type = "thresholds",
+        ordered = paste0("yy", 1:7)
+    )
+    expect_identical(ps1[[2]]$lhs, c("yy7", "yy2"))
 })
 
 test_that("pinSearch() works properly for noninvariant uniqueness", {
@@ -62,7 +63,7 @@ test_that("pinSearch() works properly for noninvariant unique covariances", {
     ps3 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                      data = df, group = "group", type = "residual.covariances",
                      ordered = paste0("yy", 1:7))
-    expect_identical(sort(ps3[[2]]$lhs), c("yy2", "yy7"))
+    expect_setequal(ps3[[2]]$lhs, c("yy2", "yy7"))
     ps4 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7
                        yy2 ~~ yy3
                        yy4 ~~ yy5 ',
@@ -92,7 +93,7 @@ thres1 <- rbind(seq(-1.5, 0, length.out = 7),
                 seq(-0.5, 0.25, length.out = 7),
                 rep(1, 7))
 thres3 <- rbind(c(thres1[1, 1], -0.5, thres1[1, 3:6], -0.5),
-                thres1[2,],
+                thres1[2, ],
                 c(rep(1, 3), rep(0.5, 2), rep(1, 2)))
 for (j in seq_len(ncol(ystar1))) {
     y1[, j] <- findInterval(ystar1[, j], thres1[, j])

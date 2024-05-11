@@ -57,7 +57,7 @@ Forward search
 #| include: false
 ps_path <- "ps_lui.rds"
 if (!file.exists(ps_path)) {
-    ps <- pinSearch(paste0(config_mod, "\nclass1 ~~ class2"),
+    ps <- pinSearch(c(config_mod, "\nclass1 ~~ class2"),
         data = lui_sim,
         group = "group", ordered = TRUE,
         type = "residual.covariances"
