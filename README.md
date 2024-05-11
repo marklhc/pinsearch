@@ -43,17 +43,6 @@ HS.model <- '  visual =~ x1 + x2 + x3
 # Output the final partial invariance model, and the noninvariant items
 pinSearch(HS.model, data = HolzingerSwineford1939, 
           group = "school", type = "intercepts")
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
-
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
-
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
 #> $`Partial Invariance Fit`
 #> lavaan 0.6.17 ended normally after 69 iterations
 #> 
@@ -76,9 +65,9 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 #>     Grant-White                                 58.253
 #> 
 #> $`Non-Invariant Items`
-#>   lhs rhs group       type
-#> 1  x3         1 intercepts
-#> 2  x7         1 intercepts
+#>   group lhs rhs       type
+#> 1     1  x3     intercepts
+#> 2     1  x7     intercepts
 # Compute dmacs effect size (added in version 0.1.2)
 pinSearch(HS.model, data = HolzingerSwineford1939, 
           group = "school", type = "intercepts",
@@ -88,17 +77,7 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 #> [1/2] Searching for loadings noninvariance
 #> 
 #> [2/2] Searching for intercepts noninvariance
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
-#>   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
-#>   |                                                                              |====================================================                  |  75%
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
+#>   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |====================================================                  |  75%
 #> $`Partial Invariance Fit`
 #> lavaan 0.6.17 ended normally after 69 iterations
 #> 
@@ -121,9 +100,9 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 #>     Grant-White                                 58.253
 #> 
 #> $`Non-Invariant Items`
-#>   lhs rhs group       type
-#> 1  x3         1 intercepts
-#> 2  x7         1 intercepts
+#>   group lhs rhs       type
+#> 1     1  x3     intercepts
+#> 2     1  x7     intercepts
 #> 
 #> $effect_size
 #>       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed
@@ -174,26 +153,6 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
           data = df, group = "group", type = "thresholds",
           ordered = paste0("yy", 1:7),
           effect_size = TRUE)
-#> Unique variances are constrained to 1 for identification
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
-
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
-
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
-
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
-
-#> Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;
-#>        use lavTestScore() to assess the impact of releasing one 
-#>        or multiple constraints
 #> $`Partial Invariance Fit`
 #> lavaan 0.6.17 ended normally after 52 iterations
 #> 
@@ -219,11 +178,11 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
 #>     2                                           17.077      26.472
 #> 
 #> $`Non-Invariant Items`
-#>   lhs rhs group       type
-#> 1 yy2  t1     1 thresholds
-#> 2 yy7  t1     2 thresholds
-#> 3 yy5  t3     1 thresholds
-#> 4 yy4  t3     1 thresholds
+#>   group lhs rhs       type
+#> 1     1 yy2  t1 thresholds
+#> 2     2 yy7  t1 thresholds
+#> 3     1 yy5  t3 thresholds
+#> 4     1 yy4  t3 thresholds
 #> 
 #> $effect_size
 #>           yy2-f     yy4-f     yy5-f     yy7-f
