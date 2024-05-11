@@ -297,7 +297,7 @@ pinSearch <- function(config_mod,
                 fn_get_inv,
                 c(list(
                     object = new_fit, type = typei, alpha = p_enter,
-                    ind_names = ind_names, group.equal = types[seq_len(i)]
+                    group.equal = types[seq_len(i)]
                 ), dots)
             )
             if (progress) {
@@ -332,7 +332,7 @@ pinSearch <- function(config_mod,
                     fn_get_inv,
                     c(list(
                         object = new_fit, type = typei, alpha = p_enter,
-                        ind_names = ind_names, group.equal = types[seq_len(i)]
+                        group.equal = types[seq_len(i)]
                     ), dots)
                 )
                 remain_mod <- attr(row_to_free, which = "size")

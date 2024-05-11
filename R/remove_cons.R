@@ -1,10 +1,4 @@
 remove_cons <- function(pt, lhs, rhs, group, op) {
-    # Remove constraints
-    # col <- op2col(op)
-    # matched <- if (op == "~~")
-    #     pt$lhs == pt$rhs
-    # else
-    #     TRUE
     # Identify row with the specified parameter
     row_i <- which(pt$lhs == lhs & pt$rhs == rhs &
                        pt$op == op & pt$group == group)
@@ -30,7 +24,7 @@ remove_cons <- function(pt, lhs, rhs, group, op) {
     pt_new
 }
 
-get_invmod <- function(object, type, alpha = .05, ind_names, pt0, ...) {
+get_invmod <- function(object, type, alpha = .05, pt0, ...) {
     if (missing(pt0)) pt0 <- lavaan::parTable(object)
     op <- type2op(type)
     pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0, ]
@@ -45,22 +39,23 @@ get_invmod <- function(object, type, alpha = .05, ind_names, pt0, ...) {
     })
     # TODO: See if ind_names is needed
     # Only parameters in the original model
-    if (type == "loadings") {
-        mis_ids <- rownames(mis)[mis$rhs %in% ind_names &
-                                     rownames(mis) %in% pt0_eq$id]
-    } else if (type %in% c("intercepts", "thresholds")) {
-        mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
-                                     rownames(mis) %in% pt0_eq$id]
-    } else if (type == "residuals") {
-        mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
-                                     rownames(mis) %in% pt0_eq$id &
-                                     mis$lhs == mis$rhs]
-    } else if (type == "residual.covariances") {
-        mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
-                                     mis$rhs %in% ind_names &
-                                     rownames(mis) %in% pt0_eq$id &
-                                     mis$lhs != mis$rhs]
-    }
+    # if (type == "loadings") {
+    #     mis_ids <- rownames(mis)[mis$rhs %in% ind_names &
+    #                                  rownames(mis) %in% pt0_eq$id]
+    # } else if (type %in% c("intercepts", "thresholds")) {
+    #     mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
+    #                                  rownames(mis) %in% pt0_eq$id]
+    # } else if (type == "residuals") {
+    #     mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
+    #                                  rownames(mis) %in% pt0_eq$id &
+    #                                  mis$lhs == mis$rhs]
+    # } else if (type == "residual.covariances") {
+    #     mis_ids <- rownames(mis)[mis$lhs %in% ind_names &
+    #                                  mis$rhs %in% ind_names &
+    #                                  rownames(mis) %in% pt0_eq$id &
+    #                                  mis$lhs != mis$rhs]
+    # }
+    mis_ids <- rownames(mis)[rownames(mis) %in% pt0_eq$id]
     if (length(mis_ids) == 0) return(NULL)
     pt_mis <- pt0_eq[match(mis_ids, pt0_eq$id), ]
     # Only parameters that are free
@@ -70,7 +65,7 @@ get_invmod <- function(object, type, alpha = .05, ind_names, pt0, ...) {
     out
 }
 
-get_invscore <- function(object, type, alpha = .05, ind_names, pt0, ...) {
+get_invscore <- function(object, type, alpha = .05, pt0, ...) {
     if (missing(pt0)) pt0 <- lavaan::parTable(object)
     op <- type2op(type)
     pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0 & pt0$op == op, ]
@@ -86,7 +81,7 @@ get_invscore <- function(object, type, alpha = .05, ind_names, pt0, ...) {
     out
 }
 
-get_invlrt <- function(object, type, alpha = .05, ind_names, pt0, ...) {
+get_invlrt <- function(object, type, alpha = .05, pt0, ...) {
     if (missing(pt0)) pt0 <- lavaan::parTable(object)
     op <- type2op(type)
     pt0_eq <- pt0[pt0$label != "" & pt0$free >= 0 & pt0$op == op, ]
@@ -153,4 +148,3 @@ get_invlrt <- function(object, type, alpha = .05, ind_names, pt0, ...) {
 #   (b) extracting the smallest one
 # - Clean up get_invscore()
 # - Make functions consistent
-# - See if ind_names is needed for get_invmod()
