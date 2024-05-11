@@ -81,13 +81,9 @@ the test statistic for the next constraint to free.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pinSearch</span><span class="op">(</span></span>
 <span>  <span class="va">config_mod</span>,</span>
-<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  group <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ordered <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  parameterization <span class="op">=</span> <span class="st">"theta"</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span>, <span class="st">"thresholds"</span>, <span class="st">"residuals"</span>, <span class="st">"residual.covariances"</span><span class="op">)</span>,</span>
-<span>  inv_test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mod"</span>, <span class="st">"score"</span><span class="op">)</span>,</span>
+<span>  inv_test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mod"</span>, <span class="st">"score"</span>, <span class="st">"lrt"</span><span class="op">)</span>,</span>
 <span>  sig_level <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  control_fdr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  effect_size <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -100,25 +96,6 @@ the test statistic for the next constraint to free.</p>
     <dl><dt>config_mod</dt>
 <dd><p>Syntax of a configural invariance model to be passed to
 <code><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">lavaan::cfa()</a></code>.</p></dd>
-
-
-<dt>data</dt>
-<dd><p>A data frame to be passed to <code><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">lavaan::cfa()</a></code>.</p></dd>
-
-
-<dt>group</dt>
-<dd><p>Character indicating the variable name in <code>data</code> that
-defines the grouping variable in multiple-group CFA.</p></dd>
-
-
-<dt>ordered</dt>
-<dd><p>Character vector indicating names of variables to be treated
-as binary or ordinal. IF <code>NULL</code>, all items are treated as continuous.</p></dd>
-
-
-<dt>parameterization</dt>
-<dd><p>Character, either "theta" or "delta". "theta" should
-be used for invariance testing, and is the only method tested.</p></dd>
 
 
 <dt>...</dt>
@@ -137,8 +114,9 @@ constraints of all previous stages.</p></dd>
 <dt>inv_test</dt>
 <dd><p>Character variable indicating the statistical test to be
 used for specification search. Currently supported options are <code>"mod"</code> for
-modification index using <code><a href="https://rdrr.io/pkg/lavaan/man/modificationIndices.html" class="external-link">lavaan::modindices()</a></code> and <code>"score"</code> for score
-test statistic using <code><a href="https://rdrr.io/pkg/lavaan/man/lavTestScore.html" class="external-link">lavaan::lavTestScore()</a></code>.</p></dd>
+modification index using <code><a href="https://rdrr.io/pkg/lavaan/man/modificationIndices.html" class="external-link">lavaan::modindices()</a></code>, <code>"score"</code> for score
+test statistic using <code><a href="https://rdrr.io/pkg/lavaan/man/lavTestScore.html" class="external-link">lavaan::lavTestScore()</a></code>, and (experimental) <code>"lrt"</code>
+for likelihood ratio test statistic using <code><a href="https://rdrr.io/pkg/lavaan/man/lavTestLRT.html" class="external-link">lavaan::lavTestLRT()</a></code>.</p></dd>
 
 
 <dt>sig_level</dt>
@@ -204,7 +182,7 @@ Journal, 14(3), 435-463.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> lavaan is FREE software! Please report any bugs.</span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.stats.ox.ac.uk/pub/MASS4/" class="external-link">MASS</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Simulate random data</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">14</span><span class="op">)</span>  <span class="co"># for reproducible results</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">14</span><span class="op">)</span> <span class="co"># for reproducible results</span></span></span>
 <span class="r-in"><span><span class="va">mod_ninv</span> <span class="op">&lt;-</span> <span class="st">"f =~ c(1, 0.8, .6)*y1 + c(0.8, 1.2, 1.0)*y2"</span></span></span>
 <span class="r-in"><span><span class="va">mod_inv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"1*y"</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">6</span>, collapse <span class="op">=</span> <span class="st">" + "</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sim_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span></span>
@@ -217,19 +195,15 @@ Journal, 14(3), 435-463.</p>
 <span class="r-in"><span>    sep <span class="op">=</span> <span class="st">"\n"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The uniqueness of each item is assumed to be 1.0</span></span></span>
-<span class="r-in"><span><span class="va">dat_sim</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/simulateData.html" class="external-link">simulateData</a></span><span class="op">(</span><span class="va">sim_mod</span>, sample.nobs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dat_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/simulateData.html" class="external-link">simulateData</a></span><span class="op">(</span><span class="va">sim_mod</span>, sample.nobs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Fit configural model:</span></span></span>
 <span class="r-in"><span><span class="va">sam_config</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'f =~ '</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, collapse <span class="op">=</span> <span class="st">" + "</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"f =~ "</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, collapse <span class="op">=</span> <span class="st">" + "</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">pinSearch</span><span class="op">(</span><span class="va">sam_config</span>, data <span class="op">=</span> <span class="va">dat_sim</span>, group <span class="op">=</span> <span class="st">"group"</span>,</span></span>
-<span class="r-in"><span>          type <span class="op">=</span> <span class="st">"intercepts"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>lavaan WARNING: the modindices() function ignores equality constraints;</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> 		  use lavTestScore() to assess the impact of releasing one </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> 		  or multiple constraints</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>lavaan WARNING: the modindices() function ignores equality constraints;</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> 		  use lavTestScore() to assess the impact of releasing one </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> 		  or multiple constraints</span>
+<span class="r-in"><span><span class="fu">pinSearch</span><span class="op">(</span><span class="va">sam_config</span>,</span></span>
+<span class="r-in"><span>    data <span class="op">=</span> <span class="va">dat_sim</span>, group <span class="op">=</span> <span class="st">"group"</span>,</span></span>
+<span class="r-in"><span>    type <span class="op">=</span> <span class="st">"intercepts"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`Partial Invariance Fit`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> lavaan 0.6.17 ended normally after 55 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -254,8 +228,8 @@ Journal, 14(3), 435-463.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     3                                           15.917</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`Non-Invariant Items`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   lhs rhs group       type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  y1         2 intercepts</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   group lhs rhs       type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     2  y1     intercepts</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>

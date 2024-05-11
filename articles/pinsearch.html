@@ -75,7 +75,7 @@
       <img src="" class="logo" alt=""><h1>(P)artial (in)variance specification search</h1>
                         <h4 data-toc-skip class="author">Mark Lai</h4>
             
-            <h4 data-toc-skip class="date">2024-05-10</h4>
+            <h4 data-toc-skip class="date">2024-05-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/marklhc/pinsearch/blob/HEAD/vignettes/pinsearch.rmd" class="external-link"><code>vignettes/pinsearch.rmd</code></a></small>
       <div class="d-none name"><code>pinsearch.rmd</code></div>
@@ -124,25 +124,13 @@ the goal of searching for a partial strict invariance model.</p>
 <span>        data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
 <span>        group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"residuals"</span>,</span>
 <span>        inv_test <span class="op">=</span> <span class="st">"mod"</span>  <span class="co"># use modification indices for search (default)</span></span>
-<span>    <span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span></code></pre></div>
+<span>    <span class="op">)</span></span></code></pre></div>
 <p>Here are the noninvariant parameters:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps1</span><span class="op">$</span><span class="va">`Non-Invariant Items`</span></span>
-<span><span class="co">#&gt;   lhs rhs group       type</span></span>
-<span><span class="co">#&gt; 1  x3         1 intercepts</span></span>
-<span><span class="co">#&gt; 2  x7         1 intercepts</span></span></code></pre></div>
+<span><span class="co">#&gt;   group lhs rhs       type</span></span>
+<span><span class="co">#&gt; 1     1  x3     intercepts</span></span>
+<span><span class="co">#&gt; 2     1  x7     intercepts</span></span></code></pre></div>
 <p>And the final partial invariance model</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps1</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span> <span class="op">|&gt;</span></span>
@@ -298,18 +286,6 @@ argument:</p>
 <span>    inv_test <span class="op">=</span> <span class="st">"mod"</span>,</span>
 <span>    effect_size <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
 <span><span class="co">#&gt; lavaan 0.6.17 ended normally after 64 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -332,9 +308,9 @@ argument:</p>
 <span><span class="co">#&gt;     Grant-White                                 67.823</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
-<span><span class="co">#&gt;   lhs rhs group       type</span></span>
-<span><span class="co">#&gt; 1  x3         1 intercepts</span></span>
-<span><span class="co">#&gt; 2  x7         1 intercepts</span></span>
+<span><span class="co">#&gt;   group lhs rhs       type</span></span>
+<span><span class="co">#&gt; 1     1  x3     intercepts</span></span>
+<span><span class="co">#&gt; 2     1  x7     intercepts</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
 <span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
@@ -378,18 +354,6 @@ example,</p>
 <span>        inv_test <span class="op">=</span> <span class="st">"mod"</span>,</span>
 <span>        effect_size <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span>    <span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
-<span><span class="co">#&gt; Warning in lavaan::modindices(object, op = op, minimum.value = stats::qchisq(alpha, : lavaan WARNING: the modindices() function ignores equality constraints;</span></span>
-<span><span class="co">#&gt;        use lavTestScore() to assess the impact of releasing one </span></span>
-<span><span class="co">#&gt;        or multiple constraints</span></span>
 <span><span class="va">ps2</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
 <span><span class="co">#&gt; lavaan 0.6.17 ended normally after 55 iterations</span></span>
@@ -413,9 +377,9 @@ example,</p>
 <span><span class="co">#&gt;     Grant-White                                 45.915</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
-<span><span class="co">#&gt;   lhs rhs group       type</span></span>
-<span><span class="co">#&gt; 1  x3         1 intercepts</span></span>
-<span><span class="co">#&gt; 2  x7         1 intercepts</span></span>
+<span><span class="co">#&gt;   group lhs rhs       type</span></span>
+<span><span class="co">#&gt; 1     1  x3     intercepts</span></span>
+<span><span class="co">#&gt; 2     1  x7     intercepts</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
 <span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
@@ -460,16 +424,61 @@ equality constraints</a>. This can be achieved with
 <span><span class="co">#&gt;     Grant-White                                 43.497</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
-<span><span class="co">#&gt;   lhs rhs group       type</span></span>
-<span><span class="co">#&gt; 1  x3         2 intercepts</span></span>
-<span><span class="co">#&gt; 2  x7         2 intercepts</span></span>
-<span><span class="co">#&gt; 3  x7  x7     2  residuals</span></span>
+<span><span class="co">#&gt;   group lhs rhs       type</span></span>
+<span><span class="co">#&gt; 1     2  x3     intercepts</span></span>
+<span><span class="co">#&gt; 2     2  x7     intercepts</span></span>
+<span><span class="co">#&gt; 3     2  x7  x7  residuals</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
 <span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
 <span><span class="co">#&gt; dmacs 0.4717618 0.4071113  0.4717618  0.4071113 0.4717618 0.4071113</span></span></code></pre></div>
 <p>The test is slightly more sensitive and identifies an additional
 non-invariant uniqueness for item <code>x7</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="likelihood-ratio-test-lrt">Likelihood Ratio Test (LRT)<a class="anchor" aria-label="anchor" href="#likelihood-ratio-test-lrt"></a>
+</h2>
+<p>LRT is generally more accurate, but more computationally
+expensive.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="va">mod2</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
+<span>    group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"residuals"</span>,</span>
+<span>    inv_test <span class="op">=</span> <span class="st">"lrt"</span>,</span>
+<span>    effect_size <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
+<span><span class="co">#&gt; lavaan 0.6.17 ended normally after 59 iterations</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Estimator                                         ML</span></span>
+<span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
+<span><span class="co">#&gt;   Number of model parameters                        68</span></span>
+<span><span class="co">#&gt;   Number of equality constraints                    25</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Number of observations per group:                   </span></span>
+<span><span class="co">#&gt;     Pasteur                                        156</span></span>
+<span><span class="co">#&gt;     Grant-White                                    145</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Test User Model:</span></span>
+<span><span class="co">#&gt;                                                       </span></span>
+<span><span class="co">#&gt;   Test statistic                               109.770</span></span>
+<span><span class="co">#&gt;   Degrees of freedom                                65</span></span>
+<span><span class="co">#&gt;   P-value (Chi-square)                           0.000</span></span>
+<span><span class="co">#&gt;   Test statistic for each group:</span></span>
+<span><span class="co">#&gt;     Pasteur                                     66.273</span></span>
+<span><span class="co">#&gt;     Grant-White                                 43.497</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
+<span><span class="co">#&gt;   group lhs rhs       type</span></span>
+<span><span class="co">#&gt; 1     1  x3     intercepts</span></span>
+<span><span class="co">#&gt; 2     1  x7     intercepts</span></span>
+<span><span class="co">#&gt; 3     1  x7  x7  residuals</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $effect_size</span></span>
+<span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
+<span><span class="co">#&gt; dmacs 0.4717618 0.4071113  0.4717618  0.4071113 0.4717618 0.4071113</span></span></code></pre></div>
+<p>In this example, the results using LRT are the same as the score
+test.</p>
 </div>
 <div class="section level2">
 <h2 id="controlling-for-false-discovery-rate">Controlling for False Discovery Rate<a class="anchor" aria-label="anchor" href="#controlling-for-false-discovery-rate"></a>
@@ -484,7 +493,7 @@ probably depends on whether one is interested in identifying
 non-invariant items or in inferences for the latent parameters. If this
 is of interest, one can use the <code>control_fdr = TRUE</code>
 option.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="va">mod2</span>,</span>
 <span>    data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
 <span>    group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"residuals"</span>,</span>
@@ -514,9 +523,9 @@ option.</p>
 <span><span class="co">#&gt;     Grant-White                                 45.915</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
-<span><span class="co">#&gt;   lhs rhs group       type</span></span>
-<span><span class="co">#&gt; 1  x3         2 intercepts</span></span>
-<span><span class="co">#&gt; 2  x7         2 intercepts</span></span>
+<span><span class="co">#&gt;   group lhs rhs       type</span></span>
+<span><span class="co">#&gt; 1     2  x3     intercepts</span></span>
+<span><span class="co">#&gt; 2     2  x7     intercepts</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
 <span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
