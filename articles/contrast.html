@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">pinsearch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@
       <img src="" class="logo" alt=""><h1>Using Contrasts</h1>
                         <h4 data-toc-skip class="author">Mark Lai</h4>
             
-            <h4 data-toc-skip class="date">2024-05-11</h4>
+            <h4 data-toc-skip class="date">2024-05-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/marklhc/pinsearch/blob/HEAD/vignettes/contrast.rmd" class="external-link"><code>vignettes/contrast.rmd</code></a></small>
       <div class="d-none name"><code>contrast.rmd</code></div>
@@ -86,20 +86,21 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; This is lavaan 0.6-17</span></span>
-<span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/marklhc/pinsearch" class="external-link">pinsearch</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/marklhc/pinsearch" class="external-link">pinsearch</a></span><span class="op">)</span></span></code></pre></div>
 <p>This vignette demonstrates the use of contrasts in the
 <code><a href="../reference/pinSearch.html">pinSearch()</a></code> function based on a real data set.</p>
 <div class="section level2">
 <h2 id="load-data">Load Data<a class="anchor" aria-label="anchor" href="#load-data"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">lui_sim</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="descriptive-statistics">Descriptive Statistics<a class="anchor" aria-label="anchor" href="#descriptive-statistics"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">lui_sim</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      class1          class2          class3          class4     </span></span>
 <span><span class="co">#&gt;  Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  </span></span>
@@ -136,7 +137,7 @@
 <div class="section level3">
 <h3 id="configural-invariance">Configural invariance<a class="anchor" aria-label="anchor" href="#configural-invariance"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">config_mod</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">f1 =~ class1 + class2 + class3 + class4 + class5 + class6 + </span></span>
 <span><span class="st">      class7 + class8 + class9 + class10 + class11 + class12 + </span></span>
@@ -160,7 +161,7 @@
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 <p>Forward search</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -351,7 +352,7 @@
 <div class="section level2">
 <h2 id="effect-size">Effect Size<a class="anchor" aria-label="anchor" href="#effect-size"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Obtain fmacs effect size</span></span>
 <span><span class="op">(</span><span class="va">f_omni</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       class1-f1 class2-f1 class3-f1  class4-f1 class5-f1 class6-f1  class7-f1</span></span>
@@ -359,24 +360,27 @@
 <span><span class="co">#&gt;       class8-f1 class9-f1 class10-f1 class11-f1 class12-f1 class13-f1</span></span>
 <span><span class="co">#&gt; fmacs 0.1744843 0.1149672  0.1268064 0.03537658   0.108777 0.07085813</span></span>
 <span><span class="co">#&gt;       class14-f1 class15-f1</span></span>
-<span><span class="co">#&gt; fmacs   0.186054   0.142585</span></span>
-<span><span class="co"># fmacs by gender</span></span>
+<span><span class="co">#&gt; fmacs   0.186054   0.142585</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># fmacs by gender</span></span>
 <span><span class="op">(</span><span class="va">f_gender</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, group_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        class1-f1  class2-f1 class3-f1 class4-f1  class5-f1  class6-f1</span></span>
 <span><span class="co">#&gt; fmacs 0.03579684 0.03298566 0.1443419 0.0271354 0.03031563 0.04858562</span></span>
 <span><span class="co">#&gt;        class7-f1  class8-f1  class9-f1 class10-f1 class11-f1 class12-f1</span></span>
 <span><span class="co">#&gt; fmacs 0.02824239 0.03521752 0.08328992 0.04836614 0.01813995 0.01888032</span></span>
 <span><span class="co">#&gt;       class13-f1 class14-f1 class15-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.02702651   0.031373 0.04375972</span></span>
-<span><span class="co"># fmacs by ethnicity</span></span>
+<span><span class="co">#&gt; fmacs 0.02702651   0.031373 0.04375972</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># fmacs by ethnicity</span></span>
 <span><span class="op">(</span><span class="va">f_eth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, group_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        class1-f1  class2-f1 class3-f1  class4-f1  class5-f1 class6-f1</span></span>
 <span><span class="co">#&gt; fmacs 0.05810994 0.05354648 0.1249765 0.04404959 0.01246573 0.1131984</span></span>
 <span><span class="co">#&gt;        class7-f1  class8-f1  class9-f1 class10-f1 class11-f1 class12-f1</span></span>
 <span><span class="co">#&gt; fmacs 0.04584661 0.08974653 0.07569014 0.07851401 0.02558757 0.08674763</span></span>
 <span><span class="co">#&gt;       class13-f1 class14-f1 class15-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.04387283 0.07597534  0.1148142</span></span>
-<span><span class="co"># interaction (using contrast matrix)</span></span>
+<span><span class="co">#&gt; fmacs 0.04387283 0.07597534  0.1148142</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># interaction (using contrast matrix)</span></span>
 <span><span class="va">contr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">local</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>    <span class="va">gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"F"</span>, <span class="st">"M"</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/contrasts.html" class="external-link">contrasts</a></span><span class="op">(</span><span class="va">gen</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/contrast.html" class="external-link">contr.sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">gen</span><span class="op">)</span><span class="op">)</span></span>
@@ -391,7 +395,7 @@
 <span><span class="co">#&gt; fmacs 0.04584661 0.1309964 0.07569014 0.07851401 0.02558757 0.08674763</span></span>
 <span><span class="co">#&gt;       class13-f1 class14-f1 class15-f1</span></span>
 <span><span class="co">#&gt; fmacs 0.04387283  0.1208214 0.07983449</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Render as table</span></span>
 <span><span class="va">item_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"class"</span>, replacement <span class="op">=</span> <span class="st">"Item "</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">f_omni</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"-f1"</span>, replacement <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>

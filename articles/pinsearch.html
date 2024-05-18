@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">pinsearch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@
       <img src="" class="logo" alt=""><h1>(P)artial (in)variance specification search</h1>
                         <h4 data-toc-skip class="author">Mark Lai</h4>
             
-            <h4 data-toc-skip class="date">2024-05-11</h4>
+            <h4 data-toc-skip class="date">2024-05-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/marklhc/pinsearch/blob/HEAD/vignettes/pinsearch.rmd" class="external-link"><code>vignettes/pinsearch.rmd</code></a></small>
       <div class="d-none name"><code>pinsearch.rmd</code></div>
@@ -113,8 +113,9 @@ the goal of searching for a partial strict invariance model.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/marklhc/pinsearch" class="external-link">pinsearch</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; This is lavaan 0.6-17</span></span>
-<span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span>
-<span><span class="va">mod</span> <span class="op">&lt;-</span></span>
+<span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mod</span> <span class="op">&lt;-</span></span>
 <span>    <span class="st">" visual  =~ x1 + x2 + x3</span></span>
 <span><span class="st">  textual =~ x4 + x5 + x6</span></span>
 <span><span class="st">  speed   =~ x7 + x8 + x9 "</span></span>
@@ -126,13 +127,13 @@ the goal of searching for a partial strict invariance model.</p>
 <span>        inv_test <span class="op">=</span> <span class="st">"mod"</span>  <span class="co"># use modification indices for search (default)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
 <p>Here are the noninvariant parameters:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps1</span><span class="op">$</span><span class="va">`Non-Invariant Items`</span></span>
 <span><span class="co">#&gt;   group lhs rhs       type</span></span>
 <span><span class="co">#&gt; 1     1  x3     intercepts</span></span>
 <span><span class="co">#&gt; 2     1  x7     intercepts</span></span></code></pre></div>
 <p>And the final partial invariance model</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps1</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; lavaan 0.6.17 ended normally after 64 iterations</span></span>
@@ -279,7 +280,7 @@ for noninvariant items, and the generalization to an <span class="math inline">\
 groups.</p>
 <p>These can be obtained by setting the <code>effect_size = TRUE</code>
 argument:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="va">mod</span>,</span>
 <span>    data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
 <span>    group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"residuals"</span>,</span>
@@ -324,7 +325,7 @@ the duplicated values (we will try to fix this in future releases).</p>
 <p>Another possibility is to use the <code><a href="../reference/es_lavaan.html">pin_effsize()</a></code>
 function, which also works for partial invariance model not obtained
 from <code><a href="../reference/pinSearch.html">pinSearch()</a></code>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit the partial strict model by hand</span></span>
 <span><span class="va">pstrict_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">cfa</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
 <span>                   group <span class="op">=</span> <span class="st">"school"</span>,</span>
@@ -341,7 +342,7 @@ from <code><a href="../reference/pinSearch.html">pinSearch()</a></code>.</p>
 </h2>
 <p>The function also supports models with cross-loadings. For
 example,</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod2</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">   visual  =~ x1 + x2 + x3 + x9</span></span>
 <span><span class="st">  textual =~ x4 + x5 + x6</span></span>
@@ -395,7 +396,7 @@ as <a href="https://lavaan.ugent.be/history/dot6.html#version-0.6-17" class="ext
 in version 0.6-17, <code>lavaan</code> recommends using that for
 equality constraints</a>. This can be achieved with
 <code>inv_test = "score"</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="va">mod2</span>,</span>
 <span>    data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
 <span>    group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"residuals"</span>,</span>
@@ -440,7 +441,7 @@ non-invariant uniqueness for item <code>x7</code>.</p>
 </h2>
 <p>LRT is generally more accurate, but more computationally
 expensive.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="va">mod2</span>,</span>
 <span>    data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
 <span>    group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"residuals"</span>,</span>
@@ -493,7 +494,7 @@ probably depends on whether one is interested in identifying
 non-invariant items or in inferences for the latent parameters. If this
 is of interest, one can use the <code>control_fdr = TRUE</code>
 option.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="va">mod2</span>,</span>
 <span>    data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
 <span>    group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"residuals"</span>,</span>
