@@ -294,8 +294,10 @@ es_lavaan <- function(object, ...) {
         es_fun(
             thresholds = thres_mat,
             loadings = loading_mat,
-            latent_mean = sqrt(as.numeric(pars[[1]]$alpha)),
-            latent_sd = sqrt(as.numeric(pars[[1]]$psi)),
+            latent_mean = rep(as.numeric(pars[[1]]$alpha),
+                              each = length(pooled_item_sd)),
+            latent_sd = rep(sqrt(as.numeric(pars[[1]]$psi)),
+                            each = length(pooled_item_sd)),
             pooled_item_sd = rep(pooled_item_sd, num_lvs),
             ...
         )
@@ -321,6 +323,10 @@ es_lavaan <- function(object, ...) {
             intercepts = intercept_mat,
             loadings = loading_mat,
             pooled_item_sd = rep(pooled_item_sd, num_lvs),
+            latent_mean = rep(as.numeric(pars[[1]]$alpha),
+                              each = length(ninv_ov)),
+            latent_sd = rep(sqrt(diag(pars[[1]]$psi)),
+                            each = length(ninv_ov)),
             ...
         )
     }

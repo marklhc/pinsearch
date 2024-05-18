@@ -48,6 +48,32 @@ test_that("es_lavaan() works properly for noninvariant data", {
   expect_lt(dmacs_ps3[1, "y4-f"], dmacs_ps3[1, "y5-f"])
 })
 
+test_that("`pin_effsize()` invariant with scaling", {
+    cov2 <- tcrossprod(lambda2) * 1.3 + diag(.5, 5)
+    dimnames(cov2) <- list(paste0("y", 1:5), paste0("y", 1:5))
+    mean2 <- lambda2 * .4 + nu2
+    pf1 <- cfa(' f =~ y1 + y2 + y3 + y4 + y5',
+               sample.cov = list(cov1, cov2),
+               sample.mean = list(mean1, mean2),
+               sample.nobs = c(10000, 10000),
+               std.lv = TRUE,
+               group.equal = c("loadings", "intercepts"),
+               group.partial = c("f=~y1", "f=~y2",
+                                 "y1~1", "y2~1", "y4~1", "y5~1"))
+    pf2 <- cfa(' f =~ NA * y1 + y2 + y3 + y4 + y5
+                 f ~~ c(1.5, NA) * f
+                 f ~ c(-0.5, NA) * 1 ',
+               sample.cov = list(cov1, cov2),
+               sample.mean = list(mean1, mean2),
+               sample.nobs = c(10000, 10000),
+               group.equal = c("loadings", "intercepts"),
+               group.partial = c("f=~y1", "f=~y2",
+                                 "y1~1", "y2~1", "y4~1", "y5~1"))
+    expect_equal(pin_effsize(pf1),
+                 pin_effsize(pf2),
+                 tolerance = 0.00001)
+})
+
 # Ordered items
 lambda <- rbind(c(1.323, 0.875), c(1.323, 0.875))
 thres <- rbind(c(-2.211, -0.728, 1.468, -0.014, 0.404, 1.438),
