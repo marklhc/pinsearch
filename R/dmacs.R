@@ -198,12 +198,16 @@ var_from_thres <- function(thres, mean = 0, sd = 1) {
 
 check_inv <- function(ind, par_type, pt) {
     pt_par <- getpt(pt, type = par_type, ind_names = ind)
+    if (any(pt_par$free == 0)) {
+        return(anyDuplicated(pt_par[c("est", "se")]) > 0)
+    } else {
     npar_uniq <- nrow(unique(
         pt_par[pt_par$free != 0, c("lhs", "op", "rhs")]
     ))
     sum(pt$lhs %in% pt_par$plabel & pt$rhs %in% pt_par$plabel &
             pt$op == "==") >= nrow(pt_par) - npar_uniq -
         sum(pt_par$free == 0)
+    }
 }
 
 #' Item-level effect size for non-invariance
