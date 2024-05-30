@@ -86,6 +86,12 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     if (is.null(loadings)) {
         loadings <- 0 * intercepts
     }
+    if (length(latent_mean) == 1) {
+        latent_mean <- rep(latent_mean, ncol(loadings))
+    }
+    if (length(latent_sd) == 1) {
+        latent_sd <- rep(latent_sd, ncol(loadings))
+    }
     integral <- vapply(seq_len(ncol(weights)), FUN = function(j) {
         inv_ss_cont <- solve(
             crossprod(contrast, contrast / weights[, j])
@@ -95,8 +101,8 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
         vload <- crossprod(cload, inv_ss_cont %*% cload)
         vint <- crossprod(cint, inv_ss_cont %*% cint)
         cp <- crossprod(cload, inv_ss_cont %*% cint)
-        vint + 2 * cp * latent_mean +
-            vload * (latent_sd^2 + latent_mean^2)
+        vint + 2 * cp * latent_mean[j] +
+            vload * (latent_sd[j]^2 + latent_mean[j]^2)
     }, FUN.VALUE = numeric(1))
     out <- sqrt(integral) / pooled_item_sd
     matrix(out, nrow = 1, dimnames = list("fmacs", colnames(loadings)))
