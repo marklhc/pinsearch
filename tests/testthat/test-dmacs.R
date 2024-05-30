@@ -74,6 +74,17 @@ test_that("`pin_effsize()` invariant with scaling", {
                  tolerance = 0.00001)
 })
 
+test_that("`pin_effsize()` works for scaling indicator", {
+    pf1 <- cfa(' f =~ c(1, .9) * x1 + x2 + x3 ',
+               data = HolzingerSwineford1939,
+               std.lv = TRUE,
+               group = "school",
+               group.equal = c("loadings", "intercepts"),
+               group.partial = c("f=~x1"))
+    pin_es1 <- pin_effsize(pf1)
+    expect_equal(dim(pin_es1), c(1, 1))
+})
+
 # Ordered items
 lambda <- rbind(c(1.323, 0.875), c(1.323, 0.875))
 thres <- rbind(c(-2.211, -0.728, 1.468, -0.014, 0.404, 1.438),

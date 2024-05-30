@@ -56,7 +56,7 @@ dmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     # }
     rownames(out) <- "dmacs"
     colnames(out) <- colnames(loadings)
-    out
+    suppress_zero_loadings(out, loadings = loadings)
 }
 
 #' @rdname dmacs
@@ -123,7 +123,7 @@ dmacs_ordered <- function(thresholds, loadings,
     # }
     rownames(out) <- "dmacs"
     colnames(out) <- colnames(loadings)
-    out
+    suppress_zero_loadings(out)
 }
 
 dmacs_pairwise <-
@@ -198,15 +198,28 @@ var_from_thres <- function(thres, mean = 0, sd = 1) {
 
 check_inv <- function(ind, par_type, pt) {
     pt_par <- getpt(pt, type = par_type, ind_names = ind)
-    if (any(pt_par$free == 0)) {
-        return(anyDuplicated(pt_par[c("est", "se")]) > 0)
+    if (any(pt_par$free == 0) &&
+        (nrow(unique(pt_par[
+            pt_par$free == 0,
+            c("lhs", "op", "rhs")
+        ])) <
+            length(unique(pt_par$est[pt_par$free == 0])))) {
+        return(FALSE)
     } else {
-    npar_uniq <- nrow(unique(
-        pt_par[pt_par$free != 0, c("lhs", "op", "rhs")]
-    ))
-    sum(pt$lhs %in% pt_par$plabel & pt$rhs %in% pt_par$plabel &
+        npar_uniq <- nrow(unique(
+            pt_par[pt_par$free != 0, c("lhs", "op", "rhs")]
+        ))
+        sum(pt$lhs %in% pt_par$plabel & pt$rhs %in% pt_par$plabel &
             pt$op == "==") >= nrow(pt_par) - npar_uniq -
-        sum(pt_par$free == 0)
+            sum(pt_par$free == 0)
+    }
+}
+
+suppress_zero_loadings <- function(x, loadings = NULL) {
+    if (is.null(loadings)) {
+        return(x)
+    } else {
+        return(x[, which(colSums(loadings != 0) > 0), drop = FALSE])
     }
 }
 

@@ -105,7 +105,8 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
             vload * (latent_sd[j]^2 + latent_mean[j]^2)
     }, FUN.VALUE = numeric(1))
     out <- sqrt(integral) / pooled_item_sd
-    matrix(out, nrow = 1, dimnames = list("fmacs", colnames(loadings)))
+    out <- matrix(out, nrow = 1, dimnames = list("fmacs", colnames(loadings)))
+    suppress_zero_loadings(out)
 }
 
 #' @rdname fmacs
@@ -218,5 +219,5 @@ fmacs_ordered <- function(thresholds, loadings,
     out <- matrix(sqrt(integrals) / pooled_item_sd, nrow = 1)
     colnames(out) <- colnames(loadings)
     rownames(out) <- "fmacs"
-    out
+    suppress_zero_loadings(out)
 }
