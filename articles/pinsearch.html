@@ -75,7 +75,7 @@
       <img src="" class="logo" alt=""><h1>(P)artial (in)variance specification search</h1>
                         <h4 data-toc-skip class="author">Mark Lai</h4>
             
-            <h4 data-toc-skip class="date">2024-05-18</h4>
+            <h4 data-toc-skip class="date">2024-06-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/marklhc/pinsearch/blob/HEAD/vignettes/pinsearch.rmd" class="external-link"><code>vignettes/pinsearch.rmd</code></a></small>
       <div class="d-none name"><code>pinsearch.rmd</code></div>
@@ -314,8 +314,8 @@ argument:</p>
 <span><span class="co">#&gt; 2     1  x7     intercepts</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
-<span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
-<span><span class="co">#&gt; dmacs 0.4865937 0.4161147  0.4865937  0.4161147 0.4865937 0.4161147</span></span></code></pre></div>
+<span><span class="co">#&gt;       x3-visual  x7-speed</span></span>
+<span><span class="co">#&gt; dmacs 0.4865937 0.4161147</span></span></code></pre></div>
 <p>Note that in the above output, the effect sizes are printed three
 times for <code>x3</code> and <code>x7</code>, which have non-invariant
 intercepts. This is because there are three latent variables in the
@@ -334,8 +334,8 @@ from <code><a href="../reference/pinSearch.html">pinSearch()</a></code>.</p>
 <span>                   group.partial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x3~1"</span>, <span class="st">"x7~1"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co"># Effect sizes</span></span>
 <span><span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">pstrict_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       x3-visual x3-textual  x3-speed</span></span>
-<span><span class="co">#&gt; dmacs 0.4865945  0.4865945 0.4865945</span></span></code></pre></div>
+<span><span class="co">#&gt;       x3-visual  x7-speed</span></span>
+<span><span class="co">#&gt; dmacs 0.4865945 0.4161159</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="cross-loadings">Cross-Loadings<a class="anchor" aria-label="anchor" href="#cross-loadings"></a>
@@ -344,7 +344,7 @@ from <code><a href="../reference/pinSearch.html">pinSearch()</a></code>.</p>
 example,</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod2</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
-<span><span class="st">   visual  =~ x1 + x2 + x3 + x9</span></span>
+<span><span class="st">   visual =~ x1 + x2 + x3 + x9</span></span>
 <span><span class="st">  textual =~ x4 + x5 + x6</span></span>
 <span><span class="st">  speed   =~ x7 + x8 + x9</span></span>
 <span><span class="st">"</span></span>
@@ -383,8 +383,8 @@ example,</p>
 <span><span class="co">#&gt; 2     1  x7     intercepts</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
-<span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
-<span><span class="co">#&gt; dmacs 0.4721376 0.4069837  0.4721376  0.4069837 0.4721376 0.4069837</span></span></code></pre></div>
+<span><span class="co">#&gt;       x3-visual  x7-speed</span></span>
+<span><span class="co">#&gt; dmacs 0.4721376 0.4069837</span></span></code></pre></div>
 <p>It just happened in this examplle that the final results are not
 affected.</p>
 </div>
@@ -431,8 +431,8 @@ equality constraints</a>. This can be achieved with
 <span><span class="co">#&gt; 3     2  x7  x7  residuals</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
-<span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
-<span><span class="co">#&gt; dmacs 0.4717618 0.4071113  0.4717618  0.4071113 0.4717618 0.4071113</span></span></code></pre></div>
+<span><span class="co">#&gt;       x3-visual  x7-speed</span></span>
+<span><span class="co">#&gt; dmacs 0.4717618 0.4071113</span></span></code></pre></div>
 <p>The test is slightly more sensitive and identifies an additional
 non-invariant uniqueness for item <code>x7</code>.</p>
 </div>
@@ -476,8 +476,8 @@ expensive.</p>
 <span><span class="co">#&gt; 3     1  x7  x7  residuals</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
-<span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
-<span><span class="co">#&gt; dmacs 0.4717618 0.4071113  0.4717618  0.4071113 0.4717618 0.4071113</span></span></code></pre></div>
+<span><span class="co">#&gt;       x3-visual  x7-speed</span></span>
+<span><span class="co">#&gt; dmacs 0.4717618 0.4071113</span></span></code></pre></div>
 <p>In this example, the results using LRT are the same as the score
 test.</p>
 </div>
@@ -529,8 +529,8 @@ option.</p>
 <span><span class="co">#&gt; 2     2  x7     intercepts</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
-<span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
-<span><span class="co">#&gt; dmacs 0.4721376 0.4069837  0.4721376  0.4069837 0.4721376 0.4069837</span></span></code></pre></div>
+<span><span class="co">#&gt;       x3-visual  x7-speed</span></span>
+<span><span class="co">#&gt; dmacs 0.4721376 0.4069837</span></span></code></pre></div>
 <p>The uniqueness for <code>x7</code> is no longer flagged.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

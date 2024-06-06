@@ -167,17 +167,18 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span>                    data <span class="op">=</span> <span class="va">df</span>, group <span class="op">=</span> <span class="st">"group"</span>, type <span class="op">=</span> <span class="st">"thresholds"</span>,</span>
 <span>                    ordered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"yy"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      </span></span>
-<span><span class="co">#&gt; dmacs</span></span></code></pre></div>
+<span><span class="co">#&gt;           yy2-f     yy4-f     yy5-f     yy7-f</span></span>
+<span><span class="co">#&gt; dmacs 0.2110674 0.1611903 0.1314062 0.2083824</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>continuous <span class="op">=</span> <span class="va">dcont</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>,</span>
 <span>        categorical <span class="op">=</span> <span class="va">dcat</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>,</span>
 <span>        population <span class="op">=</span> <span class="va">dpop</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">7</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;                yy2.f     yy4.f     yy5.f     yy7.f</span></span>
-<span><span class="co">#&gt; continuous 0.1950139 0.1746383 0.1094671 0.2527195</span></span>
-<span><span class="co">#&gt; population 0.2555382 0.1438170 0.1449711 0.1696835</span></span></code></pre></div>
+<span><span class="co">#&gt;                 yy2.f     yy4.f     yy5.f     yy7.f</span></span>
+<span><span class="co">#&gt; continuous  0.1950139 0.1746383 0.1094671 0.2527195</span></span>
+<span><span class="co">#&gt; categorical 0.2110674 0.1611903 0.1314062 0.2083824</span></span>
+<span><span class="co">#&gt; population  0.2555382 0.1438170 0.1449711 0.1696835</span></span></code></pre></div>
 <p>Compared to Mantel-Haenszel (MH)</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Dichotomous data (0, 1, 2 recoded to 0; 3, 4 recoded to 1)</span></span>
@@ -188,8 +189,8 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span>                     data <span class="op">=</span> <span class="va">df2</span>, group <span class="op">=</span> <span class="st">"group"</span>, type <span class="op">=</span> <span class="st">"thresholds"</span>,</span>
 <span>                     ordered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"yy"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps2_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      </span></span>
-<span><span class="co">#&gt; dmacs</span></span></code></pre></div>
+<span><span class="co">#&gt;           yy4-f     yy5-f</span></span>
+<span><span class="co">#&gt; dmacs 0.4098183 0.3721338</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/difR/man/difMH.html" class="external-link">difMH</a></span><span class="op">(</span><span class="va">df2</span>, group <span class="op">=</span> <span class="st">"group"</span>, focal.name <span class="op">=</span> <span class="fl">1</span>, purify <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>

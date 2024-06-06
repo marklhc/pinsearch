@@ -75,7 +75,7 @@
       <img src="" class="logo" alt=""><h1>Using Contrasts</h1>
                         <h4 data-toc-skip class="author">Mark Lai</h4>
             
-            <h4 data-toc-skip class="date">2024-05-18</h4>
+            <h4 data-toc-skip class="date">2024-06-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/marklhc/pinsearch/blob/HEAD/vignettes/contrast.rmd" class="external-link"><code>vignettes/contrast.rmd</code></a></small>
       <div class="d-none name"><code>contrast.rmd</code></div>
@@ -355,18 +355,30 @@
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Obtain fmacs effect size</span></span>
 <span><span class="op">(</span><span class="va">f_omni</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      </span></span>
-<span><span class="co">#&gt; fmacs</span></span></code></pre></div>
+<span><span class="co">#&gt;       class1-f1 class2-f1 class3-f1  class4-f1 class5-f1 class6-f1  class7-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.1199449 0.1105255  0.238074 0.09092291 0.0495783 0.1858896 0.09463213</span></span>
+<span><span class="co">#&gt;       class8-f1 class9-f1 class10-f1 class11-f1 class12-f1 class13-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.1744843 0.1149672  0.1268064 0.03537658   0.108777 0.07085813</span></span>
+<span><span class="co">#&gt;       class14-f1 class15-f1</span></span>
+<span><span class="co">#&gt; fmacs   0.186054   0.142585</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fmacs by gender</span></span>
 <span><span class="op">(</span><span class="va">f_gender</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, group_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      </span></span>
-<span><span class="co">#&gt; fmacs</span></span></code></pre></div>
+<span><span class="co">#&gt;        class1-f1  class2-f1 class3-f1 class4-f1  class5-f1  class6-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.03579684 0.03298566 0.1443419 0.0271354 0.03031563 0.04858562</span></span>
+<span><span class="co">#&gt;        class7-f1  class8-f1  class9-f1 class10-f1 class11-f1 class12-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.02824239 0.03521752 0.08328992 0.04836614 0.01813995 0.01888032</span></span>
+<span><span class="co">#&gt;       class13-f1 class14-f1 class15-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.02702651   0.031373 0.04375972</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fmacs by ethnicity</span></span>
 <span><span class="op">(</span><span class="va">f_eth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, group_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      </span></span>
-<span><span class="co">#&gt; fmacs</span></span></code></pre></div>
+<span><span class="co">#&gt;        class1-f1  class2-f1 class3-f1  class4-f1  class5-f1 class6-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.05810994 0.05354648 0.1249765 0.04404959 0.01246573 0.1131984</span></span>
+<span><span class="co">#&gt;        class7-f1  class8-f1  class9-f1 class10-f1 class11-f1 class12-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.04584661 0.08974653 0.07569014 0.07851401 0.02558757 0.08674763</span></span>
+<span><span class="co">#&gt;       class13-f1 class14-f1 class15-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.04387283 0.07597534  0.1148142</span></span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># interaction (using contrast matrix)</span></span>
 <span><span class="va">contr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">local</a></span><span class="op">(</span><span class="op">{</span></span>
@@ -377,8 +389,12 @@
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="op">~</span> <span class="va">gen</span> <span class="op">*</span> <span class="va">eth</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>eth <span class="op">=</span> <span class="va">eth</span>, gen <span class="op">=</span> <span class="va">gen</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">f_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, contrast <span class="op">=</span> <span class="va">contr</span><span class="op">[</span>, <span class="fl">5</span><span class="op">:</span><span class="fl">6</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      </span></span>
-<span><span class="co">#&gt; fmacs</span></span></code></pre></div>
+<span><span class="co">#&gt;        class1-f1  class2-f1 class3-f1  class4-f1  class5-f1 class6-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.05810994 0.05354648 0.1641631 0.04404959 0.04276347 0.1131984</span></span>
+<span><span class="co">#&gt;        class7-f1 class8-f1  class9-f1 class10-f1 class11-f1 class12-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.04584661 0.1309964 0.07569014 0.07851401 0.02558757 0.08674763</span></span>
+<span><span class="co">#&gt;       class13-f1 class14-f1 class15-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.04387283  0.1208214 0.07983449</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Render as table</span></span>
 <span><span class="va">item_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"class"</span>, replacement <span class="op">=</span> <span class="st">"Item "</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">f_omni</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -395,12 +411,119 @@
 <span class="math inline">\(f_\text{MACS}\)</span> effect
 sizes</caption>
 <thead><tr class="header">
+<th align="left"></th>
 <th align="right">Overall</th>
 <th align="right">Gender</th>
 <th align="right">Ethnicity</th>
 <th align="right">Gender x Ethnicity</th>
 </tr></thead>
-<tbody></tbody>
+<tbody>
+<tr class="odd">
+<td align="left">Item 1</td>
+<td align="right">0.12</td>
+<td align="right">0.04</td>
+<td align="right">0.06</td>
+<td align="right">0.06</td>
+</tr>
+<tr class="even">
+<td align="left">Item 2</td>
+<td align="right">0.11</td>
+<td align="right">0.03</td>
+<td align="right">0.05</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="odd">
+<td align="left">Item 3</td>
+<td align="right">0.24</td>
+<td align="right">0.14</td>
+<td align="right">0.12</td>
+<td align="right">0.16</td>
+</tr>
+<tr class="even">
+<td align="left">Item 4</td>
+<td align="right">0.09</td>
+<td align="right">0.03</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="odd">
+<td align="left">Item 5</td>
+<td align="right">0.05</td>
+<td align="right">0.03</td>
+<td align="right">0.01</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="even">
+<td align="left">Item 6</td>
+<td align="right">0.19</td>
+<td align="right">0.05</td>
+<td align="right">0.11</td>
+<td align="right">0.11</td>
+</tr>
+<tr class="odd">
+<td align="left">Item 7</td>
+<td align="right">0.09</td>
+<td align="right">0.03</td>
+<td align="right">0.05</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="even">
+<td align="left">Item 8</td>
+<td align="right">0.17</td>
+<td align="right">0.04</td>
+<td align="right">0.09</td>
+<td align="right">0.13</td>
+</tr>
+<tr class="odd">
+<td align="left">Item 9</td>
+<td align="right">0.11</td>
+<td align="right">0.08</td>
+<td align="right">0.08</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="even">
+<td align="left">Item 10</td>
+<td align="right">0.13</td>
+<td align="right">0.05</td>
+<td align="right">0.08</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="odd">
+<td align="left">Item 11</td>
+<td align="right">0.04</td>
+<td align="right">0.02</td>
+<td align="right">0.03</td>
+<td align="right">0.03</td>
+</tr>
+<tr class="even">
+<td align="left">Item 12</td>
+<td align="right">0.11</td>
+<td align="right">0.02</td>
+<td align="right">0.09</td>
+<td align="right">0.09</td>
+</tr>
+<tr class="odd">
+<td align="left">Item 13</td>
+<td align="right">0.07</td>
+<td align="right">0.03</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="even">
+<td align="left">Item 14</td>
+<td align="right">0.19</td>
+<td align="right">0.03</td>
+<td align="right">0.08</td>
+<td align="right">0.12</td>
+</tr>
+<tr class="odd">
+<td align="left">Item 15</td>
+<td align="right">0.14</td>
+<td align="right">0.04</td>
+<td align="right">0.11</td>
+<td align="right">0.08</td>
+</tr>
+</tbody>
 </table>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
