@@ -1,3 +1,59 @@
+#' Wrapper function for longitudinal CFA (Experimental)
+#'
+#' This function estimates a longitudinal measurement model by first
+#' generating model syntax (using the [longcfa_syntax()] function), and
+#' then fit the model using [lavaan::cfa()]. An input matrix is needed
+#' where the rows are the indicators and the columns are the time points.
+#'
+#' Currently only supports model with one latent variable at each time
+#' point.
+#'
+#' @param ind_matrix A $p \times T$ character matrix specifying the
+#'   names of the indicator variables across time points. Each column
+#'   corresponds to a time point.
+#' @param lv_names A vector of names of $T$ latent variables.
+#' @param model A character string showing additional syntax to be
+#'   added to the model. Defaults to `NULL`.
+#' @param lag_cov Logical; whether the same indicator is allowed to
+#'   correlate over time.
+#' @param long_equal A character vector indicating types of parameters
+#'   to be constrained equal across time points. This is similar to
+#'   the `group.equal` argument in `lavaan::cfa()`. Currently, only
+#'   `"loadings"`, `"intercepts"`, and `"residuals"` are supported.
+#' @param long_partial A named list of matrices specifying specific
+#'   indicators to have different parameter values for a specific time
+#'   point. The list should have names "loadings", "intercepts", and
+#'   "residuals", and each element is a 2-column matrix where each row
+#'   specifies the indicator (column 1) and the time point (column 2)
+#'   for the parameter to be free. See example below.
+#' @param ... Other arguments passed to `lavaan::cfa()`, such as `data`.
+#'
+#' @return A fit object as returned by `lavaan::cfa()`.
+#'
+#' @examples
+#' library(lavaan)
+#' # Indicator matrix
+#' spec <- matrix(c(
+#'     "y1", "y2", "y3", "y4",
+#'     "y5", "y6", "y7", "y8"
+#' ), ncol = 2)
+#' # Scalar invariance
+#' fit <- longcfa(spec,
+#'                lv_names = c("dem60", "dem65"),
+#'                data = PoliticalDemocracy,
+#'                long_equal = c("loadings", "intercepts"))
+#' summary(fit)
+#' # Partial invariance
+#' fit2 <- longcfa(spec,
+#'                 lv_names = c("dem60", "dem65"),
+#'                 data = PoliticalDemocracy,
+#'                 long_equal = c("loadings", "intercepts"),
+#'                 long_partial = list(
+#'                     loadings = matrix(c(1, 2), ncol = 2),
+#'                     intercepts = matrix(c(1, 3, 2, 2), ncol = 2)
+#'                 ))
+#' summary(fit2)
+#' @export
 longcfa <- function(ind_matrix, lv_names, model = NULL,
                     lag_cov = FALSE,
                     long_equal = NULL,
@@ -41,7 +97,7 @@ longcfa_syntax <- function(ind_matrix, lv_names, lag_cov = FALSE,
     } else {
         uniq_labels <- NULL
     }
-    syn <- lapply(seq_len(nrow(ind_matrix)), function(t) {
+    syn <- lapply(seq_len(ncol(ind_matrix)), function(t) {
         paste0(
             "# Time ", t, "\n",
             one_factor_syntax(ind_matrix[, t],
