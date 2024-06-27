@@ -1,0 +1,127 @@
+---
+title: "Longitudinal Measurement Invariance"
+author: "Hok Chio (Mark) Lai"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Longitudinal Measurement Invariance}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(pinsearch)
+library(lavaan)
+```
+
+Example from <https://thechangelab.stanford.edu/tutorials/growth-modeling/measurement-invariance-2nd-order-growth-model/>
+
+## Import Data
+
+```{r}
+dat <- read.table(
+    "https://raw.githubusercontent.com/LRI-2/Data/main/GrowthModeling/ECLS_Science.dat",
+    na.strings = ".",
+    col.names = c("id", "s_g3", "r_g3", "m_g3", "s_g5", "r_g5", "m_g5",
+                  "s_g8", "r_g8", "m_g8", "st_g3", "rt_g3", "mt_g3",
+                  "st_g5", "rt_g5", "mt_g5", "st_g8", "rt_g8", "mt_g8")
+)
+```
+
+## Create Indicator Matrix
+
+To use the `pinsearch::longcfa()` function, one first needs to specify an *indicator matrix*, where each row represents repeated versions of an item, and each column represents a time point.
+
+```{r}
+long_mat <- matrix(
+    c("s_g3", "s_g5", "s_g8",
+      "r_g3", "r_g5", "r_g8",
+      "m_g3", "m_g5", "m_g8"),
+    byrow = TRUE,
+    nrow = 3
+)
+long_mat
+```
+
+## Configural invariance
+
+We also use the `lag_cov = TRUE` argument to allow for covariances of the same item across time points. Additional arguments, such as `missing = "fiml"`, will be passed to `lavaan::cfa()`.
+
+```{r}
+config_fit <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    data = dat, missing = "fiml"
+)
+```
+
+## Weak invariance
+
+```{r}
+weak_fit <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    long_equal = "loadings",
+    data = dat, missing = "fiml"
+)
+```
+
+## Strong invariance
+
+```{r}
+strong_fit <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts"),
+    data = dat, missing = "fiml"
+)
+```
+
+## Strict invariance
+
+```{r}
+strict_fit <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts", "residuals"),
+    data = dat, missing = "fiml"
+)
+```
+
+## Comparisons
+
+The results are consistent with the blog post.
+
+```{r}
+anova(config_fit, weak_fit, strong_fit, strict_fit)
+```
+
+## Partial invariance
+
+The above results show clear evidence that strong invariance is violated. We can use modification indices to identify noninvariant intercepts.
+
+```{r}
+modindices(strong_fit, sort = TRUE, free.remove = FALSE, op = "~1")
+```
+
+We can now free the intercept for `s_g8`, which is the first item for the third time point.
+
+```{r}
+pstrong_fit <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts"),
+    long_partial = list(
+        intercepts = matrix(c(1, 3), nrow = 1)
+    ),
+    data = dat, missing = "fiml"
+)
+anova(strong_fit, pstrong_fit)
+```
