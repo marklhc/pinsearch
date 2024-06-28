@@ -8,7 +8,7 @@
 #' Currently only supports model with one latent variable at each time
 #' point.
 #'
-#' @param ind_matrix A $p \times T$ character matrix specifying the
+#' @param ind_matrix A \eqn{p \times T} character matrix specifying the
 #'   names of the indicator variables across time points. Each column
 #'   corresponds to a time point.
 #' @param lv_names A vector of names of $T$ latent variables.
@@ -71,8 +71,9 @@ longcfa <- function(ind_matrix, lv_names, model = NULL,
 }
 
 # TODO: Accomodate input pattern matrix for multiple latent variables
-# TODO: Need to handle NA
 
+#' @rdname longcfa
+#' @export
 longcfa_syntax <- function(ind_matrix, lv_names, lag_cov = FALSE,
                            long_equal = NULL, long_partial = NULL) {
     if ("loadings" %in% long_equal) {

@@ -2,6 +2,7 @@
 % Please edit documentation in R/longcfa.R
 \name{longcfa}
 \alias{longcfa}
+\alias{longcfa_syntax}
 \title{Wrapper function for longitudinal CFA (Experimental)}
 \usage{
 longcfa(
@@ -13,9 +14,17 @@ longcfa(
   long_partial = NULL,
   ...
 )
+
+longcfa_syntax(
+  ind_matrix,
+  lv_names,
+  lag_cov = FALSE,
+  long_equal = NULL,
+  long_partial = NULL
+)
 }
 \arguments{
-\item{ind_matrix}{A $p \times T$ character matrix specifying the
+\item{ind_matrix}{A \eqn{p \times T} character matrix specifying the
 names of the indicator variables across time points. Each column
 corresponds to a time point.}
 
