@@ -98,13 +98,14 @@ longcfa_syntax <- function(ind_matrix, lv_names, lag_cov = FALSE,
         uniq_labels <- NULL
     }
     syn <- lapply(seq_len(ncol(ind_matrix)), function(t) {
+        valid_pos <- which(!is.na(ind_matrix[, t]))
         paste0(
             "# Time ", t, "\n",
-            one_factor_syntax(ind_matrix[, t],
+            one_factor_syntax(ind_matrix[valid_pos, t, drop = FALSE],
                 lv_name = lv_names[t],
-                load_lab = load_labels[, t],
-                int_lab = int_labels[, t],
-                uniq_lab = uniq_labels[, t]
+                load_lab = load_labels[valid_pos, t, drop = FALSE],
+                int_lab = int_labels[valid_pos, t, drop = FALSE],
+                uniq_lab = uniq_labels[valid_pos, t, drop = FALSE]
             ),
             "\n"
         )
@@ -143,6 +144,7 @@ lag_cov_syntax <- function(ind_matrix) {
     out <- "# Lag Covariances"
     for (i in seq_len(nrow(ind_matrix))) {
         ind_names_i <- ind_matrix[i, ]
+        ind_names_i <- ind_names_i[!is.na(ind_names_i)]
         p_i <- length(ind_names_i)
         for (j in seq_len(p_i - 1)) {
             out <- c(out, paste(ind_names_i[j], "~~",

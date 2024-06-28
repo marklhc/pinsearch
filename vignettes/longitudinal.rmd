@@ -125,3 +125,31 @@ pstrong_fit <- longcfa(long_mat,
 )
 anova(strong_fit, pstrong_fit)
 ```
+
+## When Some Items Are Missing for Some Time Points
+
+We can include NA in the indicator matrix. Let's say we don't have the `r` item in time point 3 (row 2, column 3).
+
+```{r}
+long_mat <- matrix(
+    c("s_g3", "s_g5", "s_g8",
+      "r_g3", "r_g5", NA,
+      "m_g3", "m_g5", "m_g8"),
+    byrow = TRUE,
+    nrow = 3
+)
+long_mat
+```
+
+```{r}
+pstrict_fit <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts", "residuals"),
+    long_partial = list(
+        intercepts = matrix(c(1, 3), nrow = 1)
+    ),
+    data = dat, missing = "fiml"
+)
+summary(pstrict_fit)
+```
