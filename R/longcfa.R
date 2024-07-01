@@ -57,16 +57,41 @@
 longcfa <- function(ind_matrix, lv_names, model = NULL,
                     lag_cov = FALSE,
                     long_equal = NULL,
-                    long_partial = NULL, ...) {
-    syn <- longcfa_syntax(ind_matrix,
+                    long_partial = NULL,
+                    do.fit = TRUE, ...) {
+    # long_equal2 <- setdiff(long_equal, "thresholds")
+    # syn <- longcfa_syntax(ind_matrix,
+    #     lv_names = lv_names,
+    #     lag_cov = lag_cov,
+    #     long_equal = long_equal2,
+    #     long_partial = long_partial
+    # )
+    syn_args <- list(ind_matrix,
         lv_names = lv_names,
         lag_cov = lag_cov,
         long_equal = long_equal,
         long_partial = long_partial
     )
-    lavaan::cfa(syn, ...,
+    if ("thresholds" %in% long_equal) {
+        cfa0 <- longcfa(ind_matrix, lv_names = lv_names,
+                        lag_cov = lag_cov,
+                        long_equal = NULL,
+                        long_partial = NULL,
+                        do.fit = FALSE, ...)
+        nthres <- cfa0@Data@ov$nlev[
+            match(ind_matrix, table = cfa0@Data@ov$name)
+        ] - 1
+        nthres <- structure(nthres, dim = dim(ind_matrix))
+        if (any(apply(nthres, MARGIN = 1, FUN = var) > 0)) {
+            stop("Number of thresholds of the same item must be",
+                 "equal over time.")
+        }
+        syn_args <- c(syn_args, list(nthres = nthres))
+    }
+    syn <- do.call(longcfa_syntax, args = syn_args)
+    lavaan::cfa(syn, do.fit = do.fit, ...,
         auto.fix.first = FALSE,
-        int.lv.free = TRUE
+        int.lv.free = TRUE,
     )
 }
 
@@ -75,7 +100,9 @@ longcfa <- function(ind_matrix, lv_names, model = NULL,
 #' @rdname longcfa
 #' @export
 longcfa_syntax <- function(ind_matrix, lv_names, lag_cov = FALSE,
-                           long_equal = NULL, long_partial = NULL) {
+                           long_equal = NULL, long_partial = NULL,
+                           nthres = matrix(0, nrow = nrow(ind_matrix),
+                                           ncol = ncol(ind_matrix))) {
     if ("loadings" %in% long_equal) {
         load_labels <- gen_labels(dim(ind_matrix), ".l",
                                   partial = long_partial$loadings)
@@ -84,12 +111,31 @@ longcfa_syntax <- function(ind_matrix, lv_names, lag_cov = FALSE,
         load_labels <- NULL
         latvar_syntax <- latent_var_syntax(lv_names)
     }
-    if ("intercepts" %in% long_equal) {
-        int_labels <- gen_labels(dim(ind_matrix), ".i",
-                                 partial = long_partial$intercepts)
+    if ("thresholds" %in% long_equal || "intercepts" %in% long_equal) {
+        ind_cat <- rowMeans(nthres) > 0
+        if ("thresholds" %in% long_equal && !is.null(nthres)) {
+            thres_labels <- gen_labels2(
+                dim(ind_matrix),
+                size2 = nthres,
+                prefix = ".t",
+                partial = long_partial$thresholds
+            )
+        } else {
+            thres_labels <- NULL
+        }
+        if ("intercepts" %in% long_equal) {
+            int_labels <- gen_labels(
+                dim(ind_matrix),
+                prefix = ".i",
+                partial = long_partial$intercepts
+            )
+        } else {
+            int_labels <- NULL
+        }
         latmean_syntax <- latent_mean_syntax(lv_names[1])
     } else {
         int_labels <- NULL
+        thres_labels <- NULL
         latmean_syntax <- latent_mean_syntax(lv_names)
     }
     if ("residuals" %in% long_equal) {
@@ -106,6 +152,8 @@ longcfa_syntax <- function(ind_matrix, lv_names, lag_cov = FALSE,
                 lv_name = lv_names[t],
                 load_lab = load_labels[valid_pos, t, drop = FALSE],
                 int_lab = int_labels[valid_pos, t, drop = FALSE],
+                thres_lab = thres_labels[valid_pos, t, drop = FALSE],
+                ind_cat = ind_cat[valid_pos],
                 uniq_lab = uniq_labels[valid_pos, t, drop = FALSE]
             ),
             "\n"
@@ -125,6 +173,8 @@ longcfa_syntax <- function(ind_matrix, lv_names, lag_cov = FALSE,
 
 one_factor_syntax <- function(ind_names, lv_name = ".eta",
                               load_lab = NULL, int_lab = NULL,
+                              thres_lab = NULL,
+                              ind_cat = rep(FALSE, length(ind_names)),
                               uniq_lab = NULL) {
     if (is.null(load_lab)) {
         load_ind <- ind_names
@@ -133,13 +183,33 @@ one_factor_syntax <- function(ind_names, lv_name = ".eta",
     }
     out <- paste0(lv_name, " =~ ", paste0(load_ind, collapse = " + "))
     if (!is.null(int_lab)) {
-        out <- c(out, paste(ind_names, "~", int_lab, "* 1"))
+        out <- c(out, paste(ind_names[!ind_cat], "~", int_lab, "* 1"))
+    }
+    if (!is.null(thres_lab)) {
+        # Need to revise labels to be by time, not by item
+        out <- c(
+            out,
+            vapply(seq_along(ind_names[ind_cat]),
+                FUN = function(j) {
+                    paste(
+                        ind_names[ind_cat][j], "|",
+                        paste0(thres_lab[[j]], " * ",
+                            "t", seq_along(thres_lab[[j]]),
+                            collapse = " + "
+                        )
+                    )
+                },
+                FUN.VALUE = character(1)
+            )
+        )
     }
     if (!is.null(uniq_lab)) {
         out <- c(out, paste(ind_names, "~~", uniq_lab, "*", ind_names))
     }
     paste(out, collapse = "\n")
 }
+
+threshold_syntax <- function(ind) { }
 
 lag_cov_syntax <- function(ind_matrix) {
     out <- "# Lag Covariances"
@@ -173,6 +243,21 @@ gen_labels <- function(size, prefix, equal = TRUE,
     }
     out[] <- paste0(prefix, out)
     out
+}
+
+# For each item, there are T x C thresholds
+# So needs a list of length p.
+gen_labels2 <- function(size, size2, prefix, equal = TRUE,
+                        partial = NULL) {
+    out1 <- gen_labels(size, prefix = prefix, equal = equal,
+                       partial = partial)
+    out <- lapply(
+        seq_along(size2),
+        FUN = function(l) {
+            paste0(out1[l], "_", seq_len(size2[l]))
+        }
+    )
+    structure(out, dim = size)
 }
 
 latent_var_syntax <- function(lv_names) {
