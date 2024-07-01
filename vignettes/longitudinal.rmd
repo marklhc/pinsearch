@@ -131,18 +131,18 @@ anova(strong_fit, pstrong_fit)
 We can include NA in the indicator matrix. Let's say we don't have the `r` item in time point 3 (row 2, column 3).
 
 ```{r}
-long_mat <- matrix(
+long_mat_na <- matrix(
     c("s_g3", "s_g5", "s_g8",
       "r_g3", "r_g5", NA,
       "m_g3", "m_g5", "m_g8"),
     byrow = TRUE,
     nrow = 3
 )
-long_mat
+long_mat_na
 ```
 
 ```{r}
-pstrict_fit <- longcfa(long_mat,
+pstrict_fit <- longcfa(long_mat_na,
     lv_names = c("eta1", "eta2", "eta3"),
     lag_cov = TRUE,
     long_equal = c("loadings", "intercepts", "residuals"),
@@ -152,4 +152,95 @@ pstrict_fit <- longcfa(long_mat,
     data = dat, missing = "fiml"
 )
 summary(pstrict_fit)
+```
+
+## Categorical Data
+
+```{r}
+dat_cat <- c(
+    lapply(dat[c("s_g3", "s_g5", "s_g8")],
+           FUN = \(x) as.integer(x > 65)),
+    # dat[c("s_g3", "s_g5", "s_g8")],
+    lapply(dat[c("r_g3", "r_g5", "r_g8")],
+           FUN = \(x) findInterval(x, c(135, 165))),
+    lapply(dat[c("m_g3", "m_g5", "m_g8")],
+           FUN = \(x) as.integer(x > 120))
+) |> as.data.frame()
+
+```
+
+### Configural
+
+```{r}
+config_fit_cat <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    data = dat_cat,
+    ordered = c("s_g3", "s_g5", "s_g8",
+                "r_g3", "r_g5", "r_g8",
+                "m_g3", "m_g5", "m_g8"),
+    parameterization = "theta"
+)
+config_fit_cat@Options
+lavInspect(config_fit_cat, what = "ordered")
+lavInspect(config_fit_cat, what = "sampstat")
+config_fit_cat@Data@ov$nlev
+```
+
+### Loadings
+
+```{r}
+metric_fit_cat <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    data = dat_cat,
+    ordered = c("s_g3", "s_g5", "s_g8",
+                "r_g3", "r_g5", "r_g8",
+                "m_g3", "m_g5", "m_g8"),
+    parameterization = "theta",
+    long_equal = "loadings"
+)
+```
+
+### Thresholds
+
+```{r}
+scalar_fit_cat <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    data = dat_cat,
+    ordered = c("s_g3", "s_g5", "s_g8",
+                "r_g3", "r_g5", "r_g8",
+                "m_g3", "m_g5", "m_g8"),
+    parameterization = "theta",
+    long_equal = c("loadings", "thresholds")
+)
+```
+
+```{r}
+anova(config_fit_cat, metric_fit_cat, scalar_fit_cat)
+```
+
+```{r}
+modindices(scalar_fit_cat, sort = TRUE,
+           free.remove = FALSE, op = "|")
+```
+
+### Partial invariance
+
+Note: All thresholds are freed for an item
+
+```{r}
+pscalar_fit_cat <- longcfa(long_mat,
+    lv_names = c("eta1", "eta2", "eta3"),
+    lag_cov = TRUE,
+    long_equal = c("loadings", "thresholds"),
+    long_partial = list(
+        thresholds = matrix(c(1, 3), nrow = 1)
+    ),
+    data = dat_cat,
+    parameterization = "theta",
+    ordered = TRUE
+)
+anova(pscalar_fit_cat, scalar_fit_cat)
 ```
