@@ -19,17 +19,23 @@
 #' @param long_equal A character vector indicating types of parameters
 #'   to be constrained equal across time points. This is similar to
 #'   the `group.equal` argument in `lavaan::cfa()`. Currently, only
-#'   `"loadings"`, `"intercepts"`, and `"residuals"` are supported.
+#'   `"loadings"`, `"intercepts"`, `"thresholds"` and `"residuals"`
+#'   are supported.
 #' @param long_partial A named list of matrices specifying specific
 #'   indicators to have different parameter values for a specific time
-#'   point. The list should have names "loadings", "intercepts", and
-#'   "residuals", and each element is a 2-column matrix where each row
-#'   specifies the indicator (column 1) and the time point (column 2)
-#'   for the parameter to be free. See example below.
+#'   point. The list should have names "loadings", "intercepts",
+#'   "thresholds", and/or "residuals", and each element is a 2-column
+#'   matrix where each row specifies the indicator (column 1) and the
+#'   time point (column 2) for the parameter to be free. See example
+#'   below.
+#' @param nthres An integer vector specifying the number of thresholds
+#'   for each item.
+#' @param do.fit Same as in `lavaan::lavOptions()`.
 #' @param ... Other arguments passed to `lavaan::cfa()`, such as `data`.
 #'
 #' @return A fit object as returned by `lavaan::cfa()`.
 #'
+#' @importFrom stats var
 #' @examples
 #' library(lavaan)
 #' # Indicator matrix
@@ -59,13 +65,6 @@ longcfa <- function(ind_matrix, lv_names, model = NULL,
                     long_equal = NULL,
                     long_partial = NULL,
                     do.fit = TRUE, ...) {
-    # long_equal2 <- setdiff(long_equal, "thresholds")
-    # syn <- longcfa_syntax(ind_matrix,
-    #     lv_names = lv_names,
-    #     lag_cov = lag_cov,
-    #     long_equal = long_equal2,
-    #     long_partial = long_partial
-    # )
     syn_args <- list(ind_matrix,
         lv_names = lv_names,
         lag_cov = lag_cov,
@@ -186,7 +185,6 @@ one_factor_syntax <- function(ind_names, lv_name = ".eta",
         out <- c(out, paste(ind_names[!ind_cat], "~", int_lab, "* 1"))
     }
     if (!is.null(thres_lab)) {
-        # Need to revise labels to be by time, not by item
         out <- c(
             out,
             vapply(seq_along(ind_names[ind_cat]),
@@ -245,8 +243,6 @@ gen_labels <- function(size, prefix, equal = TRUE,
     out
 }
 
-# For each item, there are T x C thresholds
-# So needs a list of length p.
 gen_labels2 <- function(size, size2, prefix, equal = TRUE,
                         partial = NULL) {
     out1 <- gen_labels(size, prefix = prefix, equal = equal,

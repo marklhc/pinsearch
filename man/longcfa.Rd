@@ -12,6 +12,7 @@ longcfa(
   lag_cov = FALSE,
   long_equal = NULL,
   long_partial = NULL,
+  do.fit = TRUE,
   ...
 )
 
@@ -20,7 +21,8 @@ longcfa_syntax(
   lv_names,
   lag_cov = FALSE,
   long_equal = NULL,
-  long_partial = NULL
+  long_partial = NULL,
+  nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
 )
 }
 \arguments{
@@ -39,16 +41,23 @@ correlate over time.}
 \item{long_equal}{A character vector indicating types of parameters
 to be constrained equal across time points. This is similar to
 the \code{group.equal} argument in \code{lavaan::cfa()}. Currently, only
-\code{"loadings"}, \code{"intercepts"}, and \code{"residuals"} are supported.}
+\code{"loadings"}, \code{"intercepts"}, \code{"thresholds"} and \code{"residuals"}
+are supported.}
 
 \item{long_partial}{A named list of matrices specifying specific
 indicators to have different parameter values for a specific time
-point. The list should have names "loadings", "intercepts", and
-"residuals", and each element is a 2-column matrix where each row
-specifies the indicator (column 1) and the time point (column 2)
-for the parameter to be free. See example below.}
+point. The list should have names "loadings", "intercepts",
+"thresholds", and/or "residuals", and each element is a 2-column
+matrix where each row specifies the indicator (column 1) and the
+time point (column 2) for the parameter to be free. See example
+below.}
+
+\item{do.fit}{Same as in \code{lavaan::lavOptions()}.}
 
 \item{...}{Other arguments passed to \code{lavaan::cfa()}, such as \code{data}.}
+
+\item{nthres}{An integer vector specifying the number of thresholds
+for each item.}
 }
 \value{
 A fit object as returned by \code{lavaan::cfa()}.
