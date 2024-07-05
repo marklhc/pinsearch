@@ -88,7 +88,7 @@ longcfa <- function(ind_matrix, lv_names, model = NULL,
         syn_args <- c(syn_args, list(nthres = nthres))
     }
     syn <- do.call(longcfa_syntax, args = syn_args)
-    lavaan::cfa(syn, do.fit = do.fit, ...,
+    lavaan::cfa(c(syn, model), do.fit = do.fit, ...,
         auto.fix.first = FALSE,
         int.lv.free = TRUE,
     )
