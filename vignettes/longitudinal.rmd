@@ -57,6 +57,8 @@ We also use the `lag_cov = TRUE` argument to allow for covariances of the same i
 ```{r}
 config_fit <- longcfa(long_mat,
     lv_names = c("eta1", "eta2", "eta3"),
+    model = "s_g3 ~~ r_g3
+             s_g5 ~~ r_g5",
     lag_cov = TRUE,
     data = dat, missing = "fiml"
 )
