@@ -186,7 +186,6 @@ pinSearch <- function(config_mod,
     # base_call <- stats::getCall(base_fit)
     base_opt <- base_fit@Options
     # stored_fit <- list()
-    ind_names <- get_ovnames(base_fit)
     if (is.null(base_call$std.lv)) {
         dots$std.lv <- TRUE
         if (interactive()) message("`std.lv` is set to TRUE by default")
@@ -196,18 +195,32 @@ pinSearch <- function(config_mod,
         if (is.null(base_call$parameterization)) {
             dots$parameterization <- "theta"
         }
+        ind_names <- get_ovnames(base_fit)
+        if (grepl("group:", x = config_mod)) {
+            config_mod <- add_scale_constraints_group(
+                config_mod, ind_names,
+                parameterization = dots$parameterization
+            )
+        } else {
+            config_mod <- c(
+                config_mod,
+                scale_constraints(ind_names[[1]],
+                    parameterization = dots$parameterization
+                )
+            )
+        }
         if (dots$parameterization == "theta") {
             # add constraints on unique variances
-            config_mod <- c(config_mod,
-                            paste(ind_names, "~~ 1 *", ind_names))
+            # config_mod <- c(config_mod,
+            #                 paste(ind_names, "~~ 1 *", ind_names))
             if (interactive()) {
                 message("Unique variances are constrained to 1 ",
                         "for identification")
             }
         } else if (dots$parameterization == "delta") {
             # add constraints on unique variances
-            config_mod <- c(config_mod,
-                            paste(ind_names, "~*~ 1 *", ind_names))
+            # config_mod <- c(config_mod,
+            #                 paste(ind_names, "~*~ 1 *", ind_names))
             warning(
                 "Delta parameterization has not been tested ",
                 "and likely results in untrustworthy results."
