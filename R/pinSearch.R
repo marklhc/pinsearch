@@ -166,16 +166,16 @@ cfa2 <- function(...) {
 #' )
 #' @export
 pinSearch <- function(config_mod,
-                       ...,
-                       type = c(
-                           "loadings", "intercepts", "thresholds",
-                           "residuals", "residual.covariances"
-                       ),
-                       inv_test = c("mod", "score", "lrt"),
-                       sig_level = .05,
-                       control_fdr = FALSE,
-                       effect_size = FALSE,
-                       progress = FALSE) {
+                      ...,
+                      type = c(
+                          "loadings", "intercepts", "thresholds",
+                          "residuals", "residual.covariances"
+                      ),
+                      inv_test = c("mod", "score", "lrt"),
+                      sig_level = .05,
+                      control_fdr = FALSE,
+                      effect_size = FALSE,
+                      progress = FALSE) {
     type <- match.arg(type)
     inv_test <- match.arg(inv_test)
     dots <- list(...)
@@ -186,9 +186,16 @@ pinSearch <- function(config_mod,
     # base_call <- stats::getCall(base_fit)
     base_opt <- base_fit@Options
     # stored_fit <- list()
+    if (grepl("group:", x = config_mod)) {
+        group_as_block <- TRUE
+        lv_names <- get_lvnames(base_fit)
+    }
     if (is.null(base_call$std.lv)) {
-        dots$std.lv <- TRUE
-        if (interactive()) message("`std.lv` is set to TRUE by default")
+        dots$auto.fix.first <- FALSE
+        if (!group_as_block) {
+            dots$std.lv <- TRUE
+            if (interactive()) message("`std.lv` is set to TRUE by default")
+        }
     }
     if (base_opt$categorical) {
         types <- c("loadings", "thresholds", "residual.covariances")
@@ -196,7 +203,7 @@ pinSearch <- function(config_mod,
             dots$parameterization <- "theta"
         }
         ind_names <- get_ovnames(base_fit)
-        if (grepl("group:", x = config_mod)) {
+        if (group_as_block) {
             config_mod <- add_scale_constraints_group(
                 config_mod, ind_names,
                 parameterization = dots$parameterization
@@ -238,6 +245,12 @@ pinSearch <- function(config_mod,
             stop("`type = ", type, "` cannot be used with continuous items")
         }
     }
+    if (group_as_block) {
+        org_config_mod <- config_mod
+        config_mod <- add_iden_constraints_group(
+            config_mod, lv_names, type = "config"
+        )
+    }
     base_fit <- do.call(cfa2,
         args = c(list(model = config_mod), dots)
     )
@@ -265,6 +278,11 @@ pinSearch <- function(config_mod,
         # new_fit <- lavaan::update(base_fit, ..., config_mod,
         #                           group.equal = types[seq_len(i)],
         #                           do.fit = i <= 1)
+        if (group_as_block) {
+            config_mod <- add_iden_constraints_group(
+                org_config_mod, lv_names, type = typei
+            )
+        }
         new_fit <- do.call(
             cfa2,
             c(list(
