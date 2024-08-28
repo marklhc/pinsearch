@@ -189,6 +189,8 @@ pinSearch <- function(config_mod,
     if (grepl("group:", x = config_mod)) {
         group_as_block <- TRUE
         lv_names <- get_lvnames(base_fit)
+    } else {
+        group_as_block <- FALSE
     }
     if (is.null(base_call$std.lv)) {
         dots$auto.fix.first <- FALSE
