@@ -116,6 +116,8 @@ cfa2 <- function(...) {
 #' @param control_fdr Logical; whether to use adjust for false discovery rate
 #'   for multiple testing. If `TRUE`, the method by Benjamini & Gavrilov (2009)
 #'   will be used.
+#' @param min2 Logical; whether to require at least two invariant items when
+#'   searching for noninvariance.
 #' @param effect_size Logical; whether to compute dmacs (two groups) or
 #'   fmacs (> two groups) effect size or not (default).
 #'   This is an experimental feature.
@@ -174,6 +176,7 @@ pinSearch <- function(config_mod,
                       inv_test = c("mod", "score", "lrt"),
                       sig_level = .05,
                       control_fdr = FALSE,
+                      min2 = FALSE,
                       effect_size = FALSE,
                       progress = FALSE) {
     type <- match.arg(type)
@@ -339,11 +342,15 @@ pinSearch <- function(config_mod,
                 pb_count <- 0
             }
             while (!is.null(row_to_free)) {
+                pt00 <- pt0
                 pt0 <- do.call(remove_cons,
                     args = c(list(pt0), row_to_free[c("group", "lhs", "rhs")],
-                        op = op
+                        op = op, check_min2 = min2 & (i <= 3)
                     )
                 )
+                if (identical(pt0, pt00)) {
+                    break
+                }
                 ninv_items <- rbind(
                     ninv_items,
                     c(row_to_free[c("group", "lhs", "rhs")], type = typei)
