@@ -18,9 +18,10 @@ Imports:
 Suggests: 
     difR,
     knitr,
+    MASS,
     rmarkdown,
     testthat (>= 3.0.0),
-    MASS
+    withr
 URL: https://github.com/marklhc/pinsearch,
     https://marklhc.github.io/pinsearch/
 BugReports: https://github.com/marklhc/pinsearch/issues
