@@ -3,8 +3,10 @@ remove_cons <- function(pt, lhs, rhs, group, op, check_min2 = FALSE) {
     row_i <- which(pt$lhs == lhs & pt$rhs == rhs &
                        pt$op == op & pt$group == group)
     # Find other items of the same type
-    row_labelled <- which(pt$op == op & pt$group == group & pt$label != "")
-    if (length(row_labelled) <= 2 && check_min2) {
+    eq_plabel <- unique(unlist(pt[pt$op == "==", c("lhs", "rhs")]))
+    row_labelled <- which(pt$op == op & pt$plabel %in% eq_plabel)
+    ind_labelled <- unique(pt[row_labelled, op2col(op)])
+    if (length(ind_labelled) <= 2 && check_min2) {
         return(pt)
     }
     mi_plab <- pt$plabel[row_i]

@@ -16,6 +16,7 @@ op2col <- function(op) {
     switch(op,
            `=~` = "rhs",
            `~1` = "lhs",
+           `|` = "lhs",
            `~~` = "lhs")
 }
 
@@ -345,7 +346,7 @@ pinSearch <- function(config_mod,
                 pt00 <- pt0
                 pt0 <- do.call(remove_cons,
                     args = c(list(pt0), row_to_free[c("group", "lhs", "rhs")],
-                        op = op, check_min2 = min2 & (i <= 3)
+                        op = op, check_min2 = min2 & (i <= 2)
                     )
                 )
                 if (identical(pt0, pt00)) {
