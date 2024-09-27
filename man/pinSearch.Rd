@@ -11,6 +11,7 @@ pinSearch(
   inv_test = c("mod", "score", "lrt"),
   sig_level = 0.05,
   control_fdr = FALSE,
+  min2 = FALSE,
   effect_size = FALSE,
   progress = FALSE
 )
@@ -41,6 +42,9 @@ is .05.}
 \item{control_fdr}{Logical; whether to use adjust for false discovery rate
 for multiple testing. If \code{TRUE}, the method by Benjamini & Gavrilov (2009)
 will be used.}
+
+\item{min2}{Logical; whether to require at least two invariant items when
+searching for noninvariance.}
 
 \item{effect_size}{Logical; whether to compute dmacs (two groups) or
 fmacs (> two groups) effect size or not (default).

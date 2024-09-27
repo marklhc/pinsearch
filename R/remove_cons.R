@@ -148,7 +148,7 @@ get_invlrt <- function(object, type, alpha = .05, pt0, ...) {
     mis <- mis[!is.na(mis$"Pr(>Chisq)"), ]
     if (nrow(mis) == 0) return(NULL)
     out <- mis[which.min(mis$"Pr(>Chisq)"), ]
-    if (out$"Pr(>Chisq)" > alpha) return(NULL)
+    if (nrow(out) == 0 || out$"Pr(>Chisq)" > alpha) return(NULL)
     attr(out, "size") <- sum(mis$"Pr(>Chisq)" < alpha)
     out
 }
