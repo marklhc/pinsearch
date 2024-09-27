@@ -1,45 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/404.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/articles/compare-cont-cat.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/articles/contrast.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/articles/pinsearch.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/index.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/reference/dmacs.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/reference/es_lavaan.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/reference/fmacs.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/reference/lui_sim.html</loc>
-  </url>
-  <url>
-    <loc>https://marklhc.github.io/pinsearch/reference/pinSearch.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://marklhc.github.io/pinsearch/404.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/LICENSE.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/articles/compare-cont-cat.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/articles/contrast.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/articles/index.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/articles/pinsearch.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/authors.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/index.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/reference/dmacs.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/reference/es_lavaan.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/reference/fmacs.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/reference/index.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/reference/lui_sim.html</loc></url>
+<url><loc>https://marklhc.github.io/pinsearch/reference/pinSearch.html</loc></url>
 </urlset>
+
