@@ -286,7 +286,11 @@ es_lavaan <- function(object, ...) {
             pars,
             FUN = function(x) {
                 th_names <- rownames(x$tau)
-                x$tau[grep(paste0(ninv_ov, "\\|t", collapse = "|"), th_names),]
+                ninv_th_names <- grep(paste0(ninv_ov, "\\|t", collapse = "|"),
+                                      x = th_names, value = TRUE)
+                out <- x$tau[ninv_th_names, 1]
+                names(out) <- ninv_th_names
+                out
             }
         )
         thres_mat <- do.call(rbind, thres_mat)

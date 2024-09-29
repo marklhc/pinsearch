@@ -1,7 +1,14 @@
-remove_cons <- function(pt, lhs, rhs, group, op) {
+remove_cons <- function(pt, lhs, rhs, group, op, check_min2 = FALSE) {
     # Identify row with the specified parameter
     row_i <- which(pt$lhs == lhs & pt$rhs == rhs &
                        pt$op == op & pt$group == group)
+    # Find other items of the same type
+    eq_plabel <- unique(unlist(pt[pt$op == "==", c("lhs", "rhs")]))
+    row_labelled <- which(pt$op == op & pt$plabel %in% eq_plabel)
+    ind_labelled <- unique(pt[row_labelled, op2col(op)])
+    if (length(ind_labelled) <= 2 && check_min2) {
+        return(pt)
+    }
     mi_plab <- pt$plabel[row_i]
     pt$label[row_i] <- ""
     if (length(mi_plab) == 0)
@@ -138,7 +145,7 @@ get_invlrt <- function(object, type, alpha = .05, pt0, ...) {
     mis <- cbind(pt0_eq, lrt_mat)
 
     out <- mis[which.min(mis$"Pr(>Chisq)"), ]
-    if (out$"Pr(>Chisq)" > alpha) return(NULL)
+    if (nrow(out) == 0 || out$"Pr(>Chisq)" > alpha) return(NULL)
     attr(out, "size") <- sum(mis$"Pr(>Chisq)" < alpha)
     out
 }

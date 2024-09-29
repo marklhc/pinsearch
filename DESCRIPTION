@@ -1,7 +1,7 @@
 Package: pinsearch
 Type: Package
 Title: Specification search for partial factorial invariance
-Version: 0.1.4.1
+Version: 0.1.4.1-1
 Authors@R: person("Mark", "Lai", email = "marklhc@gmail.com",
   role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9196-7406"))
 Description: A function to automate specification search for identify 

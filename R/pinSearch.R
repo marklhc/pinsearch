@@ -16,6 +16,7 @@ op2col <- function(op) {
     switch(op,
            `=~` = "rhs",
            `~1` = "lhs",
+           `|` = "lhs",
            `~~` = "lhs")
 }
 
@@ -116,6 +117,8 @@ cfa2 <- function(...) {
 #' @param control_fdr Logical; whether to use adjust for false discovery rate
 #'   for multiple testing. If `TRUE`, the method by Benjamini & Gavrilov (2009)
 #'   will be used.
+#' @param min2 Logical; whether to require at least two invariant items when
+#'   searching for noninvariance.
 #' @param effect_size Logical; whether to compute dmacs (two groups) or
 #'   fmacs (> two groups) effect size or not (default).
 #'   This is an experimental feature.
@@ -166,16 +169,17 @@ cfa2 <- function(...) {
 #' )
 #' @export
 pinSearch <- function(config_mod,
-                       ...,
-                       type = c(
-                           "loadings", "intercepts", "thresholds",
-                           "residuals", "residual.covariances"
-                       ),
-                       inv_test = c("mod", "score", "lrt"),
-                       sig_level = .05,
-                       control_fdr = FALSE,
-                       effect_size = FALSE,
-                       progress = FALSE) {
+                      ...,
+                      type = c(
+                          "loadings", "intercepts", "thresholds",
+                          "residuals", "residual.covariances"
+                      ),
+                      inv_test = c("mod", "score", "lrt"),
+                      sig_level = .05,
+                      control_fdr = FALSE,
+                      min2 = FALSE,
+                      effect_size = FALSE,
+                      progress = FALSE) {
     type <- match.arg(type)
     inv_test <- match.arg(inv_test)
     dots <- list(...)
@@ -186,28 +190,50 @@ pinSearch <- function(config_mod,
     # base_call <- stats::getCall(base_fit)
     base_opt <- base_fit@Options
     # stored_fit <- list()
-    ind_names <- get_ovnames(base_fit)
+    if (grepl("group:", x = config_mod)) {
+        group_as_block <- TRUE
+        lv_names <- get_lvnames(base_fit)
+    } else {
+        group_as_block <- FALSE
+    }
     if (is.null(base_call$std.lv)) {
-        dots$std.lv <- TRUE
-        if (interactive()) message("`std.lv` is set to TRUE by default")
+        dots$auto.fix.first <- FALSE
+        if (!group_as_block) {
+            dots$std.lv <- TRUE
+            if (interactive()) message("`std.lv` is set to TRUE by default")
+        }
     }
     if (base_opt$categorical) {
         types <- c("loadings", "thresholds", "residual.covariances")
         if (is.null(base_call$parameterization)) {
             dots$parameterization <- "theta"
         }
+        ind_names <- get_ovnames(base_fit)
+        if (group_as_block) {
+            config_mod <- add_scale_constraints_group(
+                config_mod, ind_names,
+                parameterization = dots$parameterization
+            )
+        } else {
+            config_mod <- c(
+                config_mod,
+                scale_constraints(ind_names[[1]],
+                    parameterization = dots$parameterization
+                )
+            )
+        }
         if (dots$parameterization == "theta") {
             # add constraints on unique variances
-            config_mod <- c(config_mod,
-                            paste(ind_names, "~~ 1 *", ind_names))
+            # config_mod <- c(config_mod,
+            #                 paste(ind_names, "~~ 1 *", ind_names))
             if (interactive()) {
                 message("Unique variances are constrained to 1 ",
                         "for identification")
             }
         } else if (dots$parameterization == "delta") {
             # add constraints on unique variances
-            config_mod <- c(config_mod,
-                            paste(ind_names, "~*~ 1 *", ind_names))
+            # config_mod <- c(config_mod,
+            #                 paste(ind_names, "~*~ 1 *", ind_names))
             warning(
                 "Delta parameterization has not been tested ",
                 "and likely results in untrustworthy results."
@@ -224,6 +250,12 @@ pinSearch <- function(config_mod,
         if (!type %in% types) {
             stop("`type = ", type, "` cannot be used with continuous items")
         }
+    }
+    if (group_as_block) {
+        org_config_mod <- config_mod
+        config_mod <- add_iden_constraints_group(
+            config_mod, lv_names, type = "config"
+        )
     }
     base_fit <- do.call(cfa2,
         args = c(list(model = config_mod), dots)
@@ -252,6 +284,11 @@ pinSearch <- function(config_mod,
         # new_fit <- lavaan::update(base_fit, ..., config_mod,
         #                           group.equal = types[seq_len(i)],
         #                           do.fit = i <= 1)
+        if (group_as_block) {
+            config_mod <- add_iden_constraints_group(
+                org_config_mod, lv_names, type = typei
+            )
+        }
         new_fit <- do.call(
             cfa2,
             c(list(
@@ -306,11 +343,15 @@ pinSearch <- function(config_mod,
                 pb_count <- 0
             }
             while (!is.null(row_to_free)) {
+                pt00 <- pt0
                 pt0 <- do.call(remove_cons,
                     args = c(list(pt0), row_to_free[c("group", "lhs", "rhs")],
-                        op = op
+                        op = op, check_min2 = min2 & (i <= 2)
                     )
                 )
+                if (identical(pt0, pt00)) {
+                    break
+                }
                 ninv_items <- rbind(
                     ninv_items,
                     c(row_to_free[c("group", "lhs", "rhs")], type = typei)

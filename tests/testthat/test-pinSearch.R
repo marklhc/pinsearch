@@ -88,6 +88,28 @@ test_that("pinSearch() works properly for noninvariant residual covariances", {
                          "residual.covariances"), c(2, 1, 2, 1)))
 })
 
+test_that("pinSearch() works properly when all items are noninvariant", {
+  cov6 <- tcrossprod(rev(lambda1)) + diag(1, 5)
+  dimnames(cov6) <- list(paste0("y", 1:5), paste0("y", 1:5))
+  ps6 <- pinSearch(' f =~ y1 + y2 + y3 + y4 + y5 ',
+                   sample.cov = list(cov1, cov6),
+                   sample.mean = list(mean1, mean1),
+                   sample.nobs = c(10000, 10000),
+                   type = "loadings",
+                   min2 = TRUE)
+  ps6b <- pinSearch(' group: 1
+                        f =~ y1 + y2 + y4 + y5 
+                      group: 2
+                        f =~ y1 + y2 + y3 + y4 + y5 ',
+                    sample.cov = list(cov1, cov6),
+                    sample.mean = list(mean1, mean1),
+                    sample.nobs = c(10000, 10000),
+                    type = "loadings",
+                    min2 = TRUE)
+  expect_identical(nrow(ps6[[2]]), 3L)
+  expect_identical(nrow(ps6b[[2]]), 2L)
+})
+
 test_that("pinSearch() works properly for HolzingerSwineford1939 example", {
     HS.model <- ' visual  =~ x1 + x2 + x3 + x9
                   textual =~ x4 + x5 + x6
