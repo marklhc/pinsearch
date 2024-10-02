@@ -1,8 +1,6 @@
 test_that("pinSearch() works properly for binary data", {
-    y2 <- simy(num_obs, meany = mean2, covy = cov2, thresy = thres2)
-    df <- rbind(cbind(y1, group = 1), cbind(y2, group = 2))
     ps1 <- pinSearch(" f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ",
-        data = df, group = "group", type = "thresholds",
+        data = df1, group = "group", type = "thresholds",
         ordered = paste0("yy", 1:7)
     )
     expect_identical(ps1[[2]]$lhs, c("yy7", "yy2"))
@@ -10,25 +8,21 @@ test_that("pinSearch() works properly for binary data", {
 
 test_that("pinSearch() works properly for noninvariant uniqueness", {
     # Unique variances should shift to loadings and intercepts
-    y2 <- simy(num_obs, meany = mean2, covy = cov3, thresy = thres1)
-    df <- rbind(cbind(y1, group = 1), cbind(y2, group = 2))
     ps2 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
-                     data = df, group = "group", type = "thresholds",
+                     data = df2, group = "group", type = "thresholds",
                      ordered = paste0("yy", 1:7))
     expect_true("yy7" %in% ps2[[2]]$lhs | "yy7" %in% ps2[[2]]$rhs)
 })
 
 test_that("pinSearch() works properly for noninvariant unique covariances", {
-    y2 <- simy(num_obs, meany = mean2, covy = cov4, thresy = thres2)
-    df <- rbind(cbind(y1, group = 1), cbind(y2, group = 2))
     ps3 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
-                     data = df, group = "group", type = "residual.covariances",
+                     data = df3, group = "group", type = "residual.covariances",
                      ordered = paste0("yy", 1:7))
     expect_setequal(ps3[[2]]$lhs, c("yy2", "yy7"))
     ps4 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7
                        yy2 ~~ yy3
                        yy4 ~~ yy5 ',
-                     data = df, group = "group", type = "residual.covariances",
+                     data = df3, group = "group", type = "residual.covariances",
                      ordered = paste0("yy", 1:7))
     expect_identical(ps4[[2]][3, "lhs"], "yy2")
     expect_identical(ps4[[2]][3, "rhs"], "yy3")
@@ -37,7 +31,7 @@ test_that("pinSearch() works properly for noninvariant unique covariances", {
 test_that("pinSearch() gives error when type = 'residuals' for ordered items", {
     expect_error(
         pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
-              data = df, group = "group", type = "residuals",
+              data = df1, group = "group", type = "residuals",
               ordered = paste0("yy", 1:7))
     )
 })
@@ -45,7 +39,7 @@ test_that("pinSearch() gives error when type = 'residuals' for ordered items", {
 test_that("type = 'thresholds' gives error for continuous items", {
     expect_error(
         pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
-                  data = df, group = "group", type = "thresholds")
+                  data = df1, group = "group", type = "thresholds")
     )
 })
 
