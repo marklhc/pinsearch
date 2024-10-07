@@ -37,8 +37,10 @@
 #'       latent_mean = 0,
 #'       latent_sd = 1)
 #' @export
-dmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
-                  latent_mean = 0, latent_sd = 1) {
+dmacs <- function(intercepts, loadings = NULL,
+                  pooled_item_sd = NULL,
+                  latent_mean = 0, latent_sd = 1,
+                  uniqueness = NULL, ns = NULL) {
     if (nrow(intercepts) != 2) {
         stop("Number of rows of loadings must be 2")
     }
@@ -47,13 +49,17 @@ dmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     } else {
         dloading <- 0
     }
+    psi <- latent_sd[1]^2
     dintercept <- diff(intercepts)
     integral <- dintercept^2 + 2 * dintercept * dloading * latent_mean +
-        dloading^2 * (latent_sd^2 + latent_mean^2)
+        dloading^2 * (psi + latent_mean^2)
+    if (is.null(pooled_item_sd) && !is.null(uniqueness)) {
+        message("Pooled item SD is computed based on the input parameters")
+        pooled_item_sd <- sqrt(
+            implied_pooledvar_linear(ns, loadings, latent_sd, uniqueness)
+        )
+    }
     out <- sqrt(integral) / pooled_item_sd
-    # if (!is.null(rownames(loadings))) {
-    #     rownames(out) <- paste(rownames(loadings), collapse = " vs ")
-    # }
     rownames(out) <- "dmacs"
     colnames(out) <- colnames(loadings)
     suppress_zero_loadings(out, loadings = loadings)
@@ -183,10 +189,38 @@ getpt <- function(pt, type = c("load", "int", "thres", "uniq", "equality"),
     }
     pt[rowids, ]
 }
-# Compute pooled SD
+# Compute pooled variance
+implied_pooledvar_linear <- function(ns, ld, lat_sd, uniq) {
+    ld <- as.matrix(ld)
+    uniq <- as.matrix(uniq)
+    vars <- ld^2 * lat_sd^2 + uniq
+    pooledvar(vars, ns)
+}
+
+pooledsd_sampstat <- function(sampstat, ninv_ov, ns, ordered) {
+    if (ordered) {
+        vars <- lapply(sampstat,
+                   function(x) vapply(
+                       ninv_ov, function(x, y) {
+                           th <- x$th[grep(paste0(y, "\\|t"), names(x$th))]
+                           var_from_thres(th)
+                       }, x = x, FUN.VALUE = numeric(1)
+                   ))
+    } else {
+        vars <- lapply(sampstat, function(x) diag(x$cov)[ninv_ov])
+    }
+    vars <- do.call(rbind, vars)
+    sqrt(pooledvar(vars, ns))
+}
+
 pooledvar <- function(vars, ns) {
-    vars <- matrix(vars, ncol = length(ns))
-    apply(vars, MARGIN = 1, stats::weighted.mean, w = ns - 1)
+    w <- prop.table(as.matrix(ns), margin = 2)
+    if (ncol(w) == 1) {
+        w <- matrix(w, nrow = nrow(vars), ncol = ncol(vars))
+    }
+    # vars <- matrix(vars, ncol = length(ns))
+    # apply(vars, MARGIN = 1, stats::weighted.mean, w = ns - 1)
+    colSums(vars * w)
 }
 
 var_from_thres <- function(thres, mean = 0, sd = 1) {
@@ -221,6 +255,43 @@ suppress_zero_loadings <- function(x, loadings = NULL) {
     } else {
         return(x[, which(colSums(loadings != 0) > 0), drop = FALSE])
     }
+}
+
+
+to_mat_loadings <- function(pars, ninv_ov) {
+    loadings <- lapply(
+        pars,
+        FUN = function(x) {
+            sel_lambda <- x$lambda[ninv_ov, , drop = FALSE]
+            dm <- dimnames(sel_lambda)
+            out <- c(sel_lambda)
+            names(out) <-
+                outer(dm[[1]], dm[[2]], FUN = paste, sep = "-")
+            out
+        }
+    )
+    do.call(rbind, loadings)
+}
+
+to_mat_thresholds <- function(pars, ninv_ov, num_lvs) {
+    thress <- lapply(
+        pars,
+        FUN = function(x) {
+            th_names <- rownames(x$tau)
+            x$tau[grep(paste0(ninv_ov, "\\|t", collapse = "|"), th_names), ]
+        }
+    )
+    thres_mat <- do.call(rbind, thress)
+    thres_names <- match(
+        gsub("\\|t.$",
+            replacement = "",
+            x = colnames(thres_mat)
+        ),
+        table = ninv_ov
+    )
+    thres_mat <- t(rep(1, num_lvs)) %x% thres_mat
+    colnames(thres_mat) <- t(rep(1, num_lvs)) %x% thres_names
+    thres_mat
 }
 
 #' Item-level effect size for non-invariance
@@ -265,44 +336,16 @@ es_lavaan <- function(object, ...) {
     # ninv_ov <- intersect(ninv_ov, ind_names)
     pars <- lavaan::lavInspect(object, what = "est")
     num_lvs <- length(object@pta$vnames$lv[[1]])
-    loading_mat <- lapply(
-        pars,
-        FUN = function(x) {
-            sel_lambda <- x$lambda[ninv_ov, , drop = FALSE]
-            dm <- dimnames(sel_lambda)
-            out <- c(sel_lambda)
-            names(out) <-
-                outer(dm[[1]], dm[[2]], FUN = paste, sep = "-")
-            out
-        }
-    )
-    loading_mat <- do.call(rbind, loading_mat)
+    loading_mat <- to_mat_loadings(pars, ninv_ov)
     sampstat <- lavaan::lavInspect(object, "sampstat")
     ns <- lavaan::lavInspect(object, "nobs")
     if (ordered) {
         # Need to think about input for thresholds to accommodate different
         # number of categories for different items
-        thres_mat <- lapply(
-            pars,
-            FUN = function(x) {
-                th_names <- rownames(x$tau)
-                x$tau[grep(paste0(ninv_ov, "\\|t", collapse = "|"), th_names),]
-            }
+        thres_mat <- to_mat_thresholds(pars, ninv_ov, num_lvs)
+        pooled_item_sd <- pooledsd_sampstat(
+            sampstat, ninv_ov, ns, ordered = TRUE
         )
-        thres_mat <- do.call(rbind, thres_mat)
-        thres_names <- match(gsub("\\|t.$", replacement = "",
-                                  x = colnames(thres_mat)),
-                             table = ninv_ov)
-        thres_mat <- t(rep(1, num_lvs)) %x% thres_mat
-        colnames(thres_mat) <- t(rep(1, num_lvs)) %x% thres_names
-        vars <- vapply(sampstat,
-                       function(x) vapply(
-                           ninv_ov, function(x, y) {
-                               th <- x$th[grep(paste0(y, "\\|t"), names(x$th))]
-                               var_from_thres(th)
-                           }, x = x, FUN.VALUE = numeric(1)
-                       ), FUN.VALUE = numeric(length(ninv_ov)))
-        pooled_item_sd <- sqrt(pooledvar(vars, ns))
         if (lavaan::lavInspect(object, what = "ngroups") > 2) {
             es_fun <- function(...) fmacs_ordered(..., num_obs = ns)
         } else {
@@ -327,10 +370,9 @@ es_lavaan <- function(object, ...) {
         )
         intercept_mat <- do.call(rbind, intercept_mat)
         intercept_mat <- t(rep(1, num_lvs)) %x% intercept_mat
-        vars <- vapply(sampstat, function(x)
-            diag(x$cov)[ninv_ov],
-            FUN.VALUE = numeric(length(ninv_ov)))
-        pooled_item_sd <- sqrt(pooledvar(vars, ns))
+        pooled_item_sd <- pooledsd_sampstat(
+            sampstat, ninv_ov, ns, ordered = FALSE
+        )
         if (lavaan::lavInspect(object, what = "ngroups") > 2) {
             es_fun <- function(...) fmacs(..., num_obs = ns)
         } else {

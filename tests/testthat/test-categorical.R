@@ -67,7 +67,11 @@ test_that("Works for three groups and ordinal items", {
                   group.equal = c("loadings", "thresholds", "residuals"),
                   group.partial = c("yy7|t1", "yy2|t1", "yy4|t3", "yy5|t3"),
                   parameterization = "theta")
-    expect_equal(pin_effsize(ps5[[1]]),
+    fmacs_ps5 <- pin_effsize(ps5[[1]])
+    expect_equal(c(fmacs_ps5),
+                 c(.1227653, .07881984, .06000593, .07972769),
+                 tolerance = 0.00001)
+    expect_equal(fmacs_ps5,
                  pin_effsize(ps5_re),
                  tolerance = 0.00001)
 })

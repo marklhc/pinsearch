@@ -107,3 +107,25 @@ test_that("Error without 'pooled_sd' argument", {
     expect_error(dmacs(rbind(c(0.3, 0.8), c(0.5, 1))))
     # Can compute for ordered . . .
 })
+
+test_that("Pooled SD computed correctly using uniqueness", {
+    cov2 <- tcrossprod(lambda2) * 1.3 + diag(.5, 5)
+    dimnames(cov2) <- list(paste0("y", 1:5), paste0("y", 1:5))
+    mean2 <- lambda2 * .4 + nu2
+    pscalar1 <- cfa(' f =~ y1 + y2 + y3 + y4 + y5',
+                    sample.cov = list(cov1, cov2),
+                    sample.mean = list(mean1, mean2),
+                    sample.nobs = c(1000000, 1000000),
+                    group.equal = c("loadings", "intercepts"),
+                    group.partial = c("f=~y1", "f=~y2",
+                                      "y1~1", "y2~1", "y4~1", "y5~1"),
+                    std.lv = TRUE)
+    expect_equal(
+        as.numeric(es_lavaan(pscalar1)),
+        dmacs(rbind(nu1, nu2), loadings = rbind(lambda1, lambda2),
+              uniqueness = matrix(.5, nrow = 2, ncol = 5),
+              latent_sd = c(1, sqrt(1.3)),
+              ns = c(100, 100))[c(1:2, 4:5)],
+        tolerance = 0.0001
+    )
+})
