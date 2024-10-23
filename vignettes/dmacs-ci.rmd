@@ -109,7 +109,7 @@ Confidence Intervals
 quantile(resamp_dmacs, c(.025, .975))
 ```
 
-### Parametric Bootstrap
+### Nonparametric Bootstrap
 
 ```{r, eval=!file.exists("boot_dmacs.rds")}
 boot_dmacs <- bootstrapLavaan(ps1[[1]], R = 1000, FUN = pin_effsize)
