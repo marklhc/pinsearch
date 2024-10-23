@@ -8,9 +8,11 @@
 dmacs(
   intercepts,
   loadings = NULL,
-  pooled_item_sd,
+  pooled_item_sd = NULL,
   latent_mean = 0,
-  latent_sd = 1
+  latent_sd = 1,
+  uniqueness = NULL,
+  ns = NULL
 )
 
 dmacs_ordered(

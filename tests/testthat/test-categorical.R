@@ -6,6 +6,16 @@ test_that("pinSearch() works properly for binary data", {
     expect_identical(ps1[[2]]$lhs, c("yy7", "yy2"))
 })
 
+test_that("pinSearch() works properly for 1 noninvariant item", {
+    ps1b <- cfa(" f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ",
+        data = df1, group = "group",
+        group.equal = c("loadings", "thresholds"),
+        group.partial = c("yy7|t1"),
+        ordered = TRUE,
+    )
+    expect_no_warning(pin_effsize(ps1b))
+})
+
 test_that("pinSearch() works properly for noninvariant uniqueness", {
     # Unique variances should shift to loadings and intercepts
     ps2 <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',

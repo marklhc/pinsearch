@@ -214,6 +214,9 @@ pooledsd_sampstat <- function(sampstat, ninv_ov, ns, ordered) {
 }
 
 pooledvar <- function(vars, ns) {
+    if (ncol(vars) == 0) {
+        return(numeric(0))
+    }
     w <- prop.table(as.matrix(ns), margin = 2)
     if (ncol(w) == 1) {
         w <- matrix(w, nrow = nrow(vars), ncol = ncol(vars))
@@ -278,7 +281,11 @@ to_mat_thresholds <- function(pars, ninv_ov, num_lvs) {
         pars,
         FUN = function(x) {
             th_names <- rownames(x$tau)
-            x$tau[grep(paste0(ninv_ov, "\\|t", collapse = "|"), th_names), ]
+            out <- x$tau[
+                grep(paste0(ninv_ov, "\\|t", collapse = "|"), th_names), ,
+                drop = FALSE
+            ]
+            t(out)
         }
     )
     thres_mat <- do.call(rbind, thress)
