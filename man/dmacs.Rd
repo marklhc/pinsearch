@@ -38,6 +38,10 @@ deviation (SD) of the items across groups.}
 
 \item{latent_sd}{latent factor SD for the reference group. Default to 1.}
 
+\item{uniqueness}{A vector of length \eqn{p} of uniqueness.}
+
+\item{ns}{A vector of length \eqn{p} of sample sizes.}
+
 \item{thresholds}{A matrix with two rows for measurement thresholds. The
 matrix must have column names indicating to which item index each column
 corresponds.}

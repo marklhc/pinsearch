@@ -20,6 +20,8 @@
 #'   deviation (SD) of the items across groups.
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
+#' @param uniqueness A vector of length \eqn{p} of uniqueness.
+#' @param ns A vector of length \eqn{p} of sample sizes.
 #'
 #' @return A 1 x p matrix of dMACS effect size.
 #' @references Nye, C. & Drasgow, F. (2011). Effect size indices for
