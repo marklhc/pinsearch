@@ -16,6 +16,7 @@ Imports:
     lavaan,
     stats
 Suggests: 
+    boot,
     difR,
     knitr,
     MASS,
