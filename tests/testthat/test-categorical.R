@@ -1,3 +1,19 @@
+test_that("dmacs_ordered() computes correctly", {
+    lam <- c(.6, .3)
+    tau <- c(.5, .5)
+    d_an <- integrate(
+        \(x) (pnorm(lam[1] * x - tau[1]) -
+            pnorm(lam[2] * x - tau[2]))^2 * dnorm(x),
+        lower = -Inf, upper = Inf
+    )$value
+    dmacs1 <- dmacs_ordered(
+        matrix(c(.5, .5), ncol = 1) |> `colnames<-`(1),
+        loadings = matrix(lam, ncol = 1),
+        pooled_item_sd = .46
+    )
+    expect_equal(sqrt(d_an) / .46, as.numeric(dmacs1))
+})
+
 test_that("pinSearch() works properly for binary data", {
     ps1 <- pinSearch(" f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ",
         data = df1, group = "group", type = "thresholds",
