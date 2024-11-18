@@ -22,8 +22,11 @@
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
 #' @param uniqueness A vector of length \eqn{p} of uniqueness.
 #' @param ns A vector of length \eqn{p} of sample sizes.
+#' @param item_weights Default is `NULL`. Otherwise, one can specify a vector
+#'   of length \eqn{p} of weights; if so, test-level dMACS will be computed.
 #'
-#' @return A 1 x p matrix of dMACS effect size.
+#' @return A 1 x p matrix of dMACS effect size. If `item_weights` is not
+#'   `NULL`, \eqn{p} = 1.
 #' @references Nye, C. & Drasgow, F. (2011). Effect size indices for
 #'   analyses of measurement equivalence: Understanding the practical
 #'   importance of differences between groups.
@@ -38,13 +41,27 @@
 #'       pooled_item_sd = c(1, 1, 1, 1),
 #'       latent_mean = 0,
 #'       latent_sd = 1)
+#' dmacs(rbind(nuf, nur),
+#'       loadings = rbind(lambdaf, lambdar),
+#'       pooled_item_sd = c(1, 1, 1, 1),
+#'       latent_mean = 0,
+#'       latent_sd = 1,
+#'       weights = c(1, 1, 1, 1))
 #' @export
 dmacs <- function(intercepts, loadings = NULL,
                   pooled_item_sd = NULL,
                   latent_mean = 0, latent_sd = 1,
-                  uniqueness = NULL, ns = NULL) {
+                  uniqueness = NULL, ns = NULL,
+                  item_weights = NULL) {
     if (nrow(intercepts) != 2) {
         stop("Number of rows of loadings must be 2")
+    }
+    if (!is.null(item_weights)) {
+        intercepts <- matrix(rowSums(intercepts), ncol = 1)
+        loadings <- matrix(rowSums(loadings), ncol = 1)
+        pooled_sd <- sqrt(sum(pooled_item_sd^2))
+    } else {
+        pooled_sd <- pooled_item_sd
     }
     if (!is.null(loadings)) {
         dloading <- diff(loadings)
@@ -55,13 +72,13 @@ dmacs <- function(intercepts, loadings = NULL,
     dintercept <- diff(intercepts)
     integral <- dintercept^2 + 2 * dintercept * dloading * latent_mean +
         dloading^2 * (psi + latent_mean^2)
-    if (is.null(pooled_item_sd) && !is.null(uniqueness)) {
+    if (is.null(pooled_sd) && !is.null(uniqueness)) {
         message("Pooled item SD is computed based on the input parameters")
-        pooled_item_sd <- sqrt(
+        pooled_sd <- sqrt(
             implied_pooledvar_linear(ns, loadings, latent_sd, uniqueness)
         )
     }
-    out <- sqrt(integral) / pooled_item_sd
+    out <- sqrt(integral) / pooled_sd
     rownames(out) <- "dmacs"
     colnames(out) <- colnames(loadings)
     suppress_zero_loadings(out, loadings = loadings)
