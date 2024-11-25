@@ -34,6 +34,8 @@
 #'   not specified.
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
+#' @param item_weights Default is `NULL`. Otherwise, one can specify a vector
+#'   of length \eqn{p} of weights; if so, test-level dMACS will be computed.
 #'
 #' @return A 1 x p matrix of fMACS effect size.
 #' 
@@ -65,10 +67,21 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
                   weights = 0 * intercepts + 1,
                   group_factor = NULL,
                   contrast = contr.sum(nrow(intercepts)),
-                  latent_mean = 0, latent_sd = 1) {
+                  latent_mean = 0, latent_sd = 1,
+                  item_weights = NULL) {
     if (!is.null(num_obs)) {
         weights <- matrix(num_obs, nrow = nrow(intercepts),
                           ncol = ncol(intercepts))
+    }
+    if (!is.null(item_weights)) {
+        intercepts <- matrix(rowSums(intercepts), ncol = 1)
+        loadings <- matrix(rowSums(loadings), ncol = 1)
+        weights <- weights[, 1, drop = FALSE]
+        pooled_sd <- sqrt(sum(pooled_item_sd^2))
+        cn_out <- "item_sum"
+    } else {
+        pooled_sd <- pooled_item_sd
+        cn_out <- colnames(loadings)
     }
     # total_obs <- colSums(num_obs)
     weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
@@ -104,8 +117,8 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
         vint + 2 * cp * latent_mean[j] +
             vload * (latent_sd[j]^2 + latent_mean[j]^2)
     }, FUN.VALUE = numeric(1))
-    out <- sqrt(integral) / pooled_item_sd
-    out <- matrix(out, nrow = 1, dimnames = list("fmacs", colnames(loadings)))
+    out <- sqrt(integral) / pooled_sd
+    out <- matrix(out, nrow = 1, dimnames = list("fmacs", cn_out))
     suppress_zero_loadings(out)
 }
 
@@ -146,7 +159,8 @@ fmacs_ordered <- function(thresholds, loadings,
                           contrast = contr.sum(nrow(thresholds)),
                           link = c("probit", "logit"),
                           pooled_item_sd = NULL,
-                          latent_mean = 0, latent_sd = 1) {
+                          latent_mean = 0, latent_sd = 1,
+                          item_weights = NULL) {
     if (ncol(thresholds) < ncol(loadings)) {
         stop("number of thresholds should be at least the number of loadings.")
     }
@@ -197,19 +211,6 @@ fmacs_ordered <- function(thresholds, loadings,
                 })
                 exp_y <- do.call(rbind, exp_y)
                 cexp_y <- crossprod(contrast, exp_y)
-                # mean_exp_y <- crossprod(num_obs[, j], exp_y) / total_obs[j]
-                # mean_exp_y <- crossprod(weights[, j], exp_y)
-                # ww <- stats::ave(weights[, j], group_factor,
-                #                  FUN = function(x) x / sum(x))
-                # group_exp_y <-
-                #     apply(ww * exp_y, 2, function(v, g = group_factor) {
-                #         stats::ave(v, g, FUN = sum)
-                #     })
-                # crossprod(
-                #     weights[, j],
-                #     sweep(group_exp_y, MARGIN = 2, STATS = mean_exp_y) ^ 2) *
-                #     stats::dnorm(x, mean = latent_mean, sd = latent_sd
-                #     )
                 colSums(cexp_y * (inv_ss_cont %*% cexp_y)) *
                     stats::dnorm(x, mean = latent_mean, sd = latent_sd)
             },

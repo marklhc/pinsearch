@@ -128,6 +128,12 @@ dmacs_ordered <- function(thresholds, loadings,
         probs <- pfun(tcrossprod(rep(a, each = nc), eta) - cs)
         c(colSums(probs))
     }
+
+    expected_item_diff <- function(j, thresholds, thres_list, loadings, eta) {
+        th <- thresholds[, thres_list[[j]], drop = FALSE]
+        (expected_item(loadings[1, j], cs = th[1, ], eta = eta) -
+            expected_item(loadings[2, j], cs = th[2, ], eta = eta))
+    }
     # item_names <- colnames(loadings)
     thres_list <- split(seq_len(ncol(thresholds)),
                         as.numeric(colnames(thresholds)))
@@ -138,15 +144,9 @@ dmacs_ordered <- function(thresholds, loadings,
             function(x) {
                 out <- 0
                 for (j in seq_along(thres_list)) {
-                    th <- thresholds[, thres_list[[j]], drop = FALSE]
-                    out <- out + (expected_item(loadings[1, j],
-                        cs = th[1, ],
-                        eta = x
-                    ) -
-                        expected_item(loadings[2, j],
-                            cs = th[2, ],
-                            eta = x
-                        ))
+                    out <- out + expected_item_diff(
+                        j, thresholds, thres_list, loadings, eta = x
+                    )
                 }
                 out^2 * stats::dnorm(x, mean = latent_mean, sd = latent_sd)
             },
@@ -159,15 +159,9 @@ dmacs_ordered <- function(thresholds, loadings,
         for (j in seq_along(integrals)) {
             integrals[j] <- stats::integrate(
                 function(x) {
-                    th <- thresholds[, thres_list[[j]], drop = FALSE]
-                    (expected_item(loadings[1, j],
-                        cs = th[1, ],
-                        eta = x
-                    ) -
-                        expected_item(loadings[2, j],
-                            cs = th[2, ],
-                            eta = x
-                        ))^2 *
+                    expected_item_diff(
+                        j, thresholds, thres_list, loadings, eta = x
+                    )^2 *
                         stats::dnorm(x, mean = latent_mean, sd = latent_sd)
                 },
                 lower = -Inf, upper = Inf

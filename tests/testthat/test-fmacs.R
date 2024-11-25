@@ -20,6 +20,30 @@ test_that("fmacs() equals dmacs() / 2 in two groups", {
     expect_equal(as.vector(d2), as.vector(f2) * 2, tolerance = 0.0001)
 })
 
+test_that("Noninvariant items cancelled out at test level", {
+    lam <- rbind(
+        c(.7, .8, .7),
+        c(.7, .7, .8),
+        c(.8, .7, .7)
+    )
+    nu <- rbind(
+        c(-.5, 0, 0),
+        c(0, 0, -.5),
+        c(0, -.5, 0)
+    )
+    f1 <- fmacs(nu,
+                loadings = lambda,
+                pooled_item_sd = 2)
+    f2 <- fmacs(
+        nu,
+        loadings = lambda,
+        pooled_item_sd = 2,
+        item_weights = c(1, 1, 1)
+    )
+    expect_true(f1[[1]] == f1[[2]])
+    expect_equal(f2, 0, ignore_attr = TRUE)
+})
+
 test_that("fmacs() is larger with more different parameters", {
     f3 <- fmacs(nu, loadings = lambda, pooled_item_sd = 1)
     expect_equal(f3[3], 0)
