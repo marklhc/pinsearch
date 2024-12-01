@@ -151,6 +151,33 @@ test_that("fmacs_ordered() works with contrast", code = {
     expect_equal(f10[3], 0)
 })
 
+test_that("fmacs_ordered() works at test level", code = {
+    lambda <- rbind(
+        c(.6, .9, .7),
+        c(.7, .8, .7),
+        c(.8, .7, .7),
+        c(.9, .6, .7)
+    )
+    tau <- rbind(
+        c(-0.5, 0, 1.5, -0.5, 0, 1, 0),
+        c(-0.5, 0, 1, -0.5, 0, 1, 0),
+        c(-0.5, 0, 1, -0.5, 0, 1, 0),
+        c(-0.5, 0, 1, -0.5, 0, 1.5, 0)
+    )
+    colnames(tau) <- c(1, 1, 1, 2, 2, 2, 3)
+    f11 <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = 1.5)
+    f12 <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = 1.5,
+                         item_weights = c(1, 1, 1, 1))
+    f13 <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = 1.5,
+                         contrast = c(1, 1, -1, -1),
+                         item_weights = c(1, 1, 1, 1))
+    expect_true(min(f11[1:2]) > f12)
+    expect_equal(f13[[1]], 0)
+})
+
 test_that(
     "Error when `group_factor` has incorrect length",
     code = {

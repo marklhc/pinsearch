@@ -25,9 +25,9 @@
 #'   the same weights across items.
 #' @param weights A \eqn{G \times p} matrix of weights. Default assumes
 #'   equal weights across groups.
-#' @param group_factor A vector of length \eqn{G} indicating grouping for 
-#'   contrast. For example, `c(1, 1, 2)` means contrasting Group 1 & 2 vs. 
-#'   Group 3. The default is to not combine any groups, meaning the 
+#' @param group_factor A vector of length \eqn{G} indicating grouping for
+#'   contrast. For example, `c(1, 1, 2)` means contrasting Group 1 & 2 vs.
+#'   Group 3. The default is to not combine any groups, meaning the
 #'   omnibus effect is computed.
 #' @param contrast A \eqn{p \times k} contrast matrix where
 #'   `colSums(contrast)` = 0. Default is `contr.sum(p)` if `group_factor` is
@@ -38,7 +38,7 @@
 #'   of length \eqn{p} of weights; if so, test-level dMACS will be computed.
 #'
 #' @return A 1 x p matrix of fMACS effect size.
-#' 
+#'
 #' @importFrom stats contr.sum `contrasts<-` model.matrix
 #' @examples
 #' lambda <- rbind(c(.7, .8, .7, .9),
@@ -191,34 +191,66 @@ fmacs_ordered <- function(thresholds, loadings,
         probs <- pfun(tcrossprod(rep(a, each = nc), eta) - cs)
         c(colSums(probs))
     }
+    compute_exp_y <- function(j, thresholds, thres_list,
+                              loadings, eta) {
+        th <- thresholds[, thres_list[[j]], drop = FALSE]
+        exp_y <- lapply(seq_len(nrow(th)), function(i) {
+            expected_item(loadings[i, j], cs = th[i, ], eta = eta)
+        })
+        do.call(rbind, exp_y)
+    }
     # item_names <- colnames(loadings)
     thres_list <- split(seq_len(ncol(thresholds)),
                         as.numeric(colnames(thresholds)))
-    integrals <- rep(NA, length(thres_list))
     weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
     # ww <- apply(weights, 2, function(v, g = group_factor) {
     #     ave(v, g, FUN = function(x) x / sum(x))
     # })
-    for (j in seq_along(integrals)) {
+    if (!is.null(item_weights)) {
+        pooled_sd <- sqrt(sum(pooled_item_sd^2))
+        cn_out <- "item_sum"
+        weights <- rowMeans(weights)
         inv_ss_cont <- solve(
-            crossprod(contrast, contrast / weights[, j])
+            crossprod(contrast, contrast / weights)
         )
-        integrals[j] <- stats::integrate(
+        integrals <- stats::integrate(
             function(x) {
-                th <- thresholds[, thres_list[[j]], drop = FALSE]
-                exp_y <- lapply(seq_len(nrow(th)), function(i) {
-                    expected_item(loadings[i, j], cs = th[i, ], eta = x)
-                })
-                exp_y <- do.call(rbind, exp_y)
+                exp_y <- vector("list", length(thres_list))
+                for (j in seq_along(thres_list)) {
+                    exp_y[[j]] <- compute_exp_y(
+                        j, thresholds, thres_list, loadings, eta = x
+                    )
+                }
+                exp_y <- Reduce(`+`, exp_y)
                 cexp_y <- crossprod(contrast, exp_y)
                 colSums(cexp_y * (inv_ss_cont %*% cexp_y)) *
                     stats::dnorm(x, mean = latent_mean, sd = latent_sd)
             },
             lower = -Inf, upper = Inf
         )$value
+    } else {
+        pooled_sd <- pooled_item_sd
+        cn_out <- colnames(loadings)
+        integrals <- rep(NA, ncol(loadings))
+        for (j in seq_along(integrals)) {
+            inv_ss_cont <- solve(
+                crossprod(contrast, contrast / weights[, j])
+            )
+            integrals[j] <- stats::integrate(
+                function(x) {
+                    exp_y <- compute_exp_y(
+                        j, thresholds, thres_list, loadings, eta = x
+                    )
+                    cexp_y <- crossprod(contrast, exp_y)
+                    colSums(cexp_y * (inv_ss_cont %*% cexp_y)) *
+                        stats::dnorm(x, mean = latent_mean, sd = latent_sd)
+                },
+                lower = -Inf, upper = Inf
+            )$value
+        }
     }
-    out <- matrix(sqrt(integrals) / pooled_item_sd, nrow = 1)
-    colnames(out) <- colnames(loadings)
+    out <- matrix(sqrt(integrals) / pooled_sd, nrow = 1)
+    colnames(out) <- cn_out
     rownames(out) <- "fmacs"
     suppress_zero_loadings(out)
 }
