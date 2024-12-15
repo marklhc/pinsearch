@@ -1,8 +1,6 @@
 ---
 title: "Comparing Effect Size for Continuous and Categorical Data"
-output:
-  rmarkdown::html_vignette:
-    df_print: kable
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Comparing Effect Size for Continuous and Categorical Data}
   %\VignetteEngine{knitr::rmarkdown}

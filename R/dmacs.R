@@ -22,8 +22,11 @@
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
 #' @param uniqueness A vector of length \eqn{p} of uniqueness.
 #' @param ns A vector of length \eqn{p} of sample sizes.
+#' @param item_weights Default is `NULL`. Otherwise, one can specify a vector
+#'   of length \eqn{p} of weights; if so, test-level dMACS will be computed.
 #'
-#' @return A 1 x p matrix of dMACS effect size.
+#' @return A 1 x p matrix of dMACS effect size. If `item_weights` is not
+#'   `NULL`, \eqn{p} = 1.
 #' @references Nye, C. & Drasgow, F. (2011). Effect size indices for
 #'   analyses of measurement equivalence: Understanding the practical
 #'   importance of differences between groups.
@@ -38,13 +41,35 @@
 #'       pooled_item_sd = c(1, 1, 1, 1),
 #'       latent_mean = 0,
 #'       latent_sd = 1)
+#' dmacs(rbind(nuf, nur),
+#'       loadings = rbind(lambdaf, lambdar),
+#'       pooled_item_sd = c(1, 1, 1, 1),
+#'       latent_mean = 0,
+#'       latent_sd = 1,
+#'       item_weights = c(1, 1, 1, 1))
 #' @export
 dmacs <- function(intercepts, loadings = NULL,
                   pooled_item_sd = NULL,
                   latent_mean = 0, latent_sd = 1,
-                  uniqueness = NULL, ns = NULL) {
+                  uniqueness = NULL, ns = NULL,
+                  item_weights = NULL) {
     if (nrow(intercepts) != 2) {
         stop("Number of rows of loadings must be 2")
+    }
+    if (!is.null(item_weights)) {
+        intercepts <- matrix(
+            apply(intercepts, MARGIN = 1, FUN = wsum,
+                  w = item_weights),
+            ncol = 1)
+        loadings <- matrix(
+            apply(loadings, MARGIN = 1, FUN = wsum,
+                  w = item_weights),
+            ncol = 1)
+        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
+        cn_out <- "item_sum"
+    } else {
+        pooled_sd <- pooled_item_sd
+        cn_out <- colnames(loadings)
     }
     if (!is.null(loadings)) {
         dloading <- diff(loadings)
@@ -55,16 +80,20 @@ dmacs <- function(intercepts, loadings = NULL,
     dintercept <- diff(intercepts)
     integral <- dintercept^2 + 2 * dintercept * dloading * latent_mean +
         dloading^2 * (psi + latent_mean^2)
-    if (is.null(pooled_item_sd) && !is.null(uniqueness)) {
+    if (is.null(pooled_sd) && !is.null(uniqueness)) {
         message("Pooled item SD is computed based on the input parameters")
-        pooled_item_sd <- sqrt(
+        pooled_sd <- sqrt(
             implied_pooledvar_linear(ns, loadings, latent_sd, uniqueness)
         )
     }
-    out <- sqrt(integral) / pooled_item_sd
+    out <- sqrt(integral) / pooled_sd
     rownames(out) <- "dmacs"
-    colnames(out) <- colnames(loadings)
+    colnames(out) <- cn_out
     suppress_zero_loadings(out, loadings = loadings)
+}
+
+wsum <- function(x, w, ...) {
+    stats::weighted.mean(x, w = w, ...) * length(x)
 }
 
 #' @rdname dmacs
@@ -91,7 +120,8 @@ dmacs_ordered <- function(thresholds, loadings,
                           thetas = 1,
                           link = c("probit", "logit"),
                           pooled_item_sd = NULL,
-                          latent_mean = 0, latent_sd = 1) {
+                          latent_mean = 0, latent_sd = 1,
+                          item_weights = NULL) {
     if (ncol(thresholds) < ncol(loadings)) {
         stop("number of thresholds should be at least the number of loadings.")
     }
@@ -108,29 +138,53 @@ dmacs_ordered <- function(thresholds, loadings,
         probs <- pfun(tcrossprod(rep(a, each = nc), eta) - cs)
         c(colSums(probs))
     }
+
+    expected_item_diff <- function(j, thresholds, thres_list, loadings, eta) {
+        th <- thresholds[, thres_list[[j]], drop = FALSE]
+        (expected_item(loadings[1, j], cs = th[1, ], eta = eta) -
+            expected_item(loadings[2, j], cs = th[2, ], eta = eta))
+    }
     # item_names <- colnames(loadings)
     thres_list <- split(seq_len(ncol(thresholds)),
                         as.numeric(colnames(thresholds)))
-    integrals <- rep(NA, length(thres_list))
-    for (j in seq_along(integrals)) {
-        integrals[j] <- stats::integrate(
+    if (!is.null(item_weights)) {
+        item_weights <- item_weights / sum(item_weights) * length(item_weights)
+        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
+        cn_out <- "item_sum"
+        integrals <- stats::integrate(
             function(x) {
-                th <- thresholds[, thres_list[[j]], drop = FALSE]
-                (expected_item(loadings[1, j], cs = th[1, ],
-                               eta = x) -
-                        expected_item(loadings[2, j], cs = th[2, ],
-                                      eta = x)) ^ 2 *
-                    stats::dnorm(x, mean = latent_mean, sd = latent_sd)
+                out <- 0
+                for (j in seq_along(thres_list)) {
+                    out <- out + expected_item_diff(
+                        j, thresholds, thres_list, loadings, eta = x
+                    ) * item_weights[j]
+                }
+                out^2 * stats::dnorm(x, mean = latent_mean, sd = latent_sd)
             },
             lower = -Inf, upper = Inf
         )$value
+    } else {
+        pooled_sd <- pooled_item_sd
+        cn_out <- colnames(loadings)
+        integrals <- rep(NA, length(thres_list))
+        for (j in seq_along(integrals)) {
+            integrals[j] <- stats::integrate(
+                function(x) {
+                    expected_item_diff(
+                        j, thresholds, thres_list, loadings, eta = x
+                    )^2 *
+                        stats::dnorm(x, mean = latent_mean, sd = latent_sd)
+                },
+                lower = -Inf, upper = Inf
+            )$value
+        }
     }
-    out <- matrix(sqrt(integrals) / pooled_item_sd, nrow = 1)
+    out <- matrix(sqrt(integrals) / pooled_sd, nrow = 1)
     # if (!is.null(rownames(loadings))) {
     #     rownames(out) <- paste(rownames(loadings), collapse = " vs ")
     # }
     rownames(out) <- "dmacs"
-    colnames(out) <- colnames(loadings)
+    colnames(out) <- cn_out
     suppress_zero_loadings(out)
 }
 
@@ -329,7 +383,18 @@ es_lavaan <- function(object, ...) {
     inv_ind <- vapply(ind_names, FUN = check_inv,
                       FUN.VALUE = logical(1),
                       par_type = par_type, pt = pt)
-    ninv_ov <- ind_names[which(!inv_ind)]
+    pars <- lavaan::lavInspect(object, what = "est")
+    if (is.null(list(...)$item_weights)) {
+        ninv_ov <- ind_names[which(!inv_ind)]
+        lmean <- rep(as.numeric(pars[[1]]$alpha),
+                              each = length(ninv_ov))
+        lsd <- rep(sqrt(as.numeric(pars[[1]]$psi)),
+                            each = length(ninv_ov))
+    } else {
+        ninv_ov <- ind_names
+        lmean <- as.numeric(pars[[1]]$alpha)
+        lsd <- sqrt(as.numeric(pars[[1]]$psi))
+    }
     # pt_par <- getpt(pt, type = par_type, ind_names = ind_names)
     # pt_eq <- getpt(pt, type = "equality", ind_names = ind_names)
     # ninv_par <-
@@ -343,7 +408,6 @@ es_lavaan <- function(object, ...) {
     #     pt_par[pt_par$plabel %in% ninv_par, c("lhs", "rhs")]
     # ))
     # ninv_ov <- intersect(ninv_ov, ind_names)
-    pars <- lavaan::lavInspect(object, what = "est")
     num_lvs <- length(object@pta$vnames$lv[[1]])
     loading_mat <- to_mat_loadings(pars, ninv_ov)
     sampstat <- lavaan::lavInspect(object, "sampstat")
@@ -363,10 +427,8 @@ es_lavaan <- function(object, ...) {
         es_fun(
             thresholds = thres_mat,
             loadings = loading_mat,
-            latent_mean = rep(as.numeric(pars[[1]]$alpha),
-                              each = length(pooled_item_sd)),
-            latent_sd = rep(sqrt(as.numeric(pars[[1]]$psi)),
-                            each = length(pooled_item_sd)),
+            latent_mean = lmean,
+            latent_sd = lsd,
             pooled_item_sd = rep(pooled_item_sd, num_lvs),
             ...
         )
@@ -391,10 +453,8 @@ es_lavaan <- function(object, ...) {
             intercepts = intercept_mat,
             loadings = loading_mat,
             pooled_item_sd = rep(pooled_item_sd, num_lvs),
-            latent_mean = rep(as.numeric(pars[[1]]$alpha),
-                              each = length(ninv_ov)),
-            latent_sd = rep(sqrt(diag(pars[[1]]$psi)),
-                            each = length(ninv_ov)),
+            latent_mean = lmean,
+            latent_sd = lsd,
             ...
         )
     }

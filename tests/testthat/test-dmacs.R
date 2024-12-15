@@ -85,6 +85,34 @@ test_that("`pin_effsize()` works for scaling indicator", {
     expect_equal(dim(pin_es1), c(1, 1))
 })
 
+test_that("Noninvariant items cancelled out at test level", {
+    lam <- rep(1, 4)
+    cov1 <- tcrossprod(lam) + diag(1, 4)
+    dimnames(cov1) <- list(paste0("x", 1:4), paste0("x", 1:4))
+    mean1 <- c(1, 0, 0, 0)
+    mean2 <- lam * .4 + c(0, 1, 0, 0)
+    pf1 <- cfa(' f =~ x1 + x2 + x3 + x4 ',
+               sample.cov = list(cov1, cov1),
+               sample.mean = list(mean1, mean2),
+               sample.nobs = c(10000, 10000),
+               std.lv = TRUE,
+               group = "school",
+               group.equal = c("loadings", "intercepts"),
+               group.partial = c("x1~1", "x2~1"))
+    expect_true(all(pin_effsize(pf1) > 0.7))
+    expect_equal(
+        pin_effsize(pf1, item_weights = c(1, 1, 1, 1)),
+        0,
+        ignore_attr = TRUE
+    )
+    expect_gt(
+        pin_effsize(pf1, item_weights = 4:1), 0
+    )
+    expect_error(
+        pin_effsize(pf1, item_weights = rep(1, 5))
+    )
+})
+
 # Ordered items
 lambda <- rbind(c(1.323, 0.875), c(1.323, 0.875))
 thres <- rbind(c(-2.211, -0.728, 1.468, -0.014, 0.404, 1.438),

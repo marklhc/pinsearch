@@ -20,6 +20,30 @@ test_that("fmacs() equals dmacs() / 2 in two groups", {
     expect_equal(as.vector(d2), as.vector(f2) * 2, tolerance = 0.0001)
 })
 
+test_that("Noninvariant items cancelled out at test level", {
+    lam <- rbind(
+        c(.7, .8, .7),
+        c(.7, .7, .8),
+        c(.8, .7, .7)
+    )
+    nu <- rbind(
+        c(-.5, 0, 0),
+        c(0, 0, -.5),
+        c(0, -.5, 0)
+    )
+    f1 <- fmacs(nu,
+                loadings = lambda,
+                pooled_item_sd = rep(2, 3))
+    f2 <- fmacs(
+        nu,
+        loadings = lambda,
+        pooled_item_sd = rep(2, 3),
+        item_weights = c(1, 1, 1)
+    )
+    expect_true(f1[[1]] == f1[[2]])
+    expect_equal(f2, 0, ignore_attr = TRUE)
+})
+
 test_that("fmacs() is larger with more different parameters", {
     f3 <- fmacs(nu, loadings = lambda, pooled_item_sd = 1)
     expect_equal(f3[3], 0)
@@ -125,6 +149,33 @@ test_that("fmacs_ordered() works with contrast", code = {
                          contrast = c(1, 1, -1, -1))
     expect_true(all(f9 > f10))
     expect_equal(f10[3], 0)
+})
+
+test_that("fmacs_ordered() works at test level", code = {
+    lambda <- rbind(
+        c(.6, .9, .7),
+        c(.7, .8, .7),
+        c(.8, .7, .7),
+        c(.9, .6, .7)
+    )
+    tau <- rbind(
+        c(-0.5, 0, 1.5, -0.5, 0, 1, 0),
+        c(-0.5, 0, 1, -0.5, 0, 1, 0),
+        c(-0.5, 0, 1, -0.5, 0, 1, 0),
+        c(-0.5, 0, 1, -0.5, 0, 1.5, 0)
+    )
+    colnames(tau) <- c(1, 1, 1, 2, 2, 2, 3)
+    f11 <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = rep(1.5, 3))
+    f12 <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = rep(1.5, 3),
+                         item_weights = c(1, 1, 1))
+    f13 <- fmacs_ordered(tau, loadings = lambda,
+                         pooled_item_sd = rep(1.5, 3),
+                         contrast = c(1, 1, -1, -1),
+                         item_weights = c(1, 1, 1))
+    expect_true(min(f11[1:2]) > f12)
+    expect_equal(f13[[1]], 0)
 })
 
 test_that(

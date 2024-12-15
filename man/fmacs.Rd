@@ -14,7 +14,8 @@ fmacs(
   group_factor = NULL,
   contrast = contr.sum(nrow(intercepts)),
   latent_mean = 0,
-  latent_sd = 1
+  latent_sd = 1,
+  item_weights = NULL
 )
 
 fmacs_ordered(
@@ -28,7 +29,8 @@ fmacs_ordered(
   link = c("probit", "logit"),
   pooled_item_sd = NULL,
   latent_mean = 0,
-  latent_sd = 1
+  latent_sd = 1,
+  item_weights = NULL
 )
 }
 \arguments{
@@ -59,6 +61,9 @@ not specified.}
 \item{latent_mean}{latent factor mean for the reference group. Default to 0.}
 
 \item{latent_sd}{latent factor SD for the reference group. Default to 1.}
+
+\item{item_weights}{Default is \code{NULL}. Otherwise, one can specify a vector
+of length \eqn{p} of weights; if so, test-level dMACS will be computed.}
 
 \item{thresholds}{A matrix with G rows for measurement thresholds. The
 matrix must have column names indicating to which item index each column
