@@ -73,6 +73,7 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
         weights <- matrix(num_obs, nrow = nrow(intercepts),
                           ncol = ncol(intercepts))
     }
+    weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
     if (!is.null(item_weights)) {
         intercepts <- matrix(
             apply(intercepts, MARGIN = 1, FUN = wsum,
@@ -84,12 +85,12 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
             ncol = 1)
         pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
         cn_out <- "item_sum"
+        weights <- matrix(rowMeans(weights), ncol = 1)
     } else {
         pooled_sd <- pooled_item_sd
         cn_out <- colnames(loadings)
     }
     # total_obs <- colSums(num_obs)
-    weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
     if (!is.null(group_factor)) {
         stopifnot(nrow(intercepts) == nrow(loadings),
                   length(group_factor) == nrow(intercepts))

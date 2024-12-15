@@ -93,7 +93,7 @@ dmacs <- function(intercepts, loadings = NULL,
 }
 
 wsum <- function(x, w, ...) {
-    weighted.mean(x, w = w, ...) * length(x)
+    stats::weighted.mean(x, w = w, ...) * length(x)
 }
 
 #' @rdname dmacs
