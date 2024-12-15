@@ -57,9 +57,15 @@ dmacs <- function(intercepts, loadings = NULL,
         stop("Number of rows of loadings must be 2")
     }
     if (!is.null(item_weights)) {
-        intercepts <- matrix(rowSums(intercepts), ncol = 1)
-        loadings <- matrix(rowSums(loadings), ncol = 1)
-        pooled_sd <- sqrt(sum(pooled_item_sd^2))
+        intercepts <- matrix(
+            apply(intercepts, MARGIN = 1, FUN = wsum,
+                  w = item_weights),
+            ncol = 1)
+        loadings <- matrix(
+            apply(loadings, MARGIN = 1, FUN = wsum,
+                  w = item_weights),
+            ncol = 1)
+        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
         cn_out <- "item_sum"
     } else {
         pooled_sd <- pooled_item_sd
@@ -84,6 +90,10 @@ dmacs <- function(intercepts, loadings = NULL,
     rownames(out) <- "dmacs"
     colnames(out) <- cn_out
     suppress_zero_loadings(out, loadings = loadings)
+}
+
+wsum <- function(x, w, ...) {
+    weighted.mean(x, w = w, ...) * length(x)
 }
 
 #' @rdname dmacs
@@ -138,7 +148,8 @@ dmacs_ordered <- function(thresholds, loadings,
     thres_list <- split(seq_len(ncol(thresholds)),
                         as.numeric(colnames(thresholds)))
     if (!is.null(item_weights)) {
-        pooled_sd <- sqrt(sum(pooled_item_sd^2))
+        item_weights <- item_weights / sum(item_weights) * length(item_weights)
+        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
         cn_out <- "item_sum"
         integrals <- stats::integrate(
             function(x) {
@@ -146,7 +157,7 @@ dmacs_ordered <- function(thresholds, loadings,
                 for (j in seq_along(thres_list)) {
                     out <- out + expected_item_diff(
                         j, thresholds, thres_list, loadings, eta = x
-                    )
+                    ) * item_weights[j]
                 }
                 out^2 * stats::dnorm(x, mean = latent_mean, sd = latent_sd)
             },

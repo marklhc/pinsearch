@@ -105,6 +105,12 @@ test_that("Noninvariant items cancelled out at test level", {
         0,
         ignore_attr = TRUE
     )
+    expect_gt(
+        pin_effsize(pf1, item_weights = 4:1), 0
+    )
+    expect_error(
+        pin_effsize(pf1, item_weights = rep(1, 5))
+    )
 })
 
 # Ordered items

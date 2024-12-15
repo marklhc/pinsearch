@@ -74,10 +74,15 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
                           ncol = ncol(intercepts))
     }
     if (!is.null(item_weights)) {
-        intercepts <- matrix(rowSums(intercepts), ncol = 1)
-        loadings <- matrix(rowSums(loadings), ncol = 1)
-        weights <- weights[, 1, drop = FALSE]
-        pooled_sd <- sqrt(sum(pooled_item_sd^2))
+        intercepts <- matrix(
+            apply(intercepts, MARGIN = 1, FUN = wsum,
+                  w = item_weights),
+            ncol = 1)
+        loadings <- matrix(
+            apply(loadings, MARGIN = 1, FUN = wsum,
+                  w = item_weights),
+            ncol = 1)
+        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
         cn_out <- "item_sum"
     } else {
         pooled_sd <- pooled_item_sd
@@ -207,7 +212,8 @@ fmacs_ordered <- function(thresholds, loadings,
     #     ave(v, g, FUN = function(x) x / sum(x))
     # })
     if (!is.null(item_weights)) {
-        pooled_sd <- sqrt(sum(pooled_item_sd^2))
+        item_weights <- item_weights / sum(item_weights) * length(item_weights)
+        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
         cn_out <- "item_sum"
         weights <- rowMeans(weights)
         inv_ss_cont <- solve(
@@ -219,7 +225,7 @@ fmacs_ordered <- function(thresholds, loadings,
                 for (j in seq_along(thres_list)) {
                     exp_y[[j]] <- compute_exp_y(
                         j, thresholds, thres_list, loadings, eta = x
-                    )
+                    ) * item_weights[j]
                 }
                 exp_y <- Reduce(`+`, exp_y)
                 cexp_y <- crossprod(contrast, exp_y)

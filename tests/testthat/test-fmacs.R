@@ -33,11 +33,11 @@ test_that("Noninvariant items cancelled out at test level", {
     )
     f1 <- fmacs(nu,
                 loadings = lambda,
-                pooled_item_sd = 2)
+                pooled_item_sd = rep(2, 3))
     f2 <- fmacs(
         nu,
         loadings = lambda,
-        pooled_item_sd = 2,
+        pooled_item_sd = rep(2, 3),
         item_weights = c(1, 1, 1)
     )
     expect_true(f1[[1]] == f1[[2]])
@@ -166,14 +166,14 @@ test_that("fmacs_ordered() works at test level", code = {
     )
     colnames(tau) <- c(1, 1, 1, 2, 2, 2, 3)
     f11 <- fmacs_ordered(tau, loadings = lambda,
-                         pooled_item_sd = 1.5)
+                         pooled_item_sd = rep(1.5, 3))
     f12 <- fmacs_ordered(tau, loadings = lambda,
-                         pooled_item_sd = 1.5,
-                         item_weights = c(1, 1, 1, 1))
+                         pooled_item_sd = rep(1.5, 3),
+                         item_weights = c(1, 1, 1))
     f13 <- fmacs_ordered(tau, loadings = lambda,
-                         pooled_item_sd = 1.5,
+                         pooled_item_sd = rep(1.5, 3),
                          contrast = c(1, 1, -1, -1),
-                         item_weights = c(1, 1, 1, 1))
+                         item_weights = c(1, 1, 1))
     expect_true(min(f11[1:2]) > f12)
     expect_equal(f13[[1]], 0)
 })
