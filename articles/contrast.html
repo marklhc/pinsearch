@@ -8,8 +8,8 @@
 <title>Using Contrasts • pinsearch</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using Contrasts">
 </head>
 <body>
@@ -36,6 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/compare-cont-cat.html">Comparing Effect Size for Continuous and Categorical Data</a></li>
     <li><a class="dropdown-item" href="../articles/contrast.html">Using Contrasts</a></li>
+    <li><a class="dropdown-item" href="../articles/dmacs-ci.html">Confidence Intervals for dMACS</a></li>
   </ul>
 </li>
       </ul>
@@ -60,7 +61,7 @@
       <h1>Using Contrasts</h1>
                         <h4 data-toc-skip class="author">Mark Lai</h4>
             
-            <h4 data-toc-skip class="date">2024-10-02</h4>
+            <h4 data-toc-skip class="date">2025-01-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/marklhc/pinsearch/blob/master/vignettes/contrast.rmd" class="external-link"><code>vignettes/contrast.rmd</code></a></small>
       <div class="d-none name"><code>contrast.rmd</code></div>
@@ -338,28 +339,28 @@
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Obtain fmacs effect size</span></span>
 <span><span class="op">(</span><span class="va">f_omni</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       class1-f1 class2-f1 class3-f1  class4-f1 class5-f1 class6-f1  class7-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.1199449 0.1105255  0.238074 0.09092291 0.0495783 0.1858896 0.09463213</span></span>
+<span><span class="co">#&gt;       class1-f1 class2-f1 class3-f1  class4-f1  class5-f1 class6-f1  class7-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.1199234 0.1105238 0.2381024 0.09092262 0.04957459 0.1858849 0.09464019</span></span>
 <span><span class="co">#&gt;       class8-f1 class9-f1 class10-f1 class11-f1 class12-f1 class13-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.1744843 0.1149672  0.1268064 0.03537658   0.108777 0.07085813</span></span>
+<span><span class="co">#&gt; fmacs 0.1744948 0.1149935   0.126812  0.0353763  0.1087859  0.0708557</span></span>
 <span><span class="co">#&gt;       class14-f1 class15-f1</span></span>
-<span><span class="co">#&gt; fmacs   0.186054   0.142585</span></span>
+<span><span class="co">#&gt; fmacs  0.1860244   0.142588</span></span>
 <span><span class="co"># fmacs by gender</span></span>
 <span><span class="op">(</span><span class="va">f_gender</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, group_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        class1-f1  class2-f1 class3-f1 class4-f1  class5-f1  class6-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.03579684 0.03298566 0.1443419 0.0271354 0.03031563 0.04858562</span></span>
-<span><span class="co">#&gt;        class7-f1  class8-f1  class9-f1 class10-f1 class11-f1 class12-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.02824239 0.03521752 0.08328992 0.04836614 0.01813995 0.01888032</span></span>
+<span><span class="co">#&gt;        class1-f1  class2-f1 class3-f1  class4-f1  class5-f1  class6-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.03579041 0.03298516 0.1443592 0.02713531 0.03031336 0.04858438</span></span>
+<span><span class="co">#&gt;       class7-f1  class8-f1 class9-f1 class10-f1 class11-f1 class12-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.0282448 0.03521963  0.083309 0.04836829 0.01813981 0.01888187</span></span>
 <span><span class="co">#&gt;       class13-f1 class14-f1 class15-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.02702651   0.031373 0.04375972</span></span>
+<span><span class="co">#&gt; fmacs 0.02702558 0.03136801 0.04376062</span></span>
 <span><span class="co"># fmacs by ethnicity</span></span>
 <span><span class="op">(</span><span class="va">f_eth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, group_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        class1-f1  class2-f1 class3-f1  class4-f1  class5-f1 class6-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.05810994 0.05354648 0.1249765 0.04404959 0.01246573 0.1131984</span></span>
-<span><span class="co">#&gt;        class7-f1  class8-f1  class9-f1 class10-f1 class11-f1 class12-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.04584661 0.08974653 0.07569014 0.07851401 0.02558757 0.08674763</span></span>
-<span><span class="co">#&gt;       class13-f1 class14-f1 class15-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.04387283 0.07597534  0.1148142</span></span>
+<span><span class="co">#&gt;       class1-f1  class2-f1 class3-f1  class4-f1  class5-f1 class6-f1  class7-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.0580995 0.05354566 0.1249914 0.04404945 0.01246479 0.1131955 0.04585051</span></span>
+<span><span class="co">#&gt;        class8-f1  class9-f1 class10-f1 class11-f1 class12-f1 class13-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.08975193 0.07570749 0.07851749 0.02558737 0.08675476 0.04387133</span></span>
+<span><span class="co">#&gt;       class14-f1 class15-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.07596325  0.1148166</span></span>
 <span><span class="co"># interaction (using contrast matrix)</span></span>
 <span><span class="va">contr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">local</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>    <span class="va">gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"F"</span>, <span class="st">"M"</span><span class="op">)</span><span class="op">)</span></span>
@@ -369,12 +370,12 @@
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="op">~</span> <span class="va">gen</span> <span class="op">*</span> <span class="va">eth</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>eth <span class="op">=</span> <span class="va">eth</span>, gen <span class="op">=</span> <span class="va">gen</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">f_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, contrast <span class="op">=</span> <span class="va">contr</span><span class="op">[</span>, <span class="fl">5</span><span class="op">:</span><span class="fl">6</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        class1-f1  class2-f1 class3-f1  class4-f1  class5-f1 class6-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.05810994 0.05354648 0.1641631 0.04404959 0.04276347 0.1131984</span></span>
-<span><span class="co">#&gt;        class7-f1 class8-f1  class9-f1 class10-f1 class11-f1 class12-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.04584661 0.1309964 0.07569014 0.07851401 0.02558757 0.08674763</span></span>
-<span><span class="co">#&gt;       class13-f1 class14-f1 class15-f1</span></span>
-<span><span class="co">#&gt; fmacs 0.04387283  0.1208214 0.07983449</span></span></code></pre></div>
+<span><span class="co">#&gt;       class1-f1  class2-f1 class3-f1  class4-f1  class5-f1 class6-f1  class7-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.0580995 0.05354566 0.1641827 0.04404945 0.04276027 0.1131955 0.04585051</span></span>
+<span><span class="co">#&gt;       class8-f1  class9-f1 class10-f1 class11-f1 class12-f1 class13-f1</span></span>
+<span><span class="co">#&gt; fmacs 0.1310042 0.07570749 0.07851749 0.02558737 0.08675476 0.04387133</span></span>
+<span><span class="co">#&gt;       class14-f1 class15-f1</span></span>
+<span><span class="co">#&gt; fmacs  0.1208021 0.07983613</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Render as table</span></span>
 <span><span class="va">item_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"class"</span>, replacement <span class="op">=</span> <span class="st">"Item "</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">f_omni</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>

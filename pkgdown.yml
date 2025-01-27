@@ -4,8 +4,9 @@ pkgdown_sha: ~
 articles:
   compare-cont-cat: compare-cont-cat.html
   contrast: contrast.html
+  dmacs-ci: dmacs-ci.html
   pinsearch: pinsearch.html
-last_built: 2024-10-02T05:48Z
+last_built: 2025-01-27T04:47Z
 urls:
   reference: https://marklhc.github.io/pinsearch/reference
   article: https://marklhc.github.io/pinsearch/articles
