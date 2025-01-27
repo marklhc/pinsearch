@@ -80,7 +80,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/marklhc/pinsearch" class="external-link">pinsearch</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-17</span></span>
+<span><span class="co">#&gt; This is lavaan 0.6-19</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span>
 <span><span class="va">HS.model</span> <span class="op">&lt;-</span> <span class="st">'  visual =~ x1 + x2 + x3</span></span>
 <span><span class="st">              textual =~ x4 + x5 + x6</span></span>
@@ -89,7 +89,7 @@
 <span><span class="fu"><a href="reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, </span>
 <span>          group <span class="op">=</span> <span class="st">"school"</span>, type <span class="op">=</span> <span class="st">"intercepts"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.6.17 ended normally after 69 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 69 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -124,7 +124,7 @@
 <span><span class="co">#&gt; [2/2] Searching for intercepts noninvariance</span></span>
 <span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |====================================================                  |  75%</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.6.17 ended normally after 69 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 69 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -150,8 +150,8 @@
 <span><span class="co">#&gt; 2     1  x7     intercepts</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $effect_size</span></span>
-<span><span class="co">#&gt;       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed</span></span>
-<span><span class="co">#&gt; dmacs 0.4824515 0.4161323  0.4824515  0.4161323 0.4824515 0.4161323</span></span></code></pre></div>
+<span><span class="co">#&gt;       x3-visual  x7-speed</span></span>
+<span><span class="co">#&gt; dmacs 0.4824581 0.4161348</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-2">Example 2<a class="anchor" aria-label="anchor" href="#example-2"></a>
@@ -196,7 +196,7 @@
 <span>          ordered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"yy"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span>,</span>
 <span>          effect_size <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.6.17 ended normally after 52 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 52 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -216,8 +216,8 @@
 <span><span class="co">#&gt;   Shift parameter                                            7.073</span></span>
 <span><span class="co">#&gt;     simple second-order correction                                </span></span>
 <span><span class="co">#&gt;   Test statistic for each group:</span></span>
-<span><span class="co">#&gt;     1                                           14.835      23.461</span></span>
-<span><span class="co">#&gt;     2                                           17.077      26.472</span></span>
+<span><span class="co">#&gt;     1                                           23.461      23.461</span></span>
+<span><span class="co">#&gt;     2                                           26.472      26.472</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
 <span><span class="co">#&gt;   group lhs rhs       type</span></span>
