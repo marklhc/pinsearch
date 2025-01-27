@@ -15,9 +15,13 @@ partial factorial invariance model.
 ## Installation
 
 <!-- You can install the released version of pinsearch from [CRAN](https://CRAN.R-project.org) with: -->
+
 <!-- ``` r -->
+
 <!-- install.packages("pinsearch") -->
+
 <!-- ``` -->
+
 <!-- And the development version from [GitHub](https://github.com/) with: -->
 
 You can install the development version of pinsearch from
@@ -35,7 +39,7 @@ This is a basic example which shows you how to solve a common problem:
 ``` r
 library(pinsearch)
 library(lavaan)
-#> This is lavaan 0.6-17
+#> This is lavaan 0.6-19
 #> lavaan is FREE software! Please report any bugs.
 HS.model <- '  visual =~ x1 + x2 + x3
               textual =~ x4 + x5 + x6
@@ -44,7 +48,7 @@ HS.model <- '  visual =~ x1 + x2 + x3
 pinSearch(HS.model, data = HolzingerSwineford1939, 
           group = "school", type = "intercepts")
 #> $`Partial Invariance Fit`
-#> lavaan 0.6.17 ended normally after 69 iterations
+#> lavaan 0.6-19 ended normally after 69 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -79,7 +83,7 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 #> [2/2] Searching for intercepts noninvariance
 #>   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |====================================================                  |  75%
 #> $`Partial Invariance Fit`
-#> lavaan 0.6.17 ended normally after 69 iterations
+#> lavaan 0.6-19 ended normally after 69 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -105,8 +109,8 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 #> 2     1  x7     intercepts
 #> 
 #> $effect_size
-#>       x3-visual x7-visual x3-textual x7-textual  x3-speed  x7-speed
-#> dmacs 0.4824515 0.4161323  0.4824515  0.4161323 0.4824515 0.4161323
+#>       x3-visual  x7-speed
+#> dmacs 0.4824581 0.4161348
 ```
 
 ## Example 2
@@ -154,7 +158,7 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
           ordered = paste0("yy", 1:7),
           effect_size = TRUE)
 #> $`Partial Invariance Fit`
-#> lavaan 0.6.17 ended normally after 52 iterations
+#> lavaan 0.6-19 ended normally after 52 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -174,8 +178,8 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
 #>   Shift parameter                                            7.073
 #>     simple second-order correction                                
 #>   Test statistic for each group:
-#>     1                                           14.835      23.461
-#>     2                                           17.077      26.472
+#>     1                                           23.461      23.461
+#>     2                                           26.472      26.472
 #> 
 #> $`Non-Invariant Items`
 #>   group lhs rhs       type
