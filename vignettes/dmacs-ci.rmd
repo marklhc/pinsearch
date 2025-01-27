@@ -1,5 +1,5 @@
 ---
-title: "Confidence Intervals for $d_\\text{MACS}$"
+title: "Confidence Intervals for dMACS"
 author: "Mark Lai"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

@@ -12,7 +12,8 @@ dmacs(
   latent_mean = 0,
   latent_sd = 1,
   uniqueness = NULL,
-  ns = NULL
+  ns = NULL,
+  item_weights = NULL
 )
 
 dmacs_ordered(
@@ -22,7 +23,8 @@ dmacs_ordered(
   link = c("probit", "logit"),
   pooled_item_sd = NULL,
   latent_mean = 0,
-  latent_sd = 1
+  latent_sd = 1,
+  item_weights = NULL
 )
 }
 \arguments{
@@ -42,6 +44,9 @@ deviation (SD) of the items across groups.}
 
 \item{ns}{A vector of length \eqn{p} of sample sizes.}
 
+\item{item_weights}{Default is \code{NULL}. Otherwise, one can specify a vector
+of length \eqn{p} of weights; if so, test-level dMACS will be computed.}
+
 \item{thresholds}{A matrix with two rows for measurement thresholds. The
 matrix must have column names indicating to which item index each column
 corresponds.}
@@ -51,7 +56,8 @@ corresponds.}
 \item{link}{Link function for the model (probit or logit).}
 }
 \value{
-A 1 x p matrix of dMACS effect size.
+A 1 x p matrix of dMACS effect size. If \code{item_weights} is not
+\code{NULL}, \eqn{p} = 1.
 }
 \description{
 \code{dmacs} returns the dMACS effect size statistics given a set of loadings
@@ -78,6 +84,12 @@ dmacs(rbind(nuf, nur),
       pooled_item_sd = c(1, 1, 1, 1),
       latent_mean = 0,
       latent_sd = 1)
+dmacs(rbind(nuf, nur),
+      loadings = rbind(lambdaf, lambdar),
+      pooled_item_sd = c(1, 1, 1, 1),
+      latent_mean = 0,
+      latent_sd = 1,
+      item_weights = c(1, 1, 1, 1))
 # Thresholds
 lambda <- rbind(c(.8, .5, .7, .5),
                 c(.8, .5, .4, .6))
