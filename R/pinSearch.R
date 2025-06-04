@@ -124,14 +124,14 @@ cfa2 <- function(...) {
 #'   criteria are reached, the progress bar may be inaccurate.
 #'
 #' @returns A list of three elements:
-#' 
+#'
 #' - `Partial Invariance Fit`: A [`lavaan::lavaan-class`]
 #'     object containing the final partial invariance model.
 #' - `Non-Invariant Items`: A data frame of non-invariant
 #'     parameters.
 #' - `effect_size`: Effect size statistics obtained from
 #'     [pin_effsize()].
-#' 
+#'
 #' @references Yoon, M., & Millsap, R. E. (2007). Detecting violations of
 #'   factorial invariance using data-based specification searches: A
 #'   Monte Carlo study. Structural Equation Modeling: A Multidisciplinary
@@ -302,7 +302,11 @@ pinSearch <- function(config_mod,
             )
             if (progress) {
                 total_mod <- remain_mod <- attr(row_to_free, which = "size")
-                pb <- txtProgressBar(min = 0, max = total_mod, style = 3)
+                if (is.null(total_mod)) {
+                    pb <- txtProgressBar(min = 0, max = 1, initial = 1, style = 3)
+                } else {
+                    pb <- txtProgressBar(min = 0, max = total_mod, style = 3)
+                }
                 pb_count <- 0
             }
             while (!is.null(row_to_free)) {
