@@ -446,9 +446,11 @@ es_lavaan <- function(object, ...) {
                     latent_sd = sv1[k],
                     ...
                 )
-                colnames(out_k) <- paste0(
-                    colnames(out_k), "-", lv_names[k]
-                )
+                if (ncol(out_k) > 0) {
+                    colnames(out_k) <- paste0(
+                        colnames(out_k), "-", lv_names[k]
+                    )
+                }
                 out_k
             }))
         } else {
