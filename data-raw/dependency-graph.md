@@ -1,6 +1,6 @@
 # pinsearch — Internal Dependency Graph
 
-Generated from `R/` source (6 exported functions, v0.1.4.3).
+Generated from `R/` source (6 exported functions).
 Sole non-base hard dependency: **lavaan** (`stats`, `utils` are base R).
 
 ## Diagram
@@ -87,5 +87,7 @@ flowchart TD
 
 - Dispatch: `pinSearch` picks `get_inv{mod,score,lrt}` via `inv_test`; `es_lavaan` picks `dmacs*`/`fmacs*` by group count (2 vs >2).
 - `cfa2` is a thin wrapper so `do.call(cfa2, ...)` works; all fits go through `lavaan::cfa`.
-- `es_lavaan` reads lavaan S4 slots `@pta$vnames` directly (`dmacs.R:376,411`).
-- Dead code (defined, never called): `op2col` (pinSearch.R:15), `dmacs_pairwise` (dmacs.R:191), `get_lvnames` (helper.R:5).
+- `es_lavaan` reads lavaan S4 slots `@pta$vnames` directly for the
+  observed-variable names; latent-variable names come from `get_lvnames()`.
+- Formerly-dead code removed in v0.1.4.5: `op2col` (pinSearch.R),
+  `dmacs_pairwise` (dmacs.R). `get_lvnames` is now used by `es_lavaan()`.
