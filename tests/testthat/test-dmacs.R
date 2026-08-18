@@ -199,9 +199,58 @@ test_that("es_lavaan() computes correct values in multidimensional models (two g
     dint <- pars[[2]]$nu["y2", ] - pars[[1]]$nu["y2", ]
     expected <- vapply(c("a", "b"), function(lv) {
         dload <- pars[[2]]$lambda["y2", lv] - pars[[1]]$lambda["y2", lv]
-        mu <- pars[[1]]$alpha[lv, ]
+        mu <- if (is.null(pars[[1]]$alpha)) 0 else pars[[1]]$alpha[lv, ]
         sd2 <- pars[[1]]$psi[lv, lv]
         sqrt(dint^2 + 2 * dint * dload * mu + dload^2 * (sd2 + mu^2)) / sdy2
+    }, numeric(1))
+    expect_equal(as.numeric(out[1, ]), unname(expected), tolerance = 1e-6)
+})
+
+test_that("es_lavaan() works with item_weights in multidimensional models", {
+    dat <- mk_md_covs(2)
+    fit0 <- cfa(md_model,
+        sample.cov = dat$cov,
+        sample.mean = dat$mean,
+        sample.nobs = dat$nobs,
+        group.equal = c("loadings", "intercepts")
+    )
+    pt0 <- parTable(fit0)
+    pt0$id <- seq_len(nrow(pt0))
+    pt0 <- remove_cons(pt0, lhs = "a", rhs = "y2", group = 2, op = "=~")
+    pt0 <- remove_cons(pt0, lhs = "b", rhs = "y2", group = 2, op = "=~")
+    pt0 <- remove_cons(pt0, lhs = "y2", rhs = "", group = 2, op = "~1")
+    fit <- cfa(pt0,
+        sample.cov = dat$cov,
+        sample.mean = dat$mean,
+        sample.nobs = dat$nobs
+    )
+    items <- c("y1", "y2", "y3", "y4", "b1", "b2", "b3")
+    w <- rep(1, length(items))
+    out <- es_lavaan(fit, item_weights = w)
+    expect_identical(colnames(out), c("item_sum-a", "item_sum-b"))
+    # Reference: per-latent-variable dmacs() calls with the same weights
+    pars <- lavInspect(fit, "est")
+    ns <- lavInspect(fit, "nobs")
+    ss <- lavInspect(fit, "sampstat")
+    var_mat <- do.call(cbind,
+        lapply(ss, function(x) diag(x$cov)[items])
+    )
+    item_sd <- sqrt(var_mat %*% prop.table(ns))
+    expected <- vapply(c("a", "b"), function(lv) {
+        lam_k <- do.call(rbind, lapply(pars,
+            function(x) x$lambda[items, lv, drop = TRUE]
+        ))
+        nu_k <- do.call(rbind, lapply(pars,
+            function(x) x$nu[items, , drop = TRUE]
+        ))
+        dmacs(
+            intercepts = nu_k,
+            loadings = lam_k,
+            pooled_item_sd = item_sd,
+            latent_mean = if (is.null(pars[[1]]$alpha)) 0 else pars[[1]]$alpha[lv, ],
+            latent_sd = sqrt(pars[[1]]$psi[lv, lv]),
+            item_weights = w
+        )[1, ]
     }, numeric(1))
     expect_equal(as.numeric(out[1, ]), unname(expected), tolerance = 1e-6)
 })
@@ -241,11 +290,68 @@ test_that("es_lavaan() computes correct values in multidimensional models (three
     ref <- fmacs(intercepts = t(rep(1, 2)) %x% nu,
         loadings = lam,
         pooled_item_sd = rep(sdy2, 2),
-        latent_mean = as.numeric(pars[[1]]$alpha),
+        latent_mean = if (is.null(pars[[1]]$alpha)) {
+            rep(0, 2)
+        } else {
+            as.numeric(pars[[1]]$alpha)
+        },
         latent_sd = sqrt(diag(pars[[1]]$psi)),
         num_obs = ns
     )
     expect_equal(as.numeric(out), as.numeric(ref), tolerance = 1e-6)
+})
+
+test_that("es_lavaan() works with item_weights (three groups)", {
+    dat <- mk_md_covs(3)
+    fit0 <- cfa(md_model,
+        sample.cov = dat$cov,
+        sample.mean = dat$mean,
+        sample.nobs = dat$nobs,
+        group.equal = c("loadings", "intercepts")
+    )
+    pt0 <- parTable(fit0)
+    pt0$id <- seq_len(nrow(pt0))
+    pt0 <- remove_cons(pt0, lhs = "a", rhs = "y2", group = 3, op = "=~")
+    pt0 <- remove_cons(pt0, lhs = "b", rhs = "y2", group = 3, op = "=~")
+    pt0 <- remove_cons(pt0, lhs = "y2", rhs = "", group = 3, op = "~1")
+    pt0 <- remove_cons(pt0, lhs = "a", rhs = "y2", group = 2, op = "=~")
+    pt0 <- remove_cons(pt0, lhs = "b", rhs = "y2", group = 2, op = "=~")
+    pt0 <- remove_cons(pt0, lhs = "y2", rhs = "", group = 2, op = "~1")
+    fit <- cfa(pt0,
+        sample.cov = dat$cov,
+        sample.mean = dat$mean,
+        sample.nobs = dat$nobs
+    )
+    items <- c("y1", "y2", "y3", "y4", "b1", "b2", "b3")
+    w <- rep(1, length(items))
+    out <- es_lavaan(fit, item_weights = w)
+    expect_identical(colnames(out), c("item_sum-a", "item_sum-b"))
+    # Reference: per-latent-variable fmacs() calls with the same weights
+    pars <- lavInspect(fit, "est")
+    ns <- lavInspect(fit, "nobs")
+    ss <- lavInspect(fit, "sampstat")
+    var_mat <- do.call(cbind,
+        lapply(ss, function(x) diag(x$cov)[items])
+    )
+    item_sd <- sqrt(var_mat %*% prop.table(ns))
+    expected <- vapply(c("a", "b"), function(lv) {
+        lam_k <- do.call(rbind, lapply(pars,
+            function(x) x$lambda[items, lv, drop = TRUE]
+        ))
+        nu_k <- do.call(rbind, lapply(pars,
+            function(x) x$nu[items, , drop = TRUE]
+        ))
+        fmacs(
+            intercepts = nu_k,
+            loadings = lam_k,
+            pooled_item_sd = item_sd,
+            latent_mean = if (is.null(pars[[1]]$alpha)) 0 else pars[[1]]$alpha[lv, ],
+            latent_sd = sqrt(pars[[1]]$psi[lv, lv]),
+            item_weights = w,
+            num_obs = ns
+        )[1, ]
+    }, numeric(1))
+    expect_equal(as.numeric(out[1, ]), unname(expected), tolerance = 1e-6)
 })
 
 # Ordered items

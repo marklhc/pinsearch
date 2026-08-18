@@ -419,26 +419,21 @@ es_lavaan <- function(object, ...) {
         pooled_item_sd <- pooledsd_sampstat(
             sampstat, ninv_ov, ns, ordered = FALSE
         )
+        es_fun <- dmacs
         if (lavaan::lavInspect(object, what = "ngroups") > 2) {
             es_fun <- function(...) fmacs(..., num_obs = ns)
-            es_fun(
-                intercepts = t(rep(1, num_lvs)) %x% intercept_mat,
-                loadings = loading_mat,
-                pooled_item_sd = rep(pooled_item_sd, num_lvs),
-                latent_mean = lmean,
-                latent_sd = lsd,
-                ...
-            )
-        } else if (num_lvs > 1 && is.null(list(...)$item_weights)) {
-            # dmacs() takes scalar latent parameters, so run it once per
-            # latent variable. The column order matches to_mat_loadings()
-            # (all items of factor 1, then factor 2, etc.).
+        }
+        if (num_lvs > 1) {
+            # dmacs() and fmacs() take latent parameters per latent
+            # variable, so run them once per latent variable. The column
+            # order matches to_mat_loadings() (all items of factor 1,
+            # then factor 2, etc.).
             do.call(cbind, lapply(seq_len(num_lvs), function(k) {
                 lam_k <- do.call(rbind, lapply(pars,
                     function(x) x$lambda[ninv_ov, lv_names[k], drop = TRUE]
                 ))
                 colnames(lam_k) <- ninv_ov
-                out_k <- dmacs(
+                out_k <- es_fun(
                     intercepts = intercept_mat,
                     loadings = lam_k,
                     pooled_item_sd = pooled_item_sd,
@@ -454,10 +449,10 @@ es_lavaan <- function(object, ...) {
                 out_k
             }))
         } else {
-            dmacs(
-                intercepts = t(rep(1, num_lvs)) %x% intercept_mat,
+            es_fun(
+                intercepts = intercept_mat,
                 loadings = loading_mat,
-                pooled_item_sd = rep(pooled_item_sd, num_lvs),
+                pooled_item_sd = pooled_item_sd,
                 latent_mean = lmean,
                 latent_sd = lsd,
                 ...
