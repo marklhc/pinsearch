@@ -12,14 +12,6 @@ type2op <- function(type) {
 #          intercepts = "lhs",
 #          residuals = "lhs")
 # }
-op2col <- function(op) {
-    switch(op,
-           `=~` = "rhs",
-           `~1` = "lhs",
-           `|` = "lhs",
-           `~~` = "lhs")
-}
-
 initialize_partable <- function(pt0, ninv_items) {
     ninv_lds <- ninv_items[ninv_items$type == "loadings", ]
     # Augmented ninv_items (intercepts are freed if loadings are free)

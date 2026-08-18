@@ -1,3 +1,11 @@
+op2col <- function(op) {
+    switch(op,
+           `=~` = "rhs",
+           `~1` = "lhs",
+           `|` = "lhs",
+           `~~` = "lhs")
+}
+
 remove_cons <- function(pt, lhs, rhs, group, op, check_min2 = FALSE) {
     # Identify row with the specified parameter
     row_i <- which(pt$lhs == lhs & pt$rhs == rhs &
