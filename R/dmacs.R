@@ -188,39 +188,6 @@ dmacs_ordered <- function(thresholds, loadings,
     suppress_zero_loadings(out)
 }
 
-dmacs_pairwise <-
-    function(loading_mat,
-             intercept_mat,
-             pooled_item_sd,
-             latent_mean = 0,
-             latent_sd = 1) {
-        gp_names <- rownames(loading_mat)
-        if (is.null(gp_names)) {
-            gp_names <- seq_len(nrow(loading_mat))
-        }
-        ds <- utils::combn(
-            gp_names,
-            m = 2,
-            FUN = function(x) {
-                dmacs(
-                    loading_mat[x,],
-                    intercept_mat[x,],
-                    pooled_item_sd = pooled_item_sd,
-                    latent_mean = latent_mean,
-                    latent_sd = latent_sd
-                )
-            },
-            simplify = FALSE
-        )
-        ds <- do.call(rbind, ds)
-        rownames(ds) <- utils::combn(gp_names,
-                                     m = 2,
-                                     FUN = paste,
-                                     collapse = " vs ")
-        colnames(ds) <- colnames(intercept_mat)
-        ds
-    }
-
 # Function to extract specific parameters
 getpt <- function(pt, type = c("load", "int", "thres", "uniq", "equality"),
                   ind_names) {
@@ -384,7 +351,8 @@ es_lavaan <- function(object, ...) {
                       FUN.VALUE = logical(1),
                       par_type = par_type, pt = pt)
     pars <- lavaan::lavInspect(object, what = "est")
-    num_lvs <- length(object@pta$vnames$lv[[1]])
+    lv_names <- get_lvnames(object)
+    num_lvs <- length(lv_names)
     alpha1 <- pars[[1]]$alpha
     if (is.null(alpha1)) {
         alpha1 <- rep(0, num_lvs)
@@ -465,7 +433,6 @@ es_lavaan <- function(object, ...) {
             # dmacs() takes scalar latent parameters, so run it once per
             # latent variable. The column order matches to_mat_loadings()
             # (all items of factor 1, then factor 2, etc.).
-            lv_names <- object@pta$vnames$lv[[1]]
             do.call(cbind, lapply(seq_len(num_lvs), function(k) {
                 lam_k <- do.call(rbind, lapply(pars,
                     function(x) x$lambda[ninv_ov, lv_names[k], drop = TRUE]

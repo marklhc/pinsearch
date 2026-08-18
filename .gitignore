@@ -3,4 +3,5 @@
 .RData
 .Ruserdata
 inst/doc
-docs
+docs/*
+!docs/dependency-graph.md
