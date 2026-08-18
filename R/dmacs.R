@@ -384,16 +384,25 @@ es_lavaan <- function(object, ...) {
                       FUN.VALUE = logical(1),
                       par_type = par_type, pt = pt)
     pars <- lavaan::lavInspect(object, what = "est")
+    num_lvs <- length(object@pta$vnames$lv[[1]])
+    alpha1 <- pars[[1]]$alpha
+    if (is.null(alpha1)) {
+        alpha1 <- rep(0, num_lvs)
+    } else {
+        alpha1 <- as.numeric(alpha1)
+    }
+    sv1 <- as.numeric(sqrt(diag(as.matrix(pars[[1]]$psi))))
     if (is.null(list(...)$item_weights)) {
         ninv_ov <- ind_names[which(!inv_ind)]
-        lmean <- rep(as.numeric(pars[[1]]$alpha),
-                              each = length(ninv_ov))
-        lsd <- rep(sqrt(as.numeric(pars[[1]]$psi)),
-                            each = length(ninv_ov))
+        lmean <- rep(alpha1, each = length(ninv_ov))
+        lsd <- rep(sv1, each = length(ninv_ov))
     } else {
+        # dmacs() aggregates the items into a single column when
+        # item_weights is given, so the latent parameters stay scalar-ish
+        # (one value per latent variable).
         ninv_ov <- ind_names
-        lmean <- as.numeric(pars[[1]]$alpha)
-        lsd <- sqrt(as.numeric(pars[[1]]$psi))
+        lmean <- alpha1
+        lsd <- sv1
     }
     # pt_par <- getpt(pt, type = par_type, ind_names = ind_names)
     # pt_eq <- getpt(pt, type = "equality", ind_names = ind_names)
@@ -408,7 +417,6 @@ es_lavaan <- function(object, ...) {
     #     pt_par[pt_par$plabel %in% ninv_par, c("lhs", "rhs")]
     # ))
     # ninv_ov <- intersect(ninv_ov, ind_names)
-    num_lvs <- length(object@pta$vnames$lv[[1]])
     loading_mat <- to_mat_loadings(pars, ninv_ov)
     sampstat <- lavaan::lavInspect(object, "sampstat")
     ns <- lavaan::lavInspect(object, "nobs")
@@ -440,23 +448,52 @@ es_lavaan <- function(object, ...) {
             }
         )
         intercept_mat <- do.call(rbind, intercept_mat)
-        intercept_mat <- t(rep(1, num_lvs)) %x% intercept_mat
         pooled_item_sd <- pooledsd_sampstat(
             sampstat, ninv_ov, ns, ordered = FALSE
         )
         if (lavaan::lavInspect(object, what = "ngroups") > 2) {
             es_fun <- function(...) fmacs(..., num_obs = ns)
+            es_fun(
+                intercepts = t(rep(1, num_lvs)) %x% intercept_mat,
+                loadings = loading_mat,
+                pooled_item_sd = rep(pooled_item_sd, num_lvs),
+                latent_mean = lmean,
+                latent_sd = lsd,
+                ...
+            )
+        } else if (num_lvs > 1 && is.null(list(...)$item_weights)) {
+            # dmacs() takes scalar latent parameters, so run it once per
+            # latent variable. The column order matches to_mat_loadings()
+            # (all items of factor 1, then factor 2, etc.).
+            lv_names <- object@pta$vnames$lv[[1]]
+            do.call(cbind, lapply(seq_len(num_lvs), function(k) {
+                lam_k <- do.call(rbind, lapply(pars,
+                    function(x) x$lambda[ninv_ov, lv_names[k], drop = TRUE]
+                ))
+                colnames(lam_k) <- ninv_ov
+                out_k <- dmacs(
+                    intercepts = intercept_mat,
+                    loadings = lam_k,
+                    pooled_item_sd = pooled_item_sd,
+                    latent_mean = alpha1[k],
+                    latent_sd = sv1[k],
+                    ...
+                )
+                colnames(out_k) <- paste0(
+                    colnames(out_k), "-", lv_names[k]
+                )
+                out_k
+            }))
         } else {
-            es_fun <- dmacs
+            dmacs(
+                intercepts = t(rep(1, num_lvs)) %x% intercept_mat,
+                loadings = loading_mat,
+                pooled_item_sd = rep(pooled_item_sd, num_lvs),
+                latent_mean = lmean,
+                latent_sd = lsd,
+                ...
+            )
         }
-        es_fun(
-            intercepts = intercept_mat,
-            loadings = loading_mat,
-            pooled_item_sd = rep(pooled_item_sd, num_lvs),
-            latent_mean = lmean,
-            latent_sd = lsd,
-            ...
-        )
     }
 }
 
