@@ -17,6 +17,7 @@ scale_constraints <- function(inds,
 }
 
 add_scale_constraints_group <- function(mod, inds_list, ...) {
+    mod <- paste(mod, collapse = "\n")
     mod_vec <- strsplit(mod, split = "\n")[[1]]
     loc_group <- grep("group:", mod_vec)
     loc_add <- c(loc_group[-1] - 1, length(mod_vec))
@@ -53,6 +54,7 @@ add_iden_constraints_group <- function(
     type = c("config", "loadings", "intercepts", "thresholds",
              "residuals", "residual.covariances")) {
     type <- match.arg(type)
+    mod <- paste(mod, collapse = "\n")
     mod_vec <- strsplit(mod, split = "\n")[[1]]
     loc_group <- grep("group:", mod_vec)
     loc_add <- c(loc_group[-1] - 1, length(mod_vec))

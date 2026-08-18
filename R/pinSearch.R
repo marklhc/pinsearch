@@ -187,6 +187,7 @@ pinSearch <- function(config_mod,
     type <- match.arg(type)
     inv_test <- match.arg(inv_test)
     dots <- list(...)
+    config_mod <- paste(config_mod, collapse = "\n")
     base_fit <- do.call(cfa2,
         args = c(list(model = config_mod, do.fit = FALSE), dots)
     )

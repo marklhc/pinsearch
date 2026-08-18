@@ -106,8 +106,18 @@ test_that("pinSearch() works properly when all items are noninvariant", {
                     sample.nobs = c(10000, 10000),
                     type = "loadings",
                     min2 = TRUE)
+  ps6c <- pinSearch(c(' group: 1',
+                      '   f =~ y1 + y2 + y4 + y5 ',
+                      ' group: 2',
+                      '   f =~ y1 + y2 + y3 + y4 + y5 '),
+                    sample.cov = list(cov1, cov6),
+                    sample.mean = list(mean1, mean1),
+                    sample.nobs = c(10000, 10000),
+                    type = "loadings",
+                    min2 = TRUE)
   expect_identical(nrow(ps6[[2]]), 3L)
   expect_identical(nrow(ps6b[[2]]), 2L)
+  expect_identical(nrow(ps6c[[2]]), 2L)
 })
 
 test_that("pinSearch() works properly for HolzingerSwineford1939 example", {
