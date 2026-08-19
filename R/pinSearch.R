@@ -46,7 +46,6 @@ initialize_partable <- function(pt0, ninv_items) {
             )
         }
     }
-    pt0$id <- seq_len(nrow(pt0))
     pt0
 }
 
@@ -55,9 +54,10 @@ fdr_alpha <- function(i, m, q = .05) {
     i * q / (m + 1 - i * (1 - q))
 }
 
-cfa2 <- function(...) {
-    # Needed for executing `do.call(cfa2, ...)`
-    lavaan::cfa(...)
+fit_stage <- function(model, eq, dots, do.fit = TRUE) {
+    do.call(lavaan::cfa,
+        c(list(model = model, group.equal = eq, do.fit = do.fit), dots)
+    )
 }
 
 #' Search for noninvariant parameters across groups.
@@ -178,13 +178,11 @@ pinSearch <- function(config_mod,
     type <- match.arg(type)
     inv_test <- match.arg(inv_test)
     dots <- list(...)
-    base_fit <- do.call(cfa2,
+    base_fit <- do.call(lavaan::cfa,
         args = c(list(model = config_mod, do.fit = FALSE), dots)
     )
     base_call <- stats::getCall(base_fit)
-    # base_call <- stats::getCall(base_fit)
     base_opt <- base_fit@Options
-    # stored_fit <- list()
     ind_names <- get_ovnames(base_fit)
     if (is.null(base_call$std.lv)) {
         dots$std.lv <- TRUE
@@ -228,7 +226,7 @@ pinSearch <- function(config_mod,
             stop("`type = ", type, "` cannot be used with continuous items")
         }
     }
-    base_fit <- do.call(cfa2,
+    base_fit <- do.call(lavaan::cfa,
         args = c(list(model = config_mod), dots)
     )
     n_type <- which(types == type) # number of stages
@@ -260,27 +258,18 @@ pinSearch <- function(config_mod,
     )
     for (i in seq_len(n_type)) {
         typei <- types[i]
+        eq_i <- id_eq(types[seq_len(i)])
         if (progress) {
             message(
                 "\n[", i, "/", n_type, "] Searching for ",
                 typei, " noninvariance\n"
             )
         }
-        new_fit <- do.call(
-            cfa2,
-            c(list(
-                model = config_mod, group.equal = id_eq(types[seq_len(i)]),
-                do.fit = i <= 1
-            ), dots)
-        )
+        new_fit <- fit_stage(config_mod, eq_i, dots, do.fit = i <= 1)
         pt0 <- lavaan::parTable(new_fit)
         if (i >= 2) {
             pt0 <- initialize_partable(pt0, ninv_items = ninv_items)
-            new_fit <- do.call(
-                cfa2,
-                c(list(model = pt0,
-                    group.equal = id_eq(types[seq_len(i)])), dots)
-            )
+            new_fit <- fit_stage(pt0, eq_i, dots)
         }
         if (typei == "residual.covariances" &&
             base_fit@test$standard$df >= new_fit@test$standard$df) {
@@ -293,11 +282,9 @@ pinSearch <- function(config_mod,
             # a nested identification of the threshold model. Refit base with
             # the intercepts tied so the stage LRT stays a valid threshold-
             # invariance test.
-            lrt_base <- do.call(
-                cfa2,
-                c(list(model = config_mod,
-                    group.equal = c("intercepts", types[seq_len(i - 1)])),
-                    dots)
+            lrt_base <- fit_stage(
+                config_mod, c("intercepts", types[seq_len(i - 1)]),
+                dots
             )
         }
         lrt_base_new <- lavaan::lavTestLRT(lrt_base, new_fit)
@@ -324,7 +311,7 @@ pinSearch <- function(config_mod,
                 fn_get_inv,
                 c(list(
                     object = new_fit, type = typei, alpha = p_enter,
-                    group.equal = id_eq(types[seq_len(i)])
+                    group.equal = eq_i
                 ), dots)
             )
             if (progress) {
@@ -350,12 +337,7 @@ pinSearch <- function(config_mod,
                     pb_count <- max(total_mod - remain_mod + 1, pb_count + 1)
                     setTxtProgressBar(pb, pb_count)
                 }
-                new_fit <- do.call(
-                    cfa2,
-                    c(list(model = pt0,
-                        group.equal = id_eq(types[seq_len(i)])), dots)
-                )
-                # new_fit <- fit_cfa(pt0, eq = types[seq_len(i)], ...)
+                new_fit <- fit_stage(pt0, eq_i, dots)
                 if (control_fdr) {
                     num_free <- num_free + 1
                     p_enter <- if (df_diff < 1) sig_level else
@@ -365,15 +347,15 @@ pinSearch <- function(config_mod,
                     fn_get_inv,
                     c(list(
                         object = new_fit, type = typei, alpha = p_enter,
-                        group.equal = id_eq(types[seq_len(i)])
+                        group.equal = eq_i
                     ), dots)
                 )
                 remain_mod <- attr(row_to_free, which = "size")
             }
+            if (progress) close(pb)
             base_fit <- new_fit
         }
     }
-    if (progress) close(pb)
     out <- list(
         `Partial Invariance Fit` = new_fit,
         `Non-Invariant Items` = ninv_items
