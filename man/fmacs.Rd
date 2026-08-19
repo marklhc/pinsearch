@@ -63,7 +63,7 @@ not specified.}
 \item{latent_sd}{latent factor SD for the reference group. Default to 1.}
 
 \item{item_weights}{Default is \code{NULL}. Otherwise, one can specify a vector
-of length \eqn{p} of weights; if so, test-level dMACS will be computed.}
+of length \eqn{p} of weights; if so, test-level fMACS will be computed.}
 
 \item{thresholds}{A matrix with G rows for measurement thresholds. The
 matrix must have column names indicating to which item index each column
