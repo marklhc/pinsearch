@@ -96,6 +96,18 @@ cfa2 <- function(...) {
 #'   maximum number of constraints that can be freed, and \eqn{q} is
 #'   the desirable significance level.
 #'
+#' Under lavaan >= 0.7, ordinal (categorical) models in which
+#'   thresholds are tied across groups can yield a degenerate stage
+#'   test (a likelihood ratio test with `Df diff = 0`). `pinSearch()`
+#'   identifies the threshold stage (and any later stage, but not the
+#'   configural or loadings stages) with the item intercepts fixed at
+#'   0 and the latent mean fixed in the first group only (free in the
+#'   remaining groups), so threshold invariance remains testable,
+#'   including for 2-group binary data. Any other degenerate stage
+#'   test falls back to the per-parameter test, so results for
+#'   ordinary multi-category and 3-group ordinal data are unchanged;
+#'   continuous models are not affected.
+#'
 #' @param config_mod Syntax of a configural invariance model to be passed to
 #'   [lavaan::cfa()].
 #' @param ... Additonal arguments passed to [lavaan::cfa()].
@@ -213,6 +225,27 @@ pinSearch <- function(config_mod,
                 "and likely results in untrustworthy results."
             )
         }
+        # Ordinal identification for the threshold stage (and any later
+        # stage): with item intercepts left free, a categorical threshold is
+        # identifiable only up to the group latent location, so tying
+        # thresholds can leave the fit unchanged (a degenerate, Df diff = 0
+        # LRT, most acute for 2-group binary data). Fix the item intercepts
+        # to 0 and free the latent mean in every group except the first.
+        # Applied only from the threshold stage forward (see the stage loop),
+        # never to the configural or loadings stages.
+        {
+            dat_o <- dots$data
+            g_o <- if (is.data.frame(dat_o)) dat_o[[dots$group]] else
+                dat_o[, dots$group]
+            ord_lhs <- trimws(unique(vapply(
+                strsplit(config_mod[grepl(
+                    " *=~", config_mod)], " *=~"), `[`, character(1), 1)))
+            ord_id <- c(
+                paste(ind_names, "~ 0 * 1"),
+                sprintf("%s ~ c(0, %s) * 1", ord_lhs,
+                    paste(rep(NA, length(unique(g_o)) - 1L), collapse = ", "))
+            )
+        }
         if (!type %in% types) {
             stop("`type = ", type, "` cannot be used with ordered items")
         }
@@ -243,29 +276,27 @@ pinSearch <- function(config_mod,
     )
     for (i in seq_len(n_type)) {
         typei <- types[i]
+        # The ordinal threshold stage (and the residual.covariances stage that
+        # follows it) use the ordinal identification built in `ord_id`.
+        use_ord_id <- base_opt$categorical &&
+            typei %in% c("thresholds", "residual.covariances")
+        model_i <- if (use_ord_id) c(config_mod, ord_id) else config_mod
         if (progress) {
             message(
                 "\n[", i, "/", n_type, "] Searching for ",
                 typei, " noninvariance\n"
             )
         }
-        # new_fit <- lavaan::update(base_fit, ..., config_mod,
-        #                           group.equal = types[seq_len(i)],
-        #                           do.fit = i <= 1)
         new_fit <- do.call(
             cfa2,
             c(list(
-                model = config_mod, group.equal = types[seq_len(i)],
+                model = model_i, group.equal = types[seq_len(i)],
                 do.fit = i <= 1
             ), dots)
         )
         pt0 <- lavaan::parTable(new_fit)
         if (i >= 2) {
             pt0 <- initialize_partable(pt0, ninv_items = ninv_items)
-            # new_fit <- lavaan::update(new_fit, ..., pt0,
-            #     group.equal = types[seq_len(i)],
-            #     do.fit = TRUE
-            # )
             new_fit <- do.call(
                 cfa2,
                 c(list(model = pt0, group.equal = types[seq_len(i)]), dots)
@@ -275,14 +306,27 @@ pinSearch <- function(config_mod,
             base_fit@test$standard$df >= new_fit@test$standard$df) {
             next
         }
-        lrt_base_new <- lavaan::lavTestLRT(base_fit, new_fit)
+        lrt_base <- base_fit
+        if (use_ord_id && typei == "thresholds") {
+            # First stage using the ordinal identification: the carried base
+            # comes from the (loadings) stage and lacks it. Refit base under
+            # the same identification so the stage LRT stays a valid
+            # threshold-invariance test.
+            lrt_base <- do.call(
+                cfa2,
+                c(list(model = model_i,
+                    group.equal = types[seq_len(i - 1)]), dots)
+            )
+        }
+        lrt_base_new <- lavaan::lavTestLRT(lrt_base, new_fit)
         df_diff <- lrt_base_new[2, "Df diff"]
+        lrt_p <- lrt_base_new[2, "Pr(>Chisq)"]
         if (isTRUE(all.equal(lrt_base_new[2, "Chisq diff"], 0)) &&
-            df_diff == 0) {
+            df_diff == 0 && !is.na(lrt_p)) {
                 message("All free ", typei, " are noninvariant!")
                 next
             }
-        if (lrt_base_new[2, "Pr(>Chisq)"] >= sig_level) {
+        if (!is.na(lrt_p) && lrt_p >= sig_level) {
             base_fit <- new_fit
             next # skip to next stage
         } else {
@@ -291,7 +335,8 @@ pinSearch <- function(config_mod,
                 p_enter <- sig_level
             } else {
                 num_free <- 1
-                p_enter <- fdr_alpha(num_free, m = df_diff, q = sig_level)
+                p_enter <- if (df_diff < 1) sig_level else
+                    fdr_alpha(num_free, m = df_diff, q = sig_level)
             }
             row_to_free <- do.call(
                 fn_get_inv,
@@ -330,7 +375,8 @@ pinSearch <- function(config_mod,
                 # new_fit <- fit_cfa(pt0, eq = types[seq_len(i)], ...)
                 if (control_fdr) {
                     num_free <- num_free + 1
-                    p_enter <- fdr_alpha(num_free, m = df_diff, q = sig_level)
+                    p_enter <- if (df_diff < 1) sig_level else
+                        fdr_alpha(num_free, m = df_diff, q = sig_level)
                 }
                 row_to_free <- do.call(
                     fn_get_inv,
