@@ -114,6 +114,8 @@ get_invlrt <- function(object, type, alpha = .05, pt0, ...) {
                 lrt_mat[j, ] <- as.numeric(lrt_j[2, to_extract])
             }
         }
+        lrt_mat <- lrt_mat[!is.na(lrt_mat[, "Pr(>Chisq)"]), , drop = FALSE]
+        if (nrow(lrt_mat) == 0) return(NULL)
         if (min(lrt_mat[, "Pr(>Chisq)"]) > alpha) return(NULL)
         pt0_eq <- par_sets[[which.min(lrt_mat[, "Pr(>Chisq)"])]]
     }
@@ -136,7 +138,8 @@ get_invlrt <- function(object, type, alpha = .05, pt0, ...) {
         }
     }
     mis <- cbind(pt0_eq, lrt_mat)
-
+    mis <- mis[!is.na(mis$"Pr(>Chisq)"), ]
+    if (nrow(mis) == 0) return(NULL)
     out <- mis[which.min(mis$"Pr(>Chisq)"), ]
     if (out$"Pr(>Chisq)" > alpha) return(NULL)
     attr(out, "size") <- sum(mis$"Pr(>Chisq)" < alpha)

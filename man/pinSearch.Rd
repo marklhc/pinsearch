@@ -83,6 +83,18 @@ Gavrilov method uses an adjusted \eqn{alpha} level of
 where \eqn{i} is the step index in the search, \eqn{m} is the
 maximum number of constraints that can be freed, and \eqn{q} is
 the desirable significance level.
+
+Under lavaan >= 0.7, ordinal (categorical) models in which
+thresholds are tied across groups can yield a degenerate stage
+test (a likelihood ratio test with \verb{Df diff = 0}). \code{pinSearch()}
+identifies the threshold stage (and any later stage, but not the
+configural or loadings stages) with the item intercepts fixed at
+0 and the latent mean fixed in the first group only (free in the
+remaining groups), so threshold invariance remains testable,
+including for 2-group binary data. Any other degenerate stage
+test falls back to the per-parameter test, so results for
+ordinary multi-category and 3-group ordinal data are unchanged;
+continuous models are not affected.
 }
 \examples{
 library(lavaan)

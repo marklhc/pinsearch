@@ -96,6 +96,18 @@ cfa2 <- function(...) {
 #'   maximum number of constraints that can be freed, and \eqn{q} is
 #'   the desirable significance level.
 #'
+#' Under lavaan >= 0.7, ordinal (categorical) models in which
+#'   thresholds are tied across groups can yield a degenerate stage
+#'   test (a likelihood ratio test with `Df diff = 0`). `pinSearch()`
+#'   identifies the threshold stage (and any later stage, but not the
+#'   configural or loadings stages) with the item intercepts fixed at
+#'   0 and the latent mean fixed in the first group only (free in the
+#'   remaining groups), so threshold invariance remains testable,
+#'   including for 2-group binary data. Any other degenerate stage
+#'   test falls back to the per-parameter test, so results for
+#'   ordinary multi-category and 3-group ordinal data are unchanged;
+#'   continuous models are not affected.
+#'
 #' @param config_mod Syntax of a configural invariance model to be passed to
 #'   [lavaan::cfa()].
 #' @param ... Additonal arguments passed to [lavaan::cfa()].
@@ -213,6 +225,10 @@ pinSearch <- function(config_mod,
                 "and likely results in untrustworthy results."
             )
         }
+        # Ordinal threshold identification is applied in the stage loop via
+        # `id_eq` (defined below): when "thresholds" is part of `group.equal`,
+        # "intercepts" is tied across groups as well, which identifies the
+        # model under lavaan >= 0.7-2.
         if (!type %in% types) {
             stop("`type = ", type, "` cannot be used with ordered items")
         }
@@ -229,6 +245,20 @@ pinSearch <- function(config_mod,
         args = c(list(model = config_mod), dots)
     )
     n_type <- which(types == type) # number of stages
+    # Ordinal identification for the threshold stage (and any later stage):
+    # with item intercepts left free, a categorical threshold is identifiable
+    # only up to the group latent location, so under lavaan >= 0.7-2 (which
+    # keeps tied ordinal thresholds with a `free` index) tying thresholds can
+    # leave the fit unchanged and the stage LRT degenerate (Pr = NA), most
+    # acute for 2-group binary data. Tying the item intercepts across groups
+    # (group.equal = "intercepts") identifies the model, so add "intercepts"
+    # to any group.equal that already ties "thresholds". No-op for continuous
+    # models, which never tie thresholds.
+    id_eq <- function(eq) {
+        if (base_opt$categorical && "thresholds" %in% eq)
+            eq <- c("intercepts", setdiff(eq, "intercepts"))
+        eq
+    }
     fn_get_inv <- switch(inv_test,
         mod = get_invmod,
         score = get_invscore,
@@ -249,40 +279,49 @@ pinSearch <- function(config_mod,
                 typei, " noninvariance\n"
             )
         }
-        # new_fit <- lavaan::update(base_fit, ..., config_mod,
-        #                           group.equal = types[seq_len(i)],
-        #                           do.fit = i <= 1)
         new_fit <- do.call(
             cfa2,
             c(list(
-                model = config_mod, group.equal = types[seq_len(i)],
+                model = config_mod, group.equal = id_eq(types[seq_len(i)]),
                 do.fit = i <= 1
             ), dots)
         )
         pt0 <- lavaan::parTable(new_fit)
         if (i >= 2) {
             pt0 <- initialize_partable(pt0, ninv_items = ninv_items)
-            # new_fit <- lavaan::update(new_fit, ..., pt0,
-            #     group.equal = types[seq_len(i)],
-            #     do.fit = TRUE
-            # )
             new_fit <- do.call(
                 cfa2,
-                c(list(model = pt0, group.equal = types[seq_len(i)]), dots)
+                c(list(model = pt0,
+                    group.equal = id_eq(types[seq_len(i)])), dots)
             )
         }
         if (typei == "residual.covariances" &&
             base_fit@test$standard$df >= new_fit@test$standard$df) {
             next
         }
-        lrt_base_new <- lavaan::lavTestLRT(base_fit, new_fit)
+        lrt_base <- base_fit
+        if (base_opt$categorical && typei == "thresholds") {
+            # First stage that ties thresholds: the carried base comes from
+            # the (loadings) stage and has item intercepts free, which is not
+            # a nested identification of the threshold model. Refit base with
+            # the intercepts tied so the stage LRT stays a valid threshold-
+            # invariance test.
+            lrt_base <- do.call(
+                cfa2,
+                c(list(model = config_mod,
+                    group.equal = c("intercepts", types[seq_len(i - 1)])),
+                    dots)
+            )
+        }
+        lrt_base_new <- lavaan::lavTestLRT(lrt_base, new_fit)
         df_diff <- lrt_base_new[2, "Df diff"]
+        lrt_p <- lrt_base_new[2, "Pr(>Chisq)"]
         if (isTRUE(all.equal(lrt_base_new[2, "Chisq diff"], 0)) &&
-            df_diff == 0) {
+            df_diff == 0 && !is.na(lrt_p)) {
                 message("All free ", typei, " are noninvariant!")
                 next
             }
-        if (lrt_base_new[2, "Pr(>Chisq)"] >= sig_level) {
+        if (!is.na(lrt_p) && lrt_p >= sig_level) {
             base_fit <- new_fit
             next # skip to next stage
         } else {
@@ -291,13 +330,14 @@ pinSearch <- function(config_mod,
                 p_enter <- sig_level
             } else {
                 num_free <- 1
-                p_enter <- fdr_alpha(num_free, m = df_diff, q = sig_level)
+                p_enter <- if (df_diff < 1) sig_level else
+                    fdr_alpha(num_free, m = df_diff, q = sig_level)
             }
             row_to_free <- do.call(
                 fn_get_inv,
                 c(list(
                     object = new_fit, type = typei, alpha = p_enter,
-                    group.equal = types[seq_len(i)]
+                    group.equal = id_eq(types[seq_len(i)])
                 ), dots)
             )
             if (progress) {
@@ -325,18 +365,20 @@ pinSearch <- function(config_mod,
                 }
                 new_fit <- do.call(
                     cfa2,
-                    c(list(model = pt0, group.equal = types[seq_len(i)]), dots)
+                    c(list(model = pt0,
+                        group.equal = id_eq(types[seq_len(i)])), dots)
                 )
                 # new_fit <- fit_cfa(pt0, eq = types[seq_len(i)], ...)
                 if (control_fdr) {
                     num_free <- num_free + 1
-                    p_enter <- fdr_alpha(num_free, m = df_diff, q = sig_level)
+                    p_enter <- if (df_diff < 1) sig_level else
+                        fdr_alpha(num_free, m = df_diff, q = sig_level)
                 }
                 row_to_free <- do.call(
                     fn_get_inv,
                     c(list(
                         object = new_fit, type = typei, alpha = p_enter,
-                        group.equal = types[seq_len(i)]
+                        group.equal = id_eq(types[seq_len(i)])
                     ), dots)
                 )
                 remain_mod <- attr(row_to_free, which = "size")

@@ -75,9 +75,7 @@ test_that("Works for three groups and ordinal items", {
                      ordered = paste0("yy", 1:7))
     expect_equal(sort(with(ps5[[2]], paste(lhs, rhs))),
                  c("yy2 t1", "yy4 t3", "yy5 t3", "yy7 t1"))
-    ps5_re <- cfa(' f =~ NA * yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7
-                    f ~~ c(0.5, NA, NA) * f
-                    f ~ c(1, NA, NA) * 1
+    ps5_re <- cfa(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7
                     yy1 ~~ 1 * yy1
                     yy2 ~~ 1 * yy2
                     yy3 ~~ 1 * yy3
@@ -90,7 +88,8 @@ test_that("Works for three groups and ordinal items", {
                     yy5 | c(t5, t5, t53) * t3
                     yy7 | c(t7, t7, t73) * t1 ',
                   data = dfo, group = "group", ordered = TRUE,
-                  group.equal = c("loadings", "thresholds", "residuals"),
+                  group.equal = c("loadings", "thresholds", "residuals",
+                      "intercepts"),
                   group.partial = c("yy7|t1", "yy2|t1", "yy4|t3", "yy5|t3"),
                   parameterization = "theta")
     fmacs_ps5 <- pin_effsize(ps5[[1]])
