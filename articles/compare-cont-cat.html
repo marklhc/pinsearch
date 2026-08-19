@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Comparing Effect Size for Continuous and Categorical Data • pinsearch</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Comparing Effect Size for Continuous and Categorical Data">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pinsearch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,7 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/marklhc/pinsearch" class="external-link">pinsearch</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-19</span></span>
+<span><span class="co">#&gt; This is lavaan 0.7-2</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.stats.ox.ac.uk/pub/MASS4/" class="external-link">MASS</a></span>, include.only <span class="op">=</span> <span class="st">"mvrnorm"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/343Babou/difR" class="external-link">difR</a></span><span class="op">)</span></span></code></pre></div>
@@ -149,6 +149,10 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span><span class="va">ps_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="st">' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 '</span>,</span>
 <span>                    data <span class="op">=</span> <span class="va">df</span>, group <span class="op">=</span> <span class="st">"group"</span>, type <span class="op">=</span> <span class="st">"thresholds"</span>,</span>
 <span>                    ordered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"yy"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: lavaan-&gt;lav_model_vcov():  </span></span>
+<span><span class="co">#&gt;    The variance-covariance matrix of the estimated parameters (vcov) does not </span></span>
+<span><span class="co">#&gt;    appear to be positive definite! The smallest eigenvalue (= 4.614582e-17) </span></span>
+<span><span class="co">#&gt;    is close to zero. This may be a symptom that the model is not identified.</span></span>
 <span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           yy2-f     yy4-f     yy5-f     yy7-f</span></span>
 <span><span class="co">#&gt; dmacs 0.1912212 0.1400285 0.1219134 0.2069972</span></span></code></pre></div>
@@ -171,6 +175,10 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <code class="sourceCode R"><span><span class="va">ps2_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="st">' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 '</span>,</span>
 <span>                     data <span class="op">=</span> <span class="va">df2</span>, group <span class="op">=</span> <span class="st">"group"</span>, type <span class="op">=</span> <span class="st">"thresholds"</span>,</span>
 <span>                     ordered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"yy"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: lavaan-&gt;lav_model_vcov():  </span></span>
+<span><span class="co">#&gt;    The variance-covariance matrix of the estimated parameters (vcov) does not </span></span>
+<span><span class="co">#&gt;    appear to be positive definite! The smallest eigenvalue (= 6.895669e-17) </span></span>
+<span><span class="co">#&gt;    is close to zero. This may be a symptom that the model is not identified.</span></span>
 <span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps2_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           yy4-f    yy5-f</span></span>
 <span><span class="co">#&gt; dmacs 0.3463871 0.324468</span></span></code></pre></div>
@@ -242,7 +250,7 @@ treating Likert-scale items as either continuous or ordinal.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
