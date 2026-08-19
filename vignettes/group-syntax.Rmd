@@ -1,0 +1,134 @@
+---
+title: "Group-Specific Model Syntax"
+author: "Mark Lai"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Group-Specific Model Syntax}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+In a factorial invariance analysis, the groups sometimes do not share the same set of
+observed variables. A common instance is a shorter or longer scale form: one group
+answers four items and another answers five. A single shared configural model cannot
+be written for such data, because it would reference an item that does not exist in
+every group.
+
+`lavaan` handles this with **group-specific model syntax**: a `group:` block defines a
+separate model for each group. `pinSearch()` supports this syntax, so a partial
+invariance specification search can still be run when the item sets differ across
+groups.
+
+## The syntax
+
+Write the configural model as a string (or a character vector) with one `group: N`
+block per group; each `group: N` starts on its own line:
+
+```{r, eval = FALSE, echo = TRUE}
+mod <- c(
+  "group: 1", "F =~ y1 + y2 + y3 + y4",         # e.g. the short form
+  "group: 2", "F =~ y1 + y2 + y3 + y4 + y5")    # e.g. the long form
+```
+
+The number of `group:` blocks, and their order, must match the groups used to split
+the data. As usual, `pinSearch()` passes `config_mod` straight through to
+[`lavaan::cfa()`], so you still pass `group = "..."` (via `...`) to split the data;
+`group: N` then refers to the **Nth level** of that grouping factor.
+
+## Example
+
+We simulate a single five-item trait. Item `y5` is answered only by the "long" form,
+and item `y3` loads more weakly in the "long" form, so the search has something to
+find.
+
+```{r}
+library(lavaan)
+library(pinsearch)
+library(MASS, include.only = "mvrnorm")
+set.seed(8)
+
+lamS <- c(.90, .85, .80, .75)              # short form: y1-y4
+lamL <- c(.90, .85, .50, .75, .70)         # long form:  y1-y5 (y3 weakened)
+sigS <- tcrossprod(lamS) + diag(1 - lamS^2)
+sigL <- tcrossprod(lamL) + diag(1 - lamL^2)
+
+n  <- 500
+gS <- mvrnorm(n, rep(0, 4), sigS)          # short form
+gL <- mvrnorm(n, rep(0, 5), sigL)          # long form
+dS <- as.data.frame(gS);  names(dS) <- paste0("y", 1:4)
+dL <- as.data.frame(gL);  names(dL) <- paste0("y", 1:5)
+df <- rbind(cbind(dS, y5 = NA, group = "short"),
+            cbind(dL,          group = "long"))
+df$group <- factor(df$group, levels = c("short", "long"))
+```
+
+A single model `F =~ y1 + y2 + y3 + y4 + y5` cannot describe both groups, because
+`y5` is absent for the "short" form. With the group-specific syntax, both forms are
+handled in one call:
+
+```{r}
+mod <- c(
+  "group: 1", "F =~ y1 + y2 + y3 + y4",          # short: no y5
+  "group: 2", "F =~ y1 + y2 + y3 + y4 + y5")     # long:  full form
+ps <- pinSearch(mod,
+    data = df, group = "group",
+    type = "intercepts"        # search loadings, then intercepts
+)
+ps$`Non-Invariant Items`
+```
+
+The specification search flags the loading of `y3` in the long form. The final partial
+invariance model is
+
+```{r}
+summary(ps$`Partial Invariance Fit`)
+```
+
+Effect sizes for the flagged item follow the usual workflow:
+
+```{r}
+pinSearch(mod, data = df, group = "group",
+          type = "intercepts", effect_size = TRUE)
+```
+
+## Related
+
+### Keeping at least two invariant items
+
+When a group has only a few items, the search could, in principle, free so many
+loadings that fewer than two invariant indicators remained. `min2 = TRUE` caps how
+many items may be freed during the search:
+
+```r
+pinSearch(mod, data = df, group = "group",
+          type = "loadings", min2 = TRUE)
+```
+
+### Ordered items
+
+The same `group:` syntax works for ordered categorical indicators; just add
+`ordered = ...` (and a `parameterization`, if needed) as you would for a model
+without group blocks.
+
+### Not the per-group-value idiom
+
+Do not confuse this with lavaan's `c(.)` per-group values (for example
+`F =~ c(1.0, 0.9)*y1`, as in the `pinSearch()` examples). That idiom still assumes
+the *same* variables in every group; the `group:` block syntax is for *different*
+observed variables or relationships.
+
+## References
+
+Yoon, M., & Millsap, R. E. (2007). Detecting violations of factorial invariance
+using data-based specification searches: A Monte Carlo study. *Structural
+Equation Modeling: A Multidisciplinary Journal, 14*(3), 435-463.
