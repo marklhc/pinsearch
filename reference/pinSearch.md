@@ -153,12 +153,12 @@ pinSearch(sam_config,
     type = "intercepts"
 )
 #> $`Partial Invariance Fit`
-#> lavaan 0.7-2 ended normally after 60 iterations
+#> lavaan 0.7-2 ended normally after 58 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
 #>   Number of model parameters                        58
-#>   Number of equality constraints                    19
+#>   Number of equality constraints                    20
 #> 
 #>   Number of observations per group:                   
 #>     1                                              100
@@ -167,19 +167,18 @@ pinSearch(sam_config,
 #> 
 #> Model Test User Model:
 #>                                                       
-#>   Test statistic                                47.688
-#>   Degrees of freedom                                42
-#>   P-value (Chi-square)                           0.252
+#>   Test statistic                                48.223
+#>   Degrees of freedom                                43
+#>   P-value (Chi-square)                           0.270
 #>   Test statistic for each group:
-#>     1                                           12.480
-#>     2                                           20.956
-#>     3                                           14.252
+#>     1                                           15.658
+#>     2                                           20.743
+#>     3                                           11.822
 #> 
 #> $`Non-Invariant Items`
 #>   group lhs rhs       type
 #> 1     1   f  y1   loadings
-#> 2     1  y3     intercepts
-#> 3     3  y1     intercepts
-#> 4     2  y3     intercepts
+#> 2     3  y1     intercepts
+#> 3     3  y3     intercepts
 #> 
 ```
