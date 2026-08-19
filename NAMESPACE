@@ -6,8 +6,12 @@ export(fmacs)
 export(fmacs_ordered)
 export(pinSearch)
 export(pin_effsize)
-importFrom(stats,`contrasts<-`)
-importFrom(stats,contr.sum)
-importFrom(stats,model.matrix)
-importFrom(utils,setTxtProgressBar)
-importFrom(utils,txtProgressBar)
+importFrom(stats,
+  `contrasts<-`,
+  contr.sum,
+  model.matrix
+)
+importFrom(utils,
+  setTxtProgressBar,
+  txtProgressBar
+)
