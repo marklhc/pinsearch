@@ -38,6 +38,6 @@ R package `pinsearch`: specification search for partial factorial invariance, bu
 ## Open work (as of 2026-08)
 
 - #15 "Longitudinal CFA" (`marklhc/issue15` branch): `longcfa()`/`longcfa_syntax()` draft with tests + vignette; still needs categorical items. Deferred to a later wave.
-- #7/#4 multi-latent effect sizes: fixed in local branch `marklhc/issue7` (per-(item, latent) columns, corrected latent scaling, regression tests) — not yet pushed; PR pending.
-- #16 (draft PR) "group syntax": local branch `group-specific-syntax` is rebased onto `master` (worktree `/tmp/opencode/gss`), `min2` + LRT fixes + group syntax verified end-to-end (also covers #14's differing observed variables scenario) — not yet pushed; un-draft the PR after pushing. Note: its `remove_cons()` needs `op2col()`, which lives in `R/remove_cons.R`.
-- `cat` branch is fully merged (stale, safe to delete once push access is available).
+- #7/#4 multi-latent effect sizes (now PR #20, `marklhc/issue7`): per-(item, latent) columns, corrected latent scaling, regression tests. Rebased onto `master` (post-#21), R CMD check green — force-push to update the PR.
+- #16 "group syntax" (draft PR, `group-specific-syntax`): `min2` + LRT fixes + group syntax verified end-to-end (also covers #14's differing observed variables scenario). Rebased onto `master` (post-#21), R CMD check green — force-push to update the PR, then un-draft. Note: its `remove_cons()` needs `op2col()`, which lives in `R/remove_cons.R`.
+- #21 (lavaan 0.7 compat) is merged to `master`; the local `marklhc/lavaan-0.7-compat` branch is now stale (safe to delete). The older `cat` branch (also merged) has been deleted.
