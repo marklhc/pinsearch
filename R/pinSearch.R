@@ -225,27 +225,10 @@ pinSearch <- function(config_mod,
                 "and likely results in untrustworthy results."
             )
         }
-        # Ordinal identification for the threshold stage (and any later
-        # stage): with item intercepts left free, a categorical threshold is
-        # identifiable only up to the group latent location, so tying
-        # thresholds can leave the fit unchanged (a degenerate, Df diff = 0
-        # LRT, most acute for 2-group binary data). Fix the item intercepts
-        # to 0 and free the latent mean in every group except the first.
-        # Applied only from the threshold stage forward (see the stage loop),
-        # never to the configural or loadings stages.
-        {
-            dat_o <- dots$data
-            g_o <- if (is.data.frame(dat_o)) dat_o[[dots$group]] else
-                dat_o[, dots$group]
-            ord_lhs <- trimws(unique(vapply(
-                strsplit(config_mod[grepl(
-                    " *=~", config_mod)], " *=~"), `[`, character(1), 1)))
-            ord_id <- c(
-                paste(ind_names, "~ 0 * 1"),
-                sprintf("%s ~ c(0, %s) * 1", ord_lhs,
-                    paste(rep(NA, length(unique(g_o)) - 1L), collapse = ", "))
-            )
-        }
+        # Ordinal threshold identification is applied in the stage loop via
+        # `id_eq` (defined below): when "thresholds" is part of `group.equal`,
+        # "intercepts" is tied across groups as well, which identifies the
+        # model under lavaan >= 0.7-2.
         if (!type %in% types) {
             stop("`type = ", type, "` cannot be used with ordered items")
         }
@@ -262,6 +245,20 @@ pinSearch <- function(config_mod,
         args = c(list(model = config_mod), dots)
     )
     n_type <- which(types == type) # number of stages
+    # Ordinal identification for the threshold stage (and any later stage):
+    # with item intercepts left free, a categorical threshold is identifiable
+    # only up to the group latent location, so under lavaan >= 0.7-2 (which
+    # keeps tied ordinal thresholds with a `free` index) tying thresholds can
+    # leave the fit unchanged and the stage LRT degenerate (Pr = NA), most
+    # acute for 2-group binary data. Tying the item intercepts across groups
+    # (group.equal = "intercepts") identifies the model, so add "intercepts"
+    # to any group.equal that already ties "thresholds". No-op for continuous
+    # models, which never tie thresholds.
+    id_eq <- function(eq) {
+        if (base_opt$categorical && "thresholds" %in% eq)
+            eq <- c("intercepts", setdiff(eq, "intercepts"))
+        eq
+    }
     fn_get_inv <- switch(inv_test,
         mod = get_invmod,
         score = get_invscore,
@@ -276,11 +273,6 @@ pinSearch <- function(config_mod,
     )
     for (i in seq_len(n_type)) {
         typei <- types[i]
-        # The ordinal threshold stage (and the residual.covariances stage that
-        # follows it) use the ordinal identification built in `ord_id`.
-        use_ord_id <- base_opt$categorical &&
-            typei %in% c("thresholds", "residual.covariances")
-        model_i <- if (use_ord_id) c(config_mod, ord_id) else config_mod
         if (progress) {
             message(
                 "\n[", i, "/", n_type, "] Searching for ",
@@ -290,7 +282,7 @@ pinSearch <- function(config_mod,
         new_fit <- do.call(
             cfa2,
             c(list(
-                model = model_i, group.equal = types[seq_len(i)],
+                model = config_mod, group.equal = id_eq(types[seq_len(i)]),
                 do.fit = i <= 1
             ), dots)
         )
@@ -299,7 +291,8 @@ pinSearch <- function(config_mod,
             pt0 <- initialize_partable(pt0, ninv_items = ninv_items)
             new_fit <- do.call(
                 cfa2,
-                c(list(model = pt0, group.equal = types[seq_len(i)]), dots)
+                c(list(model = pt0,
+                    group.equal = id_eq(types[seq_len(i)])), dots)
             )
         }
         if (typei == "residual.covariances" &&
@@ -307,15 +300,17 @@ pinSearch <- function(config_mod,
             next
         }
         lrt_base <- base_fit
-        if (use_ord_id && typei == "thresholds") {
-            # First stage using the ordinal identification: the carried base
-            # comes from the (loadings) stage and lacks it. Refit base under
-            # the same identification so the stage LRT stays a valid
-            # threshold-invariance test.
+        if (base_opt$categorical && typei == "thresholds") {
+            # First stage that ties thresholds: the carried base comes from
+            # the (loadings) stage and has item intercepts free, which is not
+            # a nested identification of the threshold model. Refit base with
+            # the intercepts tied so the stage LRT stays a valid threshold-
+            # invariance test.
             lrt_base <- do.call(
                 cfa2,
-                c(list(model = model_i,
-                    group.equal = types[seq_len(i - 1)]), dots)
+                c(list(model = config_mod,
+                    group.equal = c("intercepts", types[seq_len(i - 1)])),
+                    dots)
             )
         }
         lrt_base_new <- lavaan::lavTestLRT(lrt_base, new_fit)
@@ -342,7 +337,7 @@ pinSearch <- function(config_mod,
                 fn_get_inv,
                 c(list(
                     object = new_fit, type = typei, alpha = p_enter,
-                    group.equal = types[seq_len(i)]
+                    group.equal = id_eq(types[seq_len(i)])
                 ), dots)
             )
             if (progress) {
@@ -370,7 +365,8 @@ pinSearch <- function(config_mod,
                 }
                 new_fit <- do.call(
                     cfa2,
-                    c(list(model = pt0, group.equal = types[seq_len(i)]), dots)
+                    c(list(model = pt0,
+                        group.equal = id_eq(types[seq_len(i)])), dots)
                 )
                 # new_fit <- fit_cfa(pt0, eq = types[seq_len(i)], ...)
                 if (control_fdr) {
@@ -382,7 +378,7 @@ pinSearch <- function(config_mod,
                     fn_get_inv,
                     c(list(
                         object = new_fit, type = typei, alpha = p_enter,
-                        group.equal = types[seq_len(i)]
+                        group.equal = id_eq(types[seq_len(i)])
                     ), dots)
                 )
                 remain_mod <- attr(row_to_free, which = "size")
