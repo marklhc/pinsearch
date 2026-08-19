@@ -7,3 +7,5 @@
 ^pkgdown$
 ^\.github$
 ^data-raw$
+^archive$
+^AGENTS\.md$

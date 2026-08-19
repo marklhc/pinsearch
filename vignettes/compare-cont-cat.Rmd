@@ -20,7 +20,10 @@ In this brief vignette, we compare the noninvariance effect size for treating Li
 library(pinsearch)
 library(lavaan)
 library(MASS, include.only = "mvrnorm")
-library(difR)
+difR_ok <- suppressWarnings(
+  tryCatch(isTRUE(requireNamespace("difR", quietly = TRUE)), error = function(e) FALSE)
+)
+if (difR_ok) library(difR)
 ```
 
 Simulate a five-point example
@@ -119,7 +122,9 @@ ps2_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
 ```
 
 ```{r}
-difMH(df2, group = "group", focal.name = 1, purify = TRUE)
+if (difR_ok) {
+  difMH(df2, group = "group", focal.name = 1, purify = TRUE)
+}
 ```
 
-The results are consistent.
+`r if (difR_ok) "The results are consistent."`

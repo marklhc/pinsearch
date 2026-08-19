@@ -35,7 +35,7 @@
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
 #' @param item_weights Default is `NULL`. Otherwise, one can specify a vector
-#'   of length \eqn{p} of weights; if so, test-level dMACS will be computed.
+#'   of length \eqn{p} of weights; if so, test-level fMACS will be computed.
 #'
 #' @return A 1 x p matrix of fMACS effect size.
 #'
