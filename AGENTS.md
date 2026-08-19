@@ -33,7 +33,7 @@ R package `pinsearch`: specification search for partial factorial invariance, bu
 
 ## Test environment note
 
-- On this machine (lavaan 0.7-2) `test-categorical.R` has 4 pre-existing failures/errors (lines ~22, ~40-44, ~97) that also occur on unmodified `master` — do not chase them when validating changes.
+- `test-categorical.R` had 4 failures/errors on lavaan 0.7-2 (a mis-specified ordinal threshold stage produced a degenerate, `Pr(>Chisq) = NA` stage LRT). Fixed on `master` (PR #21) by tying `group.equal = "intercepts"` from the threshold stage onward. It now passes; if it fails, treat it as a real regression rather than an environment issue.
 
 ## Open work (as of 2026-08)
 
