@@ -100,14 +100,14 @@ lambda <- rbind(c(.7, .8, .7, .9),
 nu <- rbind(c(0, .5, 0, 1),
             c(0, .2, 0, 1.1),
             c(0, .3, 0, 1.2))
-fmacs(lambda,
-      loadings = nu,
+fmacs(nu,
+      loadings = lambda,
       pooled_item_sd = c(1, 1, 1, 1),
       latent_mean = 0,
       latent_sd = 1)
 # With contrast (Group 1 & 2 vs. Group 3)
-fmacs(lambda,
-      loadings = nu,
+fmacs(nu,
+      loadings = lambda,
       pooled_item_sd = c(1, 1, 1, 1),
       group_factor = c(1, 1, 2),
       latent_mean = 0,
