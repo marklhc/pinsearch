@@ -5,8 +5,9 @@ articles:
   compare-cont-cat: compare-cont-cat.html
   contrast: contrast.html
   dmacs-ci: dmacs-ci.html
+  group-syntax: group-syntax.html
   pinsearch: pinsearch.html
-last_built: 2026-08-19T13:02Z
+last_built: 2026-08-20T01:14Z
 urls:
   reference: https://marklhc.github.io/pinsearch/reference
   article: https://marklhc.github.io/pinsearch/articles

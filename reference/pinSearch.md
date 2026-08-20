@@ -19,6 +19,7 @@ pinSearch(
   inv_test = c("mod", "score", "lrt"),
   sig_level = 0.05,
   control_fdr = FALSE,
+  min2 = FALSE,
   effect_size = FALSE,
   progress = FALSE
 )
@@ -66,6 +67,11 @@ pinSearch(
   Logical; whether to use adjust for false discovery rate for multiple
   testing. If `TRUE`, the method by Benjamini & Gavrilov (2009) will be
   used.
+
+- min2:
+
+  Logical; whether to require at least two invariant items when
+  searching for noninvariance.
 
 - effect_size:
 

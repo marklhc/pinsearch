@@ -21,7 +21,7 @@ the test statistic for the next constraint to free."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">pinsearch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,7 @@ the test statistic for the next constraint to free."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/compare-cont-cat.html">Comparing Effect Size for Continuous and Categorical Data</a></li>
     <li><a class="dropdown-item" href="../articles/contrast.html">Using Contrasts</a></li>
     <li><a class="dropdown-item" href="../articles/dmacs-ci.html">Confidence Intervals for dMACS</a></li>
+    <li><a class="dropdown-item" href="../articles/group-syntax.html">Group-Specific Model Syntax</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -73,6 +74,7 @@ the test statistic for the next constraint to free.</p>
 <span>  inv_test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mod"</span>, <span class="st">"score"</span>, <span class="st">"lrt"</span><span class="op">)</span>,</span>
 <span>  sig_level <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  control_fdr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  min2 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  effect_size <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -118,6 +120,11 @@ is .05.</p></dd>
 <dd><p>Logical; whether to use adjust for false discovery rate
 for multiple testing. If <code>TRUE</code>, the method by Benjamini &amp; Gavrilov (2009)
 will be used.</p></dd>
+
+
+<dt id="arg-min-">min2<a class="anchor" aria-label="anchor" href="#arg-min-"></a></dt>
+<dd><p>Logical; whether to require at least two invariant items when
+searching for noninvariance.</p></dd>
 
 
 <dt id="arg-effect-size">effect_size<a class="anchor" aria-label="anchor" href="#arg-effect-size"></a></dt>
