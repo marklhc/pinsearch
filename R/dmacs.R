@@ -351,7 +351,7 @@ es_lavaan <- function(object, ...) {
                       FUN.VALUE = logical(1),
                       par_type = par_type, pt = pt)
     pars <- lavaan::lavInspect(object, what = "est")
-    lv_names <- get_lvnames(object)
+    lv_names <- get_lvnames(object)[[1]]
     num_lvs <- length(lv_names)
     alpha1 <- pars[[1]]$alpha
     if (is.null(alpha1)) {

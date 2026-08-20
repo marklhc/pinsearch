@@ -39,7 +39,7 @@ This is a basic example which shows you how to solve a common problem:
 ``` r
 library(pinsearch)
 library(lavaan)
-#> This is lavaan 0.6-19
+#> This is lavaan 0.7-2
 #> lavaan is FREE software! Please report any bugs.
 HS.model <- '  visual =~ x1 + x2 + x3
               textual =~ x4 + x5 + x6
@@ -48,7 +48,7 @@ HS.model <- '  visual =~ x1 + x2 + x3
 pinSearch(HS.model, data = HolzingerSwineford1939, 
           group = "school", type = "intercepts")
 #> $`Partial Invariance Fit`
-#> lavaan 0.6-19 ended normally after 69 iterations
+#> lavaan 0.7-2 ended normally after 69 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -83,7 +83,7 @@ pinSearch(HS.model, data = HolzingerSwineford1939,
 #> [2/2] Searching for intercepts noninvariance
 #>   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |====================================================                  |  75%
 #> $`Partial Invariance Fit`
-#> lavaan 0.6-19 ended normally after 69 iterations
+#> lavaan 0.7-2 ended normally after 69 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -157,8 +157,12 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
           data = df, group = "group", type = "thresholds",
           ordered = paste0("yy", 1:7),
           effect_size = TRUE)
+#> Warning: lavaan->lav_model_vcov():  
+#>    The variance-covariance matrix of the estimated parameters (vcov) does not 
+#>    appear to be positive definite! The smallest eigenvalue (= 4.505410e-17) 
+#>    is close to zero. This may be a symptom that the model is not identified.
 #> $`Partial Invariance Fit`
-#> lavaan 0.6-19 ended normally after 52 iterations
+#> lavaan 0.7-2 ended normally after 52 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -173,7 +177,7 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
 #>                                               Standard      Scaled
 #>   Test Statistic                                31.911      49.933
 #>   Degrees of freedom                                50          50
-#>   P-value (Chi-square)                           0.978       0.476
+#>   P-value (Unknown)                                 NA       0.476
 #>   Scaling correction factor                                  0.745
 #>   Shift parameter                                            7.073
 #>     simple second-order correction                                
