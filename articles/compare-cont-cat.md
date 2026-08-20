@@ -96,18 +96,18 @@ contfit <- cfa(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                                  "yy5~1", "yy7~1"))
 (dcont <- pin_effsize(contfit))
 #>           yy2-f     yy4-f     yy5-f     yy7-f
-#> dmacs 0.1273647 0.1618078 0.1203408 0.2219362
+#> dmacs 0.1515229 0.1010677 0.0850543 0.2321431
 
 ps_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                     data = df, group = "group", type = "thresholds",
                     ordered = paste0("yy", 1:7))
 #> Warning: lavaan->lav_model_vcov():  
 #>    The variance-covariance matrix of the estimated parameters (vcov) does not 
-#>    appear to be positive definite! The smallest eigenvalue (= 6.722957e-17) 
+#>    appear to be positive definite! The smallest eigenvalue (= 4.614582e-17) 
 #>    is close to zero. This may be a symptom that the model is not identified.
 (dcat <- pin_effsize(ps_cat$`Partial Invariance Fit`))
 #>           yy2-f     yy4-f     yy5-f     yy7-f
-#> dmacs 0.1908648 0.1518686 0.1273249 0.2170089
+#> dmacs 0.1912212 0.1400285 0.1219134 0.2069972
 ```
 
 ``` r
@@ -118,8 +118,8 @@ data.frame(
         population = dpop[c(2, 4, 5, 7)])
 )
 #>                 yy2.f     yy4.f     yy5.f     yy7.f
-#> continuous  0.1273647 0.1618078 0.1203408 0.2219362
-#> categorical 0.1908648 0.1518686 0.1273249 0.2170089
+#> continuous  0.1515229 0.1010677 0.0850543 0.2321431
+#> categorical 0.1912212 0.1400285 0.1219134 0.2069972
 #> population  0.2555382 0.1438170 0.1449711 0.1696835
 ```
 
@@ -139,11 +139,11 @@ ps2_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                      ordered = paste0("yy", 1:7))
 #> Warning: lavaan->lav_model_vcov():  
 #>    The variance-covariance matrix of the estimated parameters (vcov) does not 
-#>    appear to be positive definite! The smallest eigenvalue (= 2.363668e-16) 
+#>    appear to be positive definite! The smallest eigenvalue (= 6.895669e-17) 
 #>    is close to zero. This may be a symptom that the model is not identified.
 (dcat <- pin_effsize(ps2_cat$`Partial Invariance Fit`))
-#>           yy4-f     yy5-f
-#> dmacs 0.3748285 0.3463564
+#>           yy4-f    yy5-f
+#> dmacs 0.3463871 0.324468
 ```
 
 ``` r
@@ -168,13 +168,13 @@ if (difR_ok) {
 #> Mantel-Haenszel Chi-square statistic: 
 #>  
 #>     Stat.   P-value    
-#> yy1  1.6245  0.2025    
-#> yy2  0.8337  0.3612    
-#> yy3  0.0725  0.7878    
-#> yy4 29.1087  0.0000 ***
-#> yy5 29.5828  0.0000 ***
-#> yy6  0.0798  0.7776    
-#> yy7  0.0892  0.7652    
+#> yy1  0.0005  0.9815    
+#> yy2  0.0530  0.8179    
+#> yy3  0.2962  0.5863    
+#> yy4 25.9472  0.0000 ***
+#> yy5 18.0483  0.0000 ***
+#> yy6  1.2175  0.2699    
+#> yy7  0.0211  0.8844    
 #> 
 #> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1  
 #> 
@@ -194,13 +194,13 @@ if (difR_ok) {
 #>  'C': large effect 
 #>  
 #>     alphaMH deltaMH  
-#> yy1  1.3604 -0.7232 A
-#> yy2  0.7721  0.6077 A
-#> yy3  1.0888 -0.2000 A
-#> yy4  3.1259 -2.6783 C
-#> yy5  3.1535 -2.6990 C
-#> yy6  0.9151  0.2085 A
-#> yy7  0.9126  0.2149 A
+#> yy1  0.9806  0.0461 A
+#> yy2  1.0707 -0.1606 A
+#> yy3  1.1541 -0.3368 A
+#> yy4  2.8198 -2.4362 C
+#> yy5  2.4575 -2.1130 C
+#> yy6  0.7535  0.6652 A
+#> yy7  1.0566 -0.1294 A
 #> 
 #> Effect size codes: 0 'A' 1.0 'B' 1.5 'C' 
 #>  (for absolute values of 'deltaMH') 

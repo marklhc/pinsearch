@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pinsearch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -148,18 +148,18 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span>                                 <span class="st">"yy5~1"</span>, <span class="st">"yy7~1"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">dcont</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">contfit</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           yy2-f     yy4-f     yy5-f     yy7-f</span></span>
-<span><span class="co">#&gt; dmacs 0.1273647 0.1618078 0.1203408 0.2219362</span></span>
+<span><span class="co">#&gt; dmacs 0.1515229 0.1010677 0.0850543 0.2321431</span></span>
 <span></span>
 <span><span class="va">ps_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pinSearch.html">pinSearch</a></span><span class="op">(</span><span class="st">' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 '</span>,</span>
 <span>                    data <span class="op">=</span> <span class="va">df</span>, group <span class="op">=</span> <span class="st">"group"</span>, type <span class="op">=</span> <span class="st">"thresholds"</span>,</span>
 <span>                    ordered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"yy"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: lavaan-&gt;lav_model_vcov():  </span></span>
 <span><span class="co">#&gt;    The variance-covariance matrix of the estimated parameters (vcov) does not </span></span>
-<span><span class="co">#&gt;    appear to be positive definite! The smallest eigenvalue (= 6.722957e-17) </span></span>
+<span><span class="co">#&gt;    appear to be positive definite! The smallest eigenvalue (= 4.614582e-17) </span></span>
 <span><span class="co">#&gt;    is close to zero. This may be a symptom that the model is not identified.</span></span>
 <span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           yy2-f     yy4-f     yy5-f     yy7-f</span></span>
-<span><span class="co">#&gt; dmacs 0.1908648 0.1518686 0.1273249 0.2170089</span></span></code></pre></div>
+<span><span class="co">#&gt; dmacs 0.1912212 0.1400285 0.1219134 0.2069972</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>continuous <span class="op">=</span> <span class="va">dcont</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>,</span>
@@ -167,8 +167,8 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span>        population <span class="op">=</span> <span class="va">dpop</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">7</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 yy2.f     yy4.f     yy5.f     yy7.f</span></span>
-<span><span class="co">#&gt; continuous  0.1273647 0.1618078 0.1203408 0.2219362</span></span>
-<span><span class="co">#&gt; categorical 0.1908648 0.1518686 0.1273249 0.2170089</span></span>
+<span><span class="co">#&gt; continuous  0.1515229 0.1010677 0.0850543 0.2321431</span></span>
+<span><span class="co">#&gt; categorical 0.1912212 0.1400285 0.1219134 0.2069972</span></span>
 <span><span class="co">#&gt; population  0.2555382 0.1438170 0.1449711 0.1696835</span></span></code></pre></div>
 <p>Compared to Mantel-Haenszel (MH)</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -181,11 +181,11 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span>                     ordered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"yy"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: lavaan-&gt;lav_model_vcov():  </span></span>
 <span><span class="co">#&gt;    The variance-covariance matrix of the estimated parameters (vcov) does not </span></span>
-<span><span class="co">#&gt;    appear to be positive definite! The smallest eigenvalue (= 2.363668e-16) </span></span>
+<span><span class="co">#&gt;    appear to be positive definite! The smallest eigenvalue (= 6.895669e-17) </span></span>
 <span><span class="co">#&gt;    is close to zero. This may be a symptom that the model is not identified.</span></span>
 <span><span class="op">(</span><span class="va">dcat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/es_lavaan.html">pin_effsize</a></span><span class="op">(</span><span class="va">ps2_cat</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           yy4-f     yy5-f</span></span>
-<span><span class="co">#&gt; dmacs 0.3748285 0.3463564</span></span></code></pre></div>
+<span><span class="co">#&gt;           yy4-f    yy5-f</span></span>
+<span><span class="co">#&gt; dmacs 0.3463871 0.324468</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">difR_ok</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/difR/man/difMH.html" class="external-link">difMH</a></span><span class="op">(</span><span class="va">df2</span>, group <span class="op">=</span> <span class="st">"group"</span>, focal.name <span class="op">=</span> <span class="fl">1</span>, purify <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -207,13 +207,13 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span><span class="co">#&gt; Mantel-Haenszel Chi-square statistic: </span></span>
 <span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;     Stat.   P-value    </span></span>
-<span><span class="co">#&gt; yy1  1.6245  0.2025    </span></span>
-<span><span class="co">#&gt; yy2  0.8337  0.3612    </span></span>
-<span><span class="co">#&gt; yy3  0.0725  0.7878    </span></span>
-<span><span class="co">#&gt; yy4 29.1087  0.0000 ***</span></span>
-<span><span class="co">#&gt; yy5 29.5828  0.0000 ***</span></span>
-<span><span class="co">#&gt; yy6  0.0798  0.7776    </span></span>
-<span><span class="co">#&gt; yy7  0.0892  0.7652    </span></span>
+<span><span class="co">#&gt; yy1  0.0005  0.9815    </span></span>
+<span><span class="co">#&gt; yy2  0.0530  0.8179    </span></span>
+<span><span class="co">#&gt; yy3  0.2962  0.5863    </span></span>
+<span><span class="co">#&gt; yy4 25.9472  0.0000 ***</span></span>
+<span><span class="co">#&gt; yy5 18.0483  0.0000 ***</span></span>
+<span><span class="co">#&gt; yy6  1.2175  0.2699    </span></span>
+<span><span class="co">#&gt; yy7  0.0211  0.8844    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1  </span></span>
 <span><span class="co">#&gt; </span></span>
@@ -233,13 +233,13 @@ treating Likert-scale items as either continuous or ordinal.</p>
 <span><span class="co">#&gt;  'C': large effect </span></span>
 <span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;     alphaMH deltaMH  </span></span>
-<span><span class="co">#&gt; yy1  1.3604 -0.7232 A</span></span>
-<span><span class="co">#&gt; yy2  0.7721  0.6077 A</span></span>
-<span><span class="co">#&gt; yy3  1.0888 -0.2000 A</span></span>
-<span><span class="co">#&gt; yy4  3.1259 -2.6783 C</span></span>
-<span><span class="co">#&gt; yy5  3.1535 -2.6990 C</span></span>
-<span><span class="co">#&gt; yy6  0.9151  0.2085 A</span></span>
-<span><span class="co">#&gt; yy7  0.9126  0.2149 A</span></span>
+<span><span class="co">#&gt; yy1  0.9806  0.0461 A</span></span>
+<span><span class="co">#&gt; yy2  1.0707 -0.1606 A</span></span>
+<span><span class="co">#&gt; yy3  1.1541 -0.3368 A</span></span>
+<span><span class="co">#&gt; yy4  2.8198 -2.4362 C</span></span>
+<span><span class="co">#&gt; yy5  2.4575 -2.1130 C</span></span>
+<span><span class="co">#&gt; yy6  0.7535  0.6652 A</span></span>
+<span><span class="co">#&gt; yy7  1.0566 -0.1294 A</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Effect size codes: 0 'A' 1.0 'B' 1.5 'C' </span></span>
 <span><span class="co">#&gt;  (for absolute values of 'deltaMH') </span></span>
