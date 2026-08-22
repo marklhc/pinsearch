@@ -13,7 +13,7 @@ R package `pinsearch`: specification search for partial factorial invariance, bu
 
 ## Architecture
 
-- `R/pinSearch.R` — main entrypoint `pinSearch()`. Model strings are passed straight to `lavaan::cfa()`; it sequentially frees invariance constraints (loadings → intercepts/thresholds → residuals/residual covariances) per Yoon & Millsap (2007). `std.lv = TRUE` is injected by default for continuous models.
+- `R/pinSearch.R` — main entrypoint `pinSearch()`. Model strings are passed straight to `lavaan::cfa()` (stage fits go through the `fit_stage()` helper); it sequentially frees invariance constraints (loadings → intercepts/thresholds → residuals/residual covariances) per Yoon & Millsap (2007). `std.lv = TRUE` is injected by default for continuous models. Model strings may be given as a character vector and are collapsed internally; `group:`-prefixed block syntax selects the group-as-block identification path.
 - `R/dmacs.R` / `R/fmacs.R` — effect sizes: `dmacs()`/`dmacs_ordered()` (two groups), `fmacs()`/`fmacs_ordered()` (>2 groups). `pin_effsize()` (R/dmacs.R:465) aliases `es_lavaan()`. Both `effect_size` and `progress` args are documented as experimental.
 - `R/remove_cons.R` — frees constraints inside a lavaan `parTable`; `R/helper.R` reads lavaan S4 slots.
 - `data-raw/DATASET.R` regenerates the `lui_sim` dataset in `data/` (needs `haven`, `dplyr`, downloads from OSF); `data-raw` is never built.
@@ -37,7 +37,6 @@ R package `pinsearch`: specification search for partial factorial invariance, bu
 
 ## Open work (as of 2026-08)
 
-- #15 "Longitudinal CFA" (`marklhc/issue15` branch): `longcfa()`/`longcfa_syntax()` draft with tests + vignette; still needs categorical items. Deferred to a later wave.
-- #7/#4 multi-latent effect sizes (now PR #20, `marklhc/issue7`): per-(item, latent) columns, corrected latent scaling, regression tests. Rebased onto `master` (post-#21), R CMD check green — force-push to update the PR.
-- #16 "group syntax" (draft PR, `group-specific-syntax`): `min2` + LRT fixes + group syntax verified end-to-end (also covers #14's differing observed variables scenario). Rebased onto `master` (post-#21), R CMD check green — force-push to update the PR, then un-draft. Note: its `remove_cons()` needs `op2col()`, which lives in `R/remove_cons.R`.
-- #21 (lavaan 0.7 compat) is merged to `master`; the local `marklhc/lavaan-0.7-compat` branch is now stale (safe to delete). The older `cat` branch (also merged) has been deleted.
+- #15 "Longitudinal CFA" (`marklhc/issue15` branch): `longcfa()`/`longcfa_syntax()` draft with tests + vignette; still needs categorical items. Deferred to a later wave. This is the only open item.
+
+Recently merged: #22 (refactored model-fitting calls in `pinSearch()` into `fit_stage()`), #16 "group syntax" (`min2`, LRT fixes, group-specific model syntax), #7/#4 multi-latent effect sizes (PR #20), #21 (lavaan 0.7 compat).
