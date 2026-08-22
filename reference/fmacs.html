@@ -174,16 +174,16 @@ are two groups with equal sample sizes, \(f_\text{MACS}\) =
 <span class="r-in"><span><span class="va">nu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>            <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.2</span>, <span class="fl">0</span>, <span class="fl">1.1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>            <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">1.2</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">fmacs</span><span class="op">(</span><span class="va">lambda</span>,</span></span>
-<span class="r-in"><span>      loadings <span class="op">=</span> <span class="va">nu</span>,</span></span>
+<span class="r-in"><span><span class="fu">fmacs</span><span class="op">(</span><span class="va">nu</span>,</span></span>
+<span class="r-in"><span>      loadings <span class="op">=</span> <span class="va">lambda</span>,</span></span>
 <span class="r-in"><span>      pooled_item_sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>      latent_mean <span class="op">=</span> <span class="fl">0</span>,</span></span>
 <span class="r-in"><span>      latent_sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             [,1]      [,2] [,3]      [,4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> fmacs 0.04714045 0.1333333    0 0.1885618</span>
 <span class="r-in"><span><span class="co"># With contrast (Group 1 &amp; 2 vs. Group 3)</span></span></span>
-<span class="r-in"><span><span class="fu">fmacs</span><span class="op">(</span><span class="va">lambda</span>,</span></span>
-<span class="r-in"><span>      loadings <span class="op">=</span> <span class="va">nu</span>,</span></span>
+<span class="r-in"><span><span class="fu">fmacs</span><span class="op">(</span><span class="va">nu</span>,</span></span>
+<span class="r-in"><span>      loadings <span class="op">=</span> <span class="va">lambda</span>,</span></span>
 <span class="r-in"><span>      pooled_item_sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>      group_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>      latent_mean <span class="op">=</span> <span class="fl">0</span>,</span></span>
