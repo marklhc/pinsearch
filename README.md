@@ -10,7 +10,9 @@
 
 The goal of pinsearch is to automate the process of performing
 specification search in identifying noninvariant items to arrive at a
-partial factorial invariance model.
+partial factorial invariance model. pinsearch is also used by
+[longcfa](https://github.com/marklhc/longcfa), a companion package for
+longitudinal (repeated-measures) invariance search and model building.
 
 ## Installation
 

@@ -1,4 +1,21 @@
+#' Map invariance types to lavaan parTable operators.
+#'
+#' Maps the invariance type strings used by [pinSearch()] to the
+#'   corresponding values of the `op` column of a `lavaan` parameter
+#'   table ([lavaan::parTable()]): `"loadings"` maps to `"=~"`,
+#'   `"intercepts"` to `"~1"`, `"thresholds"` to `"|"`, and both
+#'   `"residuals"` and `"residual.covariances"` to `"~~"`.
+#'
+#' @param type A character string indicating the invariance type. Must
+#'   be one of `"loadings"`, `"intercepts"`, `"thresholds"`,
+#'   `"residuals"`, or `"residual.covariances"`.
+#' @return A character string, the corresponding lavaan operator.
+#' @examples
+#' type2op("loadings")
+#' @export
 type2op <- function(type) {
+  type <- match.arg(type, c("loadings", "intercepts", "thresholds",
+                            "residuals", "residual.covariances"))
   switch(type,
          loadings = "=~",
          intercepts = "~1",
@@ -49,6 +66,33 @@ initialize_partable <- function(pt0, ninv_items) {
     pt0
 }
 
+#' Adjusted alpha level for multiple testing.
+#'
+#' Computes the adjusted significance level at step \eqn{i} of \eqn{m}
+#'   tests in the sequential selection procedure of Benjamini &
+#'   Gavrilov (2009), as used by [pinSearch()] when `control_fdr = TRUE`:
+#'
+#' \deqn{\frac{iq}{m + 1 - i(1 - q)}}
+#' where \eqn{i} is the step index in the search, \eqn{m} is the
+#'   maximum number of constraints that can be freed, and \eqn{q} is the
+#'   target significance level.
+#'
+#' @details Note that \eqn{i} is defined for \eqn{1 <= i <= m}, with
+#'   \eqn{m >= 1} and \eqn{0 < q < 1}. These bounds are maintained by
+#'   the internal logic of [pinSearch()], but external callers must
+#'   ensure them on their own.
+#'
+#' @param i Step index (rank) of the current test in the sequential
+#'   search.
+#' @param m Total number of tests (maximum number of constraints that
+#'   can be freed).
+#' @param q Target false discovery rate. Default is .05.
+#' @return A numeric scalar, the adjusted alpha level at step \eqn{i}.
+#' @references Benjamini, Y. & Gavrilov, N. M. (2009). Sequential selection
+#'   procedures for testing dependent hypotheses.
+#' @examples
+#' fdr_alpha(1, 10)
+#' @export
 fdr_alpha <- function(i, m, q = .05) {
     # Based on Benjamini & Gavrilov (2009)
     i * q / (m + 1 - i * (1 - q))

@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/marklhc/pinsearch/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/marklhc/pinsearch/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of pinsearch is to automate the process of performing specification search in identifying noninvariant items to arrive at a partial factorial invariance model. 
+The goal of pinsearch is to automate the process of performing specification search in identifying noninvariant items to arrive at a partial factorial invariance model. pinsearch is also used by [longcfa](https://github.com/marklhc/longcfa), a companion package for longitudinal (repeated-measures) invariance search and model building.
 
 ## Installation
 
