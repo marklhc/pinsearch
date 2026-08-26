@@ -16,18 +16,14 @@ longitudinal (repeated-measures) invariance search and model building.
 
 ## Installation
 
-<!-- You can install the released version of pinsearch from [CRAN](https://CRAN.R-project.org) with: -->
+You can install the released version of pinsearch from
+[CRAN](https://CRAN.R-project.org) with:
 
-<!-- ``` r -->
+``` r
+install.packages("pinsearch")
+```
 
-<!-- install.packages("pinsearch") -->
-
-<!-- ``` -->
-
-<!-- And the development version from [GitHub](https://github.com/) with: -->
-
-You can install the development version of pinsearch from
-[GitHub](https://github.com/) with:
+And the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("remotes")

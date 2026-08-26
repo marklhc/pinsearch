@@ -9,3 +9,4 @@
 ^data-raw$
 ^archive$
 ^AGENTS\.md$
+^cran-comments\.md$

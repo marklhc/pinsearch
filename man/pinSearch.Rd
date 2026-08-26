@@ -67,8 +67,7 @@ parameters.
 }
 \description{
 The function implements the sequential selection method similar to
-that discussed in
-\href{https://doi.org/10.1080/10705510701301677}{Yoon and Millsap (2007)}.
+that discussed in Yoon and Millsap (2007) \doi{10.1080/10705510701301677}.
 The function proceeds in the order of metric, scalar (threshold),
 and strict invariance. In each stage, invariance constraints in all
 items, and the constraint associated with the biggest test
@@ -102,7 +101,6 @@ continuous models are not affected.
 }
 \examples{
 library(lavaan)
-library(MASS)
 # Simulate random data
 set.seed(14) # for reproducible results
 mod_ninv <- "f =~ c(1, 0.8, .6)*y1 + c(0.8, 1.2, 1.0)*y2"

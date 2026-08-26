@@ -1,14 +1,16 @@
 Package: pinsearch
 Type: Package
-Title: Specification search for partial factorial invariance
+Title: Specification Search for Partial Factorial Invariance
 Version: 0.1.6
 Authors@R: person("Mark", "Lai", email = "marklhc@gmail.com",
-  role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9196-7406"))
-Description: A function to automate specification search for identify 
-    noninvariant items in factorial invariance analyses. The package supports
-    continuous indicators with loadings, intercepts, residuals (uniqueness),
-    and residual covariances invariance, and ordered categorical indicators 
-    with loadings, thresholds, and residual covariances invariance.
+  role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0002-9196-7406"))
+Description: Automate specification search for identifying noninvariant
+    items in factorial invariance analyses, as described in
+    Yoon & Millsap (2007) <doi:10.1080/10705510701301677>. Models are
+    specified in 'lavaan' syntax. Supports continuous indicators with
+    loadings, intercepts, residuals (uniqueness), and residual covariances
+    invariance, and ordered categorical indicators with loadings,
+    thresholds, and residual covariances invariance.
 License: GPL-3
 Encoding: UTF-8
 Imports: 
