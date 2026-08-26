@@ -1,13 +1,13 @@
 # Search for noninvariant parameters across groups.
 
 The function implements the sequential selection method similar to that
-discussed in [Yoon and Millsap
-(2007)](https://doi.org/10.1080/10705510701301677). The function
-proceeds in the order of metric, scalar (threshold), and strict
-invariance. In each stage, invariance constraints in all items, and the
-constraint associated with the biggest test statistic above a predefined
-threshold is freed, before recomputing the test statistic for the next
-constraint to free.
+discussed in Yoon and Millsap (2007)
+[doi:10.1080/10705510701301677](https://doi.org/10.1080/10705510701301677)
+. The function proceeds in the order of metric, scalar (threshold), and
+strict invariance. In each stage, invariance constraints in all items,
+and the constraint associated with the biggest test statistic above a
+predefined threshold is freed, before recomputing the test statistic for
+the next constraint to free.
 
 ## Usage
 
@@ -134,7 +134,6 @@ Structural Equation Modeling: A Multidisciplinary Journal, 14(3),
 library(lavaan)
 #> This is lavaan 0.7-2
 #> lavaan is FREE software! Please report any bugs.
-library(MASS)
 # Simulate random data
 set.seed(14) # for reproducible results
 mod_ninv <- "f =~ c(1, 0.8, .6)*y1 + c(0.8, 1.2, 1.0)*y2"
