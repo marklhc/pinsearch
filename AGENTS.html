@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">pinsearch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,7 @@
 <div class="section level2">
 <h2 id="architecture">Architecture<a class="anchor" aria-label="anchor" href="#architecture"></a></h2>
 <ul><li>
-<code>R/pinSearch.R</code> — main entrypoint <code><a href="reference/pinSearch.html">pinSearch()</a></code>. Model strings are passed straight to <code><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">lavaan::cfa()</a></code>; it sequentially frees invariance constraints (loadings → intercepts/thresholds → residuals/residual covariances) per Yoon &amp; Millsap (2007). <code>std.lv = TRUE</code> is injected by default for continuous models.</li>
+<code>R/pinSearch.R</code> — main entrypoint <code><a href="reference/pinSearch.html">pinSearch()</a></code>. Model strings are passed straight to <code><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">lavaan::cfa()</a></code> (stage fits go through the <code>fit_stage()</code> helper); it sequentially frees invariance constraints (loadings → intercepts/thresholds → residuals/residual covariances) per Yoon &amp; Millsap (2007). <code>std.lv = TRUE</code> is injected by default for continuous models. Model strings may be given as a character vector and are collapsed internally; <code>group:</code>-prefixed block syntax selects the group-as-block identification path.</li>
 <li>
 <code>R/dmacs.R</code> / <code>R/fmacs.R</code> — effect sizes: <code><a href="reference/dmacs.html">dmacs()</a></code>/<code><a href="reference/dmacs.html">dmacs_ordered()</a></code> (two groups), <code><a href="reference/fmacs.html">fmacs()</a></code>/<code><a href="reference/fmacs.html">fmacs_ordered()</a></code> (&gt;2 groups). <code><a href="reference/es_lavaan.html">pin_effsize()</a></code> (R/dmacs.R:465) aliases <code><a href="reference/es_lavaan.html">es_lavaan()</a></code>. Both <code>effect_size</code> and <code>progress</code> args are documented as experimental.</li>
 <li>
@@ -84,12 +84,14 @@
 <code>test-categorical.R</code> had 4 failures/errors on lavaan 0.7-2 (a mis-specified ordinal threshold stage produced a degenerate, <code>Pr(&gt;Chisq) = NA</code> stage LRT). Fixed on <code>master</code> (PR #21) by tying <code>group.equal = "intercepts"</code> from the threshold stage onward. It now passes; if it fails, treat it as a real regression rather than an environment issue.</li>
 </ul></div>
 <div class="section level2">
-<h2 id="open-work-as-of-2026-08">Open work (as of 2026-08)<a class="anchor" aria-label="anchor" href="#open-work-as-of-2026-08"></a></h2>
-<ul><li>#15 “Longitudinal CFA” (<code>marklhc/issue15</code> branch): <code>longcfa()</code>/<code>longcfa_syntax()</code> draft with tests + vignette; still needs categorical items. Deferred to a later wave.</li>
-<li>#7/#4 multi-latent effect sizes (now PR #20, <code>marklhc/issue7</code>): per-(item, latent) columns, corrected latent scaling, regression tests. Rebased onto <code>master</code> (post-#21), R CMD check green — force-push to update the PR.</li>
-<li>#16 “group syntax” (draft PR, <code>group-specific-syntax</code>): <code>min2</code> + LRT fixes + group syntax verified end-to-end (also covers #14’s differing observed variables scenario). Rebased onto <code>master</code> (post-#21), R CMD check green — force-push to update the PR, then un-draft. Note: its <code>remove_cons()</code> needs <code>op2col()</code>, which lives in <code>R/remove_cons.R</code>.</li>
-<li>#21 (lavaan 0.7 compat) is merged to <code>master</code>; the local <code>marklhc/lavaan-0.7-compat</code> branch is now stale (safe to delete). The older <code>cat</code> branch (also merged) has been deleted.</li>
+<h2 id="related-packages">Related packages<a class="anchor" aria-label="anchor" href="#related-packages"></a></h2>
+<ul><li>Companion package <code>longcfa</code> (github.com/marklhc/longcfa, longitudinal CFA helpers) declares <code>Imports: pinsearch (&gt;= 0.1.6)</code> and reuses the exported <code><a href="reference/fdr_alpha.html">fdr_alpha()</a></code> and <code><a href="reference/type2op.html">type2op()</a></code>. Keep those two functions’ signatures/semantics stable (they are part of the public API now) or coordinate the change with longcfa. CRAN order: pinsearch must be archived before longcfa.</li>
 </ul></div>
+<div class="section level2">
+<h2 id="open-work-as-of-2026-08">Open work (as of 2026-08)<a class="anchor" aria-label="anchor" href="#open-work-as-of-2026-08"></a></h2>
+<ul><li>None. #15 “Longitudinal CFA” was closed in favor of the <code>longcfa</code> package (the <code>marklhc/issue15</code> draft branch is obsolete; its semTools equivalence test was ported to longcfa).</li>
+</ul><p>Recently merged: #22 (refactored model-fitting calls in <code><a href="reference/pinSearch.html">pinSearch()</a></code> into <code>fit_stage()</code>), #16 “group syntax” (<code>min2</code>, LRT fixes, group-specific model syntax), #7/#4 multi-latent effect sizes (PR #20), #21 (lavaan 0.7 compat).</p>
+</div>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

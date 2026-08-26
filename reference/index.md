@@ -9,6 +9,8 @@
 - [`es_lavaan()`](https://marklhc.github.io/pinsearch/reference/es_lavaan.md)
   [`pin_effsize()`](https://marklhc.github.io/pinsearch/reference/es_lavaan.md)
   : Item-level effect size for non-invariance
+- [`fdr_alpha()`](https://marklhc.github.io/pinsearch/reference/fdr_alpha.md)
+  : Adjusted alpha level for multiple testing.
 - [`fmacs()`](https://marklhc.github.io/pinsearch/reference/fmacs.md)
   [`fmacs_ordered()`](https://marklhc.github.io/pinsearch/reference/fmacs.md)
   : Compute fMACS effect size for two or more groups.
@@ -16,3 +18,5 @@
   : Simulated data with 15 items of an Alcohol Belief Scale
 - [`pinSearch()`](https://marklhc.github.io/pinsearch/reference/pinSearch.md)
   : Search for noninvariant parameters across groups.
+- [`type2op()`](https://marklhc.github.io/pinsearch/reference/type2op.md)
+  : Map invariance types to lavaan parTable operators.

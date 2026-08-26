@@ -2,7 +2,9 @@
 
 The goal of pinsearch is to automate the process of performing
 specification search in identifying noninvariant items to arrive at a
-partial factorial invariance model.
+partial factorial invariance model. pinsearch is also used by
+[longcfa](https://github.com/marklhc/longcfa), a companion package for
+longitudinal (repeated-measures) invariance search and model building.
 
 ## Installation
 
@@ -194,6 +196,8 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
 - [`es_lavaan()`](https://marklhc.github.io/pinsearch/reference/es_lavaan.md)
   [`pin_effsize()`](https://marklhc.github.io/pinsearch/reference/es_lavaan.md)
   : Item-level effect size for non-invariance
+- [`fdr_alpha()`](https://marklhc.github.io/pinsearch/reference/fdr_alpha.md)
+  : Adjusted alpha level for multiple testing.
 - [`fmacs()`](https://marklhc.github.io/pinsearch/reference/fmacs.md)
   [`fmacs_ordered()`](https://marklhc.github.io/pinsearch/reference/fmacs.md)
   : Compute fMACS effect size for two or more groups.
@@ -201,6 +205,8 @@ pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
   : Simulated data with 15 items of an Alcohol Belief Scale
 - [`pinSearch()`](https://marklhc.github.io/pinsearch/reference/pinSearch.md)
   : Search for noninvariant parameters across groups.
+- [`type2op()`](https://marklhc.github.io/pinsearch/reference/type2op.md)
+  : Map invariance types to lavaan parTable operators.
 
 # Articles
 
