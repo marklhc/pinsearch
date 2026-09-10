@@ -1,7 +1,5 @@
 # Changelog
 
-## pinsearch 0.1.6
+## pinsearch (development version)
 
-CRAN release: 2026-09-08
-
-- Initial CRAN submission.
+- Added a `NEWS.md` file to track changes to the package.
