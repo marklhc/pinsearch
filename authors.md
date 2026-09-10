@@ -8,16 +8,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/marklhc/pinsearch/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/marklhc/pinsearch/blob/v0.1.6/DESCRIPTION)
 
 Lai M (2026). *pinsearch: Specification Search for Partial Factorial
-Invariance*. R package version 0.1.6.1,
+Invariance*. R package version 0.1.6,
 <https://github.com/marklhc/pinsearch>.
 
     @Manual{,
       title = {pinsearch: Specification Search for Partial Factorial Invariance},
       author = {Mark Lai},
       year = {2026},
-      note = {R package version 0.1.6.1},
+      note = {R package version 0.1.6},
       url = {https://github.com/marklhc/pinsearch},
     }
