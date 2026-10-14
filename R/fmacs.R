@@ -93,10 +93,12 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
             apply(intercepts, MARGIN = 1, FUN = wsum,
                   w = item_weights),
             ncol = 1)
-        loadings <- matrix(
-            apply(loadings, MARGIN = 1, FUN = wsum,
-                  w = item_weights),
-            ncol = 1)
+        if (!is.null(loadings)) {
+            loadings <- matrix(
+                apply(loadings, MARGIN = 1, FUN = wsum,
+                      w = item_weights),
+                ncol = 1)
+        }
     } else {
         pooled_sd <- pooled_item_sd
         cn_out <- colnames(loadings)

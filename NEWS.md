@@ -8,4 +8,7 @@
   it exactly from the sample covariances. A new `pooled_test_sd` argument
   allows passing this value directly.
 
+* The test-level effect size in `dmacs()` and `fmacs()` now works when
+  `loadings` is not supplied (as it already did at the item level).
+
 * Added a `NEWS.md` file to track changes to the package.

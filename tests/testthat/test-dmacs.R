@@ -171,6 +171,17 @@ test_that("Test-level dMACS uses the variance of the item sum", {
                               dimnames = list("dmacs", "item_sum")))
 })
 
+test_that("Test-level effect size works without loadings", {
+    nu <- rbind(c(0.3, 0.8), c(0.5, 1))
+    out <- dmacs(nu, pooled_item_sd = 1, item_weights = c(1, 1))
+    # No loadings: no common-factor covariance, so the denominator is the
+    # square root of the sum of item variances.
+    expect_equal(out, matrix(0.4 / sqrt(2), 1,
+                             dimnames = list("dmacs", "item_sum")))
+    out2 <- fmacs(nu, pooled_item_sd = 1, item_weights = c(1, 1))
+    expect_equal(as.vector(out2), as.vector(out) / 2)
+})
+
 test_that("es_lavaan() test-level dMACS uses the pooled sum-score SD", {
     lam <- rep(1, 4)
     cov1 <- tcrossprod(lam) + diag(1, 4)
