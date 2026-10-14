@@ -15,7 +15,8 @@ fmacs(
   contrast = contr.sum(nrow(intercepts)),
   latent_mean = 0,
   latent_sd = 1,
-  item_weights = NULL
+  item_weights = NULL,
+  pooled_test_sd = NULL
 )
 
 fmacs_ordered(
@@ -30,7 +31,8 @@ fmacs_ordered(
   pooled_item_sd = NULL,
   latent_mean = 0,
   latent_sd = 1,
-  item_weights = NULL
+  item_weights = NULL,
+  pooled_test_sd = NULL
 )
 }
 \arguments{
@@ -63,7 +65,13 @@ not specified.}
 \item{latent_sd}{latent factor SD for the reference group. Default to 1.}
 
 \item{item_weights}{Default is \code{NULL}. Otherwise, one can specify a vector
-of length \eqn{p} of weights; if so, test-level fMACS will be computed.}
+of length \eqn{p} of weights; if so, test-level fMACS will be computed
+for the weighted sum of the items (unit weights give the plain sum).}
+
+\item{pooled_test_sd}{The pooled standard deviation of the weighted item
+sum. Only used when \code{item_weights} is not \code{NULL}. If not supplied, it is
+approximated from \code{loadings}, \code{pooled_item_sd}, and \code{latent_sd},
+assuming the same latent variance in all groups.}
 
 \item{thresholds}{A matrix with G rows for measurement thresholds. The
 matrix must have column names indicating to which item index each column

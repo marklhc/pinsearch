@@ -113,6 +113,88 @@ test_that("Noninvariant items cancelled out at test level", {
     )
 })
 
+test_that("Test-level dMACS uses the variance of the item sum", {
+    lambda <- rbind(c(.8, .5, .7, .5), c(.8, .5, .4, .6))
+    nu <- rbind(c(0.1, 0, 0.2, 0), c(0.2, 0, 0, 0))
+    # pooled variance of the (unweighted) sum score: the sum of the item
+    # variances plus the common-factor covariance, pooled over groups
+    cov_part <- mean((rowSums(lambda)^2 - rowSums(lambda^2)))
+    # cross-check the covariance part against the definitional formula:
+    # the pooled variance of the sum score is w' Sigma w with
+    # Sigma_g = lambda_g lambda_g' + diag(1 - lambda_g^2) (latent SD 1
+    # and item SD 1, so the uniqueness is 1 - lambda_g^2)
+    sigma <- lapply(1:2, function(g) tcrossprod(lambda[g, ]) +
+                      diag(1 - lambda[g, ]^2))
+    w_sum <- rep(1, 4)
+    expect_equal(sqrt(4 + cov_part), sqrt(mean(vapply(sigma,
+        function(S) as.numeric(crossprod(w_sum, S %*% w_sum)),
+        numeric(1)))))
+    out <- dmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                 item_weights = rep(1, 4))
+    A <- diff(rowSums(nu))
+    B <- diff(rowSums(lambda))
+    expect_equal(out, matrix(sqrt(A^2 + B^2) / sqrt(4 + cov_part), 1,
+                             dimnames = list("dmacs", "item_sum")))
+    # cross-item covariances must not be omitted: the denominator is
+    # larger than the square root of the sum of item variances
+    expect_gt(sqrt(4 + cov_part), 2)
+
+    # non-unit weights: quadratic weight scaling and covariances
+    w <- c(2, 1, 1, 1) * 4 / 5
+    out2 <- dmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                  item_weights = c(2, 1, 1, 1))
+    A2 <- w %*% (nu[2, ] - nu[1, ])
+    B2 <- w %*% (lambda[2, ] - lambda[1, ])
+    # per group: 2 * sum_{i<j} w_i w_j lambda_i lambda_j
+    # = (lambda' w)^2 - sum_i w_i^2 lambda_i^2
+    cov_part2 <- mean((lambda %*% w)^2 - as.numeric(lambda^2 %*% w^2))
+    expect_equal(sqrt(sum(w^2) + cov_part2), sqrt(mean(vapply(sigma,
+        function(S) as.numeric(crossprod(w, S %*% w)),
+        numeric(1)))))
+    expect_equal(out2, matrix(sqrt(A2^2 + B2^2) / sqrt(sum(w^2) + cov_part2),
+                              1, dimnames = list("dmacs", "item_sum")))
+
+    # an explicit pooled_test_sd is used as is
+    out3 <- dmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                  item_weights = rep(1, 4), pooled_test_sd = 2.5)
+    expect_equal(out3, matrix(sqrt(A^2 + B^2) / 2.5, 1,
+                              dimnames = list("dmacs", "item_sum")))
+
+    # unequal group sizes: the covariance part is pooled with
+    # group-proportional weights from ns
+    ns <- c(100, 300)
+    out4 <- dmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                  item_weights = rep(1, 4), ns = ns)
+    cov_part3 <- as.numeric((ns / sum(ns)) %*%
+                              (rowSums(lambda)^2 - rowSums(lambda^2)))
+    expect_equal(out4, matrix(sqrt(A^2 + B^2) / sqrt(4 + cov_part3), 1,
+                              dimnames = list("dmacs", "item_sum")))
+})
+
+test_that("es_lavaan() test-level dMACS uses the pooled sum-score SD", {
+    lam <- rep(1, 4)
+    cov1 <- tcrossprod(lam) + diag(1, 4)
+    dimnames(cov1) <- list(paste0("x", 1:4), paste0("x", 1:4))
+    mean1 <- c(1, 0, 0, 0)
+    mean2 <- lam * .4 + c(0, 1, 0, 0)
+    pf1 <- cfa(' f =~ x1 + x2 + x3 + x4 ',
+               sample.cov = list(cov1, cov1),
+               sample.mean = list(mean1, mean2),
+               sample.nobs = c(10000, 10000),
+               std.lv = TRUE,
+               group = "school",
+               group.equal = c("loadings", "intercepts"),
+               group.partial = c("x1~1", "x2~1"))
+    # The fitted model gives d(nu) = (-1, 1, 0, 0), d(lambda) = 0, with
+    # item variances of 2 and covariances of 1 in both groups.
+    w <- 4:1 * 4 / 10
+    varT <- (sum(w))^2 + sum(w^2)
+    d <- sum(w * c(-1, 1, 0, 0)) / sqrt(varT)
+    expect_equal(pin_effsize(pf1, item_weights = 4:1),
+                 matrix(abs(d), 1, dimnames = list("dmacs", "item_sum")),
+                 tolerance = 0.001)
+})
+
 # Multidimensional models (see #7, #4)
 # Build a population (sample.cov / sample.mean) pair for the two-factor
 # example used in the multidimensional es_lavaan tests. Group 2 (and 3)
@@ -236,6 +318,9 @@ test_that("es_lavaan() works with item_weights in multidimensional models", {
         lapply(ss, function(x) diag(x$cov)[items])
     )
     item_sd <- sqrt(var_mat %*% prop.table(ns))
+    test_sd <- sqrt(vapply(ss,
+        function(x) as.numeric(crossprod(w, x$cov[items, items, drop = FALSE] %*% w)),
+        numeric(1)) %*% prop.table(ns))
     expected <- vapply(c("a", "b"), function(lv) {
         lam_k <- do.call(rbind, lapply(pars,
             function(x) x$lambda[items, lv, drop = TRUE]
@@ -249,7 +334,8 @@ test_that("es_lavaan() works with item_weights in multidimensional models", {
             pooled_item_sd = item_sd,
             latent_mean = if (is.null(pars[[1]]$alpha)) 0 else pars[[1]]$alpha[lv, ],
             latent_sd = sqrt(pars[[1]]$psi[lv, lv]),
-            item_weights = w
+            item_weights = w,
+            pooled_test_sd = test_sd
         )[1, ]
     }, numeric(1))
     expect_equal(as.numeric(out[1, ]), unname(expected), tolerance = 1e-6)
@@ -334,6 +420,9 @@ test_that("es_lavaan() works with item_weights (three groups)", {
         lapply(ss, function(x) diag(x$cov)[items])
     )
     item_sd <- sqrt(var_mat %*% prop.table(ns))
+    test_sd <- sqrt(vapply(ss,
+        function(x) as.numeric(crossprod(w, x$cov[items, items, drop = FALSE] %*% w)),
+        numeric(1)) %*% prop.table(ns))
     expected <- vapply(c("a", "b"), function(lv) {
         lam_k <- do.call(rbind, lapply(pars,
             function(x) x$lambda[items, lv, drop = TRUE]
@@ -348,7 +437,8 @@ test_that("es_lavaan() works with item_weights (three groups)", {
             latent_mean = if (is.null(pars[[1]]$alpha)) 0 else pars[[1]]$alpha[lv, ],
             latent_sd = sqrt(pars[[1]]$psi[lv, lv]),
             item_weights = w,
-            num_obs = ns
+            num_obs = ns,
+            pooled_test_sd = test_sd
         )[1, ]
     }, numeric(1))
     expect_equal(as.numeric(out[1, ]), unname(expected), tolerance = 1e-6)
@@ -370,6 +460,31 @@ test_that("dmacs_ordered() works for binary items", {
     colnames(thres_bin) <- c(1, 2)
     d5 <- dmacs_ordered(thres_bin, loadings = lambda, pooled_item_sd = 1)
     expect_length(d5, n = 2)
+})
+
+test_that("Test-level ordered SD: fallback and pooled_test_sd", {
+    s <- c(1.5, 1)
+    # The fallback uses only the variance part of the weighted sum
+    # (cross-item covariances are not identifiable from the inputs),
+    # with quadratically normalized weights
+    wn <- c(2, 1) * 2 / sum(c(2, 1))
+    den <- sqrt(sum(wn^2 * s^2))
+    d_w <- dmacs_ordered(thres, loadings = lambda, pooled_item_sd = s,
+                         item_weights = c(2, 1))
+    d_w_explicit <- dmacs_ordered(thres, loadings = lambda,
+                                  pooled_item_sd = s, item_weights = c(2, 1),
+                                  pooled_test_sd = den)
+    expect_equal(as.vector(d_w), as.vector(d_w_explicit))
+    # an explicit pooled_test_sd is used as is
+    d_w_1 <- dmacs_ordered(thres, loadings = lambda, pooled_item_sd = s,
+                           item_weights = c(2, 1), pooled_test_sd = 1)
+    expect_equal(as.vector(d_w), as.vector(d_w_1) / den)
+    f_w <- fmacs_ordered(thres, loadings = lambda, pooled_item_sd = s,
+                         item_weights = c(2, 1))
+    f_w_explicit <- fmacs_ordered(thres, loadings = lambda,
+                                  pooled_item_sd = s, item_weights = c(2, 1),
+                                  pooled_test_sd = den)
+    expect_equal(as.vector(f_w), as.vector(f_w_explicit))
 })
 
 test_that("Error without 'pooled_sd' argument", {

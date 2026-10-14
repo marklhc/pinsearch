@@ -13,7 +13,8 @@ dmacs(
   latent_sd = 1,
   uniqueness = NULL,
   ns = NULL,
-  item_weights = NULL
+  item_weights = NULL,
+  pooled_test_sd = NULL
 )
 
 dmacs_ordered(
@@ -24,7 +25,8 @@ dmacs_ordered(
   pooled_item_sd = NULL,
   latent_mean = 0,
   latent_sd = 1,
-  item_weights = NULL
+  item_weights = NULL,
+  pooled_test_sd = NULL
 )
 }
 \arguments{
@@ -45,7 +47,15 @@ deviation (SD) of the items across groups.}
 \item{ns}{A vector of length \eqn{p} of sample sizes.}
 
 \item{item_weights}{Default is \code{NULL}. Otherwise, one can specify a vector
-of length \eqn{p} of weights; if so, test-level dMACS will be computed.}
+of length \eqn{p} of weights; if so, test-level dMACS will be computed
+for the weighted sum of the items (unit weights give the plain sum).}
+
+\item{pooled_test_sd}{The pooled standard deviation of the weighted item
+sum. Only used when \code{item_weights} is not \code{NULL}. If not supplied, it is
+approximated from \code{loadings}, \code{pooled_item_sd}, and \code{latent_sd},
+assuming the same latent variance in both groups (and equal group
+pooling weights, or the weights in \code{ns} when it has one entry per
+group).}
 
 \item{thresholds}{A matrix with two rows for measurement thresholds. The
 matrix must have column names indicating to which item index each column

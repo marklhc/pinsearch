@@ -44,6 +44,56 @@ test_that("Noninvariant items cancelled out at test level", {
     expect_equal(f2, 0, ignore_attr = TRUE)
 })
 
+test_that("fmacs() test level matches dmacs() test level / 2", {
+    lambda <- rbind(c(.8, .5, .7, .5), c(.8, .5, .4, .6))
+    nu <- rbind(c(0.1, 0, 0.2, 0), c(0.2, 0, 0, 0))
+    d1 <- dmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                item_weights = rep(1, 4))
+    f1 <- fmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                item_weights = rep(1, 4))
+    expect_equal(as.vector(f1), as.vector(d1) / 2, tolerance = 1e-10)
+    # and the common-factor covariance is in the denominator
+    cov_part <- mean((rowSums(lambda)^2 - rowSums(lambda^2)))
+    A <- diff(rowSums(nu))
+    B <- diff(rowSums(lambda))
+    expect_equal(as.vector(d1),
+                 sqrt(A^2 + B^2) / sqrt(4 + cov_part))
+    # non-unit weights: the relation still holds, so the fmacs
+    # denominator inherits the (quadratically weighted) dmacs one
+    d2 <- dmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                item_weights = c(2, 1, 1, 1))
+    f2 <- fmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                item_weights = c(2, 1, 1, 1))
+    expect_equal(as.vector(f2), as.vector(d2) / 2, tolerance = 1e-10)
+    # three groups: no dmacs() counterpart, so check the absolute value
+    # (contrast numerator over the pooled test SD implied by the
+    # loadings, with the common-factor covariance pooled over groups)
+    lambda3 <- rbind(lambda, c(.9, .4, .6, .5))
+    nu3 <- rbind(nu, c(0, .1, 0, .1))
+    f3g <- fmacs(nu3, loadings = lambda3, pooled_item_sd = rep(1, 4),
+                 item_weights = rep(1, 4))
+    C3 <- stats::contr.sum(3)
+    w3 <- rep(1 / 3, 3)
+    cload <- crossprod(C3, rowSums(lambda3))
+    cint <- crossprod(C3, rowSums(nu3))
+    inv3 <- solve(crossprod(C3, C3 / w3))
+    numer3 <- sqrt(as.numeric(crossprod(cint, inv3 %*% cint) +
+                               crossprod(cload, inv3 %*% cload)))
+    cov_part3 <- mean((rowSums(lambda3)^2 - rowSums(lambda3^2)))
+    expect_equal(as.vector(f3g), numer3 / sqrt(4 + cov_part3))
+    # unequal group sizes (num_obs): the common-factor covariance part
+    # is pooled with group-proportional weights (as is the contrast)
+    ns2 <- c(100, 300)
+    f_ns <- fmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                  num_obs = ns2, item_weights = rep(1, 4))
+    wg <- ns2 / sum(ns2)
+    cf <- 1 / sum(1 / wg)
+    cov_part_ns <- as.numeric(wg %*%
+                                (rowSums(lambda)^2 - rowSums(lambda^2)))
+    expect_equal(as.vector(f_ns),
+                 sqrt(cf * (A^2 + B^2)) / sqrt(4 + cov_part_ns))
+})
+
 test_that("fmacs() is larger with more different parameters", {
     f3 <- fmacs(nu, loadings = lambda, pooled_item_sd = 1)
     expect_equal(f3[3], 0)

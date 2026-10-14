@@ -35,7 +35,12 @@
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
 #' @param item_weights Default is `NULL`. Otherwise, one can specify a vector
-#'   of length \eqn{p} of weights; if so, test-level fMACS will be computed.
+#'   of length \eqn{p} of weights; if so, test-level fMACS will be computed
+#'   for the weighted sum of the items (unit weights give the plain sum).
+#' @param pooled_test_sd The pooled standard deviation of the weighted item
+#'   sum. Only used when `item_weights` is not `NULL`. If not supplied, it is
+#'   approximated from `loadings`, `pooled_item_sd`, and `latent_sd`,
+#'   assuming the same latent variance in all groups.
 #'
 #' @return A 1 x p matrix of fMACS effect size.
 #'
@@ -67,14 +72,23 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
                   weights = 0 * intercepts + 1,
                   group_factor = NULL,
                   contrast = contr.sum(nrow(intercepts)),
-                  latent_mean = 0, latent_sd = 1,
-                  item_weights = NULL) {
+                   latent_mean = 0, latent_sd = 1,
+                   item_weights = NULL, pooled_test_sd = NULL) {
     if (!is.null(num_obs)) {
         weights <- matrix(num_obs, nrow = nrow(intercepts),
                           ncol = ncol(intercepts))
     }
     weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
     if (!is.null(item_weights)) {
+        cn_out <- "item_sum"
+        weights <- matrix(rowMeans(weights), ncol = 1)
+        if (!is.null(pooled_test_sd)) {
+            pooled_sd <- pooled_test_sd
+        } else {
+            pooled_sd <- composite_sd(loadings, pooled_item_sd, latent_sd[1],
+                                      item_weights,
+                                      ns = as.numeric(weights[, 1]))
+        }
         intercepts <- matrix(
             apply(intercepts, MARGIN = 1, FUN = wsum,
                   w = item_weights),
@@ -83,9 +97,6 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
             apply(loadings, MARGIN = 1, FUN = wsum,
                   w = item_weights),
             ncol = 1)
-        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
-        cn_out <- "item_sum"
-        weights <- matrix(rowMeans(weights), ncol = 1)
     } else {
         pooled_sd <- pooled_item_sd
         cn_out <- colnames(loadings)
@@ -165,8 +176,8 @@ fmacs_ordered <- function(thresholds, loadings,
                           contrast = contr.sum(nrow(thresholds)),
                           link = c("probit", "logit"),
                           pooled_item_sd = NULL,
-                          latent_mean = 0, latent_sd = 1,
-                          item_weights = NULL) {
+                           latent_mean = 0, latent_sd = 1,
+                           item_weights = NULL, pooled_test_sd = NULL) {
     if (ncol(thresholds) < ncol(loadings)) {
         stop("number of thresholds should be at least the number of loadings.")
     }
@@ -213,8 +224,14 @@ fmacs_ordered <- function(thresholds, loadings,
     #     ave(v, g, FUN = function(x) x / sum(x))
     # })
     if (!is.null(item_weights)) {
-        item_weights <- item_weights / sum(item_weights) * length(item_weights)
-        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
+        item_weights <- normalize_item_weights(item_weights)
+        if (!is.null(pooled_test_sd)) {
+            pooled_sd <- pooled_test_sd
+        } else {
+            # Only the variance part of the sum score; the cross-item
+            # covariances are not identifiable from the inputs here.
+            pooled_sd <- sqrt(sum(item_weights^2 * pooled_item_sd^2))
+        }
         cn_out <- "item_sum"
         weights <- rowMeans(weights)
         inv_ss_cont <- solve(

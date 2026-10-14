@@ -23,7 +23,14 @@
 #' @param uniqueness A vector of length \eqn{p} of uniqueness.
 #' @param ns A vector of length \eqn{p} of sample sizes.
 #' @param item_weights Default is `NULL`. Otherwise, one can specify a vector
-#'   of length \eqn{p} of weights; if so, test-level dMACS will be computed.
+#'   of length \eqn{p} of weights; if so, test-level dMACS will be computed
+#'   for the weighted sum of the items (unit weights give the plain sum).
+#' @param pooled_test_sd The pooled standard deviation of the weighted item
+#'   sum. Only used when `item_weights` is not `NULL`. If not supplied, it is
+#'   approximated from `loadings`, `pooled_item_sd`, and `latent_sd`,
+#'   assuming the same latent variance in both groups (and equal group
+#'   pooling weights, or the weights in `ns` when it has one entry per
+#'   group).
 #'
 #' @return A 1 x p matrix of dMACS effect size. If `item_weights` is not
 #'   `NULL`, \eqn{p} = 1.
@@ -52,11 +59,18 @@ dmacs <- function(intercepts, loadings = NULL,
                   pooled_item_sd = NULL,
                   latent_mean = 0, latent_sd = 1,
                   uniqueness = NULL, ns = NULL,
-                  item_weights = NULL) {
+                  item_weights = NULL, pooled_test_sd = NULL) {
     if (nrow(intercepts) != 2) {
         stop("Number of rows of loadings must be 2")
     }
     if (!is.null(item_weights)) {
+        if (!is.null(pooled_test_sd)) {
+            pooled_sd <- pooled_test_sd
+        } else {
+            pooled_sd <- composite_sd(loadings, pooled_item_sd, latent_sd,
+                                      item_weights, ns)
+        }
+        cn_out <- "item_sum"
         intercepts <- matrix(
             apply(intercepts, MARGIN = 1, FUN = wsum,
                   w = item_weights),
@@ -65,8 +79,6 @@ dmacs <- function(intercepts, loadings = NULL,
             apply(loadings, MARGIN = 1, FUN = wsum,
                   w = item_weights),
             ncol = 1)
-        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
-        cn_out <- "item_sum"
     } else {
         pooled_sd <- pooled_item_sd
         cn_out <- colnames(loadings)
@@ -95,6 +107,35 @@ dmacs <- function(intercepts, loadings = NULL,
 wsum <- function(x, w, ...) {
     stats::weighted.mean(x, w = w, ...) * length(x)
 }
+# Normalize item weights so that unit weights give the plain item sum
+# (i.e., the composite score is sum(w_n * Y)).
+normalize_item_weights <- function(w) {
+    w * length(w) / sum(w)
+}
+# Pooled SD of the weighted item sum. The variance of the sum is the
+# sum of the (quadratically weighted) item variances plus the
+# cross-item covariances induced by the common factor,
+# 2 * sum_{i < j} w_i w_j lambda_i lambda_j * sigma^2. The latter is
+# pooled over groups, assuming the same latent variance (latent_sd^2)
+# in all groups and group pooling weights `ns` (equal weights if `ns`
+# does not have one entry per group).
+composite_sd <- function(loadings, pooled_item_sd, latent_sd,
+                         item_weights, ns = NULL) {
+    w <- normalize_item_weights(item_weights)
+    var_part <- sum(w^2 * pooled_item_sd^2)
+    if (is.null(loadings) || !any(loadings != 0)) {
+        return(sqrt(var_part))
+    }
+    G <- nrow(loadings)
+    if (is.null(ns) || length(ns) != G || any(ns <= 0)) {
+        wg <- rep(1 / G, G)
+    } else {
+        wg <- ns / sum(ns)
+    }
+    s <- as.numeric(loadings %*% w)
+    q <- as.numeric(loadings^2 %*% w^2)
+    sqrt(var_part + latent_sd^2 * as.numeric(crossprod(wg, s^2 - q)))
+}
 
 #' @rdname dmacs
 #' @param thresholds A matrix with two rows for measurement thresholds. The
@@ -121,7 +162,7 @@ dmacs_ordered <- function(thresholds, loadings,
                           link = c("probit", "logit"),
                           pooled_item_sd = NULL,
                           latent_mean = 0, latent_sd = 1,
-                          item_weights = NULL) {
+                          item_weights = NULL, pooled_test_sd = NULL) {
     if (ncol(thresholds) < ncol(loadings)) {
         stop("number of thresholds should be at least the number of loadings.")
     }
@@ -148,8 +189,14 @@ dmacs_ordered <- function(thresholds, loadings,
     thres_list <- split(seq_len(ncol(thresholds)),
                         as.numeric(colnames(thresholds)))
     if (!is.null(item_weights)) {
-        item_weights <- item_weights / sum(item_weights) * length(item_weights)
-        pooled_sd <- sqrt(wsum(pooled_item_sd^2, w = item_weights))
+        item_weights <- normalize_item_weights(item_weights)
+        if (!is.null(pooled_test_sd)) {
+            pooled_sd <- pooled_test_sd
+        } else {
+            # Only the variance part of the sum score; the cross-item
+            # covariances are not identifiable from the inputs here.
+            pooled_sd <- sqrt(sum(item_weights^2 * pooled_item_sd^2))
+        }
         cn_out <- "item_sum"
         integrals <- stats::integrate(
             function(x) {
@@ -388,6 +435,20 @@ es_lavaan <- function(object, ...) {
     loading_mat <- to_mat_loadings(pars, ninv_ov)
     sampstat <- lavaan::lavInspect(object, "sampstat")
     ns <- lavaan::lavInspect(object, "nobs")
+    # Pooled SD of the weighted item sum, including all cross-item
+    # covariances (w' Sigma w per group, pooled like the item SDs).
+    pooled_test_sd <- NULL
+    item_weights <- list(...)$item_weights
+    if (!is.null(item_weights)) {
+        # Same composite-score scaling as in dmacs()/fmacs() (unit weights
+        # give the plain item sum).
+        w <- normalize_item_weights(item_weights)
+        var_T <- vapply(sampstat, function(s) {
+            cov <- s$cov[ninv_ov, ninv_ov, drop = FALSE]
+            as.numeric(crossprod(w, cov %*% w))
+        }, numeric(1))
+        pooled_test_sd <- sqrt(pooledvar(matrix(var_T, ncol = 1), ns))
+    }
     if (ordered) {
         # Need to think about input for thresholds to accommodate different
         # number of categories for different items
@@ -406,6 +467,7 @@ es_lavaan <- function(object, ...) {
             latent_mean = lmean,
             latent_sd = lsd,
             pooled_item_sd = rep(pooled_item_sd, num_lvs),
+            pooled_test_sd = pooled_test_sd,
             ...
         )
     } else {
@@ -439,6 +501,7 @@ es_lavaan <- function(object, ...) {
                     pooled_item_sd = pooled_item_sd,
                     latent_mean = alpha1[k],
                     latent_sd = sv1[k],
+                    pooled_test_sd = pooled_test_sd,
                     ...
                 )
                 if (ncol(out_k) > 0) {
@@ -455,6 +518,7 @@ es_lavaan <- function(object, ...) {
                 pooled_item_sd = pooled_item_sd,
                 latent_mean = lmean,
                 latent_sd = lsd,
+                pooled_test_sd = pooled_test_sd,
                 ...
             )
         }
