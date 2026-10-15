@@ -9,7 +9,7 @@ and intercepts."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">pinsearch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,8 @@ and intercepts.</p>
 <span>  contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/contrast.html" class="external-link">contr.sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">intercepts</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  latent_mean <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  latent_sd <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  item_weights <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  item_weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pooled_test_sd <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">fmacs_ordered</span><span class="op">(</span></span>
@@ -75,7 +76,8 @@ and intercepts.</p>
 <span>  pooled_item_sd <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  latent_mean <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  latent_sd <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  item_weights <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  item_weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pooled_test_sd <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -131,7 +133,15 @@ not specified.</p></dd>
 
 <dt id="arg-item-weights">item_weights<a class="anchor" aria-label="anchor" href="#arg-item-weights"></a></dt>
 <dd><p>Default is <code>NULL</code>. Otherwise, one can specify a vector
-of length \(p\) of weights; if so, test-level fMACS will be computed.</p></dd>
+of length \(p\) of weights; if so, test-level fMACS will be computed
+for the weighted sum of the items (unit weights give the plain sum).</p></dd>
+
+
+<dt id="arg-pooled-test-sd">pooled_test_sd<a class="anchor" aria-label="anchor" href="#arg-pooled-test-sd"></a></dt>
+<dd><p>The pooled standard deviation of the weighted item
+sum. Only used when <code>item_weights</code> is not <code>NULL</code>. If not supplied, it is
+approximated from <code>loadings</code>, <code>pooled_item_sd</code>, and <code>latent_sd</code>,
+assuming the same latent variance in all groups.</p></dd>
 
 
 <dt id="arg-thresholds">thresholds<a class="anchor" aria-label="anchor" href="#arg-thresholds"></a></dt>

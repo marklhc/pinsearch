@@ -32,7 +32,7 @@ of searching for a partial strict invariance model.
 
 library(pinsearch)
 library(lavaan)
-#> This is lavaan 0.7-2
+#> This is lavaan 0.7-3
 #> lavaan is FREE software! Please report any bugs.
 mod <-
     " visual  =~ x1 + x2 + x3
@@ -63,7 +63,7 @@ And the final partial invariance model
 
 ps1$`Partial Invariance Fit` |>
     summary()
-#> lavaan 0.7-2 ended normally after 64 iterations
+#> lavaan 0.7-3 ended normally after 64 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -82,6 +82,14 @@ ps1$`Partial Invariance Fit` |>
 #>   Test statistic for each group:
 #>     Pasteur                                     79.438
 #>     Grant-White                                 67.823
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                               141.919
+#>   Degrees of freedom                                67
+#>   P-value (Chi-square)                           0.000
+#>   Test statistic for each group:
+#>     Pasteur                                     73.553
+#>     Grant-White                                 68.366
 #> 
 #> Parameter Estimates:
 #> 
@@ -217,7 +225,7 @@ pinSearch(mod,
     effect_size = TRUE
 )
 #> $`Partial Invariance Fit`
-#> lavaan 0.7-2 ended normally after 64 iterations
+#> lavaan 0.7-3 ended normally after 64 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -236,6 +244,14 @@ pinSearch(mod,
 #>   Test statistic for each group:
 #>     Pasteur                                     79.438
 #>     Grant-White                                 67.823
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                               141.919
+#>   Degrees of freedom                                67
+#>   P-value (Chi-square)                           0.000
+#>   Test statistic for each group:
+#>     Pasteur                                     73.553
+#>     Grant-White                                 68.366
 #> 
 #> $`Non-Invariant Items`
 #>   group lhs rhs       type
@@ -294,7 +310,7 @@ ps2 <-
     )
 ps2
 #> $`Partial Invariance Fit`
-#> lavaan 0.7-2 ended normally after 55 iterations
+#> lavaan 0.7-3 ended normally after 55 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -313,6 +329,14 @@ ps2
 #>   Test statistic for each group:
 #>     Pasteur                                     67.913
 #>     Grant-White                                 45.915
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                               111.027
+#>   Degrees of freedom                                66
+#>   P-value (Chi-square)                           0.000
+#>   Test statistic for each group:
+#>     Pasteur                                     57.542
+#>     Grant-White                                 53.485
 #> 
 #> $`Non-Invariant Items`
 #>   group lhs rhs       type
@@ -343,7 +367,7 @@ pinSearch(mod2,
     effect_size = TRUE
 )
 #> $`Partial Invariance Fit`
-#> lavaan 0.7-2 ended normally after 59 iterations
+#> lavaan 0.7-3 ended normally after 59 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -362,6 +386,14 @@ pinSearch(mod2,
 #>   Test statistic for each group:
 #>     Pasteur                                     66.273
 #>     Grant-White                                 43.497
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                               106.176
+#>   Degrees of freedom                                65
+#>   P-value (Chi-square)                           0.001
+#>   Test statistic for each group:
+#>     Pasteur                                     55.028
+#>     Grant-White                                 51.148
 #> 
 #> $`Non-Invariant Items`
 #>   group lhs rhs       type
@@ -390,7 +422,7 @@ pinSearch(mod2,
     effect_size = TRUE
 )
 #> $`Partial Invariance Fit`
-#> lavaan 0.7-2 ended normally after 59 iterations
+#> lavaan 0.7-3 ended normally after 59 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -409,6 +441,14 @@ pinSearch(mod2,
 #>   Test statistic for each group:
 #>     Pasteur                                     66.273
 #>     Grant-White                                 43.497
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                               106.176
+#>   Degrees of freedom                                65
+#>   P-value (Chi-square)                           0.001
+#>   Test statistic for each group:
+#>     Pasteur                                     55.028
+#>     Grant-White                                 51.148
 #> 
 #> $`Non-Invariant Items`
 #>   group lhs rhs       type
@@ -446,7 +486,7 @@ pinSearch(mod2,
     control_fdr = TRUE
 )
 #> $`Partial Invariance Fit`
-#> lavaan 0.7-2 ended normally after 55 iterations
+#> lavaan 0.7-3 ended normally after 55 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -465,6 +505,14 @@ pinSearch(mod2,
 #>   Test statistic for each group:
 #>     Pasteur                                     67.913
 #>     Grant-White                                 45.915
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                               111.027
+#>   Degrees of freedom                                66
+#>   P-value (Chi-square)                           0.000
+#>   Test statistic for each group:
+#>     Pasteur                                     57.542
+#>     Grant-White                                 53.485
 #> 
 #> $`Non-Invariant Items`
 #>   group lhs rhs       type

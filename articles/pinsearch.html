@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pinsearch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
       <h1>(P)artial (in)variance specification search</h1>
                         <h4 data-toc-skip class="author">Mark Lai</h4>
             
-            <h4 data-toc-skip class="date">2026-09-10</h4>
+            <h4 data-toc-skip class="date">2026-10-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/marklhc/pinsearch/blob/master/vignettes/pinsearch.rmd" class="external-link"><code>vignettes/pinsearch.rmd</code></a></small>
       <div class="d-none name"><code>pinsearch.rmd</code></div>
@@ -100,7 +100,7 @@ the goal of searching for a partial strict invariance model.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/marklhc/pinsearch" class="external-link">pinsearch</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.7-2</span></span>
+<span><span class="co">#&gt; This is lavaan 0.7-3</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span>
 <span><span class="va">mod</span> <span class="op">&lt;-</span></span>
 <span>    <span class="st">" visual  =~ x1 + x2 + x3</span></span>
@@ -123,7 +123,7 @@ the goal of searching for a partial strict invariance model.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps1</span><span class="op">$</span><span class="va">`Partial Invariance Fit`</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 64 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-3 ended normally after 64 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -142,6 +142,14 @@ the goal of searching for a partial strict invariance model.</p>
 <span><span class="co">#&gt;   Test statistic for each group:</span></span>
 <span><span class="co">#&gt;     Pasteur                                     79.438</span></span>
 <span><span class="co">#&gt;     Grant-White                                 67.823</span></span>
+<span><span class="co">#&gt;                                                       </span></span>
+<span><span class="co">#&gt;   Browne's residual (NT model-based) test             </span></span>
+<span><span class="co">#&gt;   Test statistic                               141.919</span></span>
+<span><span class="co">#&gt;   Degrees of freedom                                67</span></span>
+<span><span class="co">#&gt;   P-value (Chi-square)                           0.000</span></span>
+<span><span class="co">#&gt;   Test statistic for each group:</span></span>
+<span><span class="co">#&gt;     Pasteur                                     73.553</span></span>
+<span><span class="co">#&gt;     Grant-White                                 68.366</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -278,7 +286,7 @@ argument:</p>
 <span>    effect_size <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 64 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-3 ended normally after 64 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -297,6 +305,14 @@ argument:</p>
 <span><span class="co">#&gt;   Test statistic for each group:</span></span>
 <span><span class="co">#&gt;     Pasteur                                     79.438</span></span>
 <span><span class="co">#&gt;     Grant-White                                 67.823</span></span>
+<span><span class="co">#&gt;                                                       </span></span>
+<span><span class="co">#&gt;   Browne's residual (NT model-based) test             </span></span>
+<span><span class="co">#&gt;   Test statistic                               141.919</span></span>
+<span><span class="co">#&gt;   Degrees of freedom                                67</span></span>
+<span><span class="co">#&gt;   P-value (Chi-square)                           0.000</span></span>
+<span><span class="co">#&gt;   Test statistic for each group:</span></span>
+<span><span class="co">#&gt;     Pasteur                                     73.553</span></span>
+<span><span class="co">#&gt;     Grant-White                                 68.366</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
 <span><span class="co">#&gt;   group lhs rhs       type</span></span>
@@ -347,7 +363,7 @@ example,</p>
 <span>    <span class="op">)</span></span>
 <span><span class="va">ps2</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 55 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-3 ended normally after 55 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -366,6 +382,14 @@ example,</p>
 <span><span class="co">#&gt;   Test statistic for each group:</span></span>
 <span><span class="co">#&gt;     Pasteur                                     67.913</span></span>
 <span><span class="co">#&gt;     Grant-White                                 45.915</span></span>
+<span><span class="co">#&gt;                                                       </span></span>
+<span><span class="co">#&gt;   Browne's residual (NT model-based) test             </span></span>
+<span><span class="co">#&gt;   Test statistic                               111.027</span></span>
+<span><span class="co">#&gt;   Degrees of freedom                                66</span></span>
+<span><span class="co">#&gt;   P-value (Chi-square)                           0.000</span></span>
+<span><span class="co">#&gt;   Test statistic for each group:</span></span>
+<span><span class="co">#&gt;     Pasteur                                     57.542</span></span>
+<span><span class="co">#&gt;     Grant-White                                 53.485</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
 <span><span class="co">#&gt;   group lhs rhs       type</span></span>
@@ -394,7 +418,7 @@ equality constraints</a>. This can be achieved with
 <span>    effect_size <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 59 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-3 ended normally after 59 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -413,6 +437,14 @@ equality constraints</a>. This can be achieved with
 <span><span class="co">#&gt;   Test statistic for each group:</span></span>
 <span><span class="co">#&gt;     Pasteur                                     66.273</span></span>
 <span><span class="co">#&gt;     Grant-White                                 43.497</span></span>
+<span><span class="co">#&gt;                                                       </span></span>
+<span><span class="co">#&gt;   Browne's residual (NT model-based) test             </span></span>
+<span><span class="co">#&gt;   Test statistic                               106.176</span></span>
+<span><span class="co">#&gt;   Degrees of freedom                                65</span></span>
+<span><span class="co">#&gt;   P-value (Chi-square)                           0.001</span></span>
+<span><span class="co">#&gt;   Test statistic for each group:</span></span>
+<span><span class="co">#&gt;     Pasteur                                     55.028</span></span>
+<span><span class="co">#&gt;     Grant-White                                 51.148</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
 <span><span class="co">#&gt;   group lhs rhs       type</span></span>
@@ -439,7 +471,7 @@ expensive.</p>
 <span>    effect_size <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 59 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-3 ended normally after 59 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -458,6 +490,14 @@ expensive.</p>
 <span><span class="co">#&gt;   Test statistic for each group:</span></span>
 <span><span class="co">#&gt;     Pasteur                                     66.273</span></span>
 <span><span class="co">#&gt;     Grant-White                                 43.497</span></span>
+<span><span class="co">#&gt;                                                       </span></span>
+<span><span class="co">#&gt;   Browne's residual (NT model-based) test             </span></span>
+<span><span class="co">#&gt;   Test statistic                               106.176</span></span>
+<span><span class="co">#&gt;   Degrees of freedom                                65</span></span>
+<span><span class="co">#&gt;   P-value (Chi-square)                           0.001</span></span>
+<span><span class="co">#&gt;   Test statistic for each group:</span></span>
+<span><span class="co">#&gt;     Pasteur                                     55.028</span></span>
+<span><span class="co">#&gt;     Grant-White                                 51.148</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
 <span><span class="co">#&gt;   group lhs rhs       type</span></span>
@@ -493,7 +533,7 @@ option.</p>
 <span>    control_fdr <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $`Partial Invariance Fit`</span></span>
-<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 55 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-3 ended normally after 55 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -512,6 +552,14 @@ option.</p>
 <span><span class="co">#&gt;   Test statistic for each group:</span></span>
 <span><span class="co">#&gt;     Pasteur                                     67.913</span></span>
 <span><span class="co">#&gt;     Grant-White                                 45.915</span></span>
+<span><span class="co">#&gt;                                                       </span></span>
+<span><span class="co">#&gt;   Browne's residual (NT model-based) test             </span></span>
+<span><span class="co">#&gt;   Test statistic                               111.027</span></span>
+<span><span class="co">#&gt;   Degrees of freedom                                66</span></span>
+<span><span class="co">#&gt;   P-value (Chi-square)                           0.000</span></span>
+<span><span class="co">#&gt;   Test statistic for each group:</span></span>
+<span><span class="co">#&gt;     Pasteur                                     57.542</span></span>
+<span><span class="co">#&gt;     Grant-White                                 53.485</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Non-Invariant Items`</span></span>
 <span><span class="co">#&gt;   group lhs rhs       type</span></span>

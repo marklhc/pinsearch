@@ -16,7 +16,8 @@ fmacs(
   contrast = contr.sum(nrow(intercepts)),
   latent_mean = 0,
   latent_sd = 1,
-  item_weights = NULL
+  item_weights = NULL,
+  pooled_test_sd = NULL
 )
 
 fmacs_ordered(
@@ -31,7 +32,8 @@ fmacs_ordered(
   pooled_item_sd = NULL,
   latent_mean = 0,
   latent_sd = 1,
-  item_weights = NULL
+  item_weights = NULL,
+  pooled_test_sd = NULL
 )
 ```
 
@@ -85,7 +87,15 @@ fmacs_ordered(
 - item_weights:
 
   Default is `NULL`. Otherwise, one can specify a vector of length \\p\\
-  of weights; if so, test-level fMACS will be computed.
+  of weights; if so, test-level fMACS will be computed for the weighted
+  sum of the items (unit weights give the plain sum).
+
+- pooled_test_sd:
+
+  The pooled standard deviation of the weighted item sum. Only used when
+  `item_weights` is not `NULL`. If not supplied, it is approximated from
+  `loadings`, `pooled_item_sd`, and `latent_sd`, assuming the same
+  latent variance in all groups.
 
 - thresholds:
 

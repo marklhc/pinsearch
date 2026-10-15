@@ -132,7 +132,7 @@ Structural Equation Modeling: A Multidisciplinary Journal, 14(3),
 
 ``` r
 library(lavaan)
-#> This is lavaan 0.7-2
+#> This is lavaan 0.7-3
 #> lavaan is FREE software! Please report any bugs.
 # Simulate random data
 set.seed(14) # for reproducible results
@@ -158,12 +158,12 @@ pinSearch(sam_config,
     type = "intercepts"
 )
 #> $`Partial Invariance Fit`
-#> lavaan 0.7-2 ended normally after 60 iterations
+#> lavaan 0.7-3 ended normally after 53 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
 #>   Number of model parameters                        58
-#>   Number of equality constraints                    19
+#>   Number of equality constraints                    24
 #> 
 #>   Number of observations per group:                   
 #>     1                                              100
@@ -172,19 +172,25 @@ pinSearch(sam_config,
 #> 
 #> Model Test User Model:
 #>                                                       
-#>   Test statistic                                47.688
-#>   Degrees of freedom                                42
-#>   P-value (Chi-square)                           0.252
+#>   Test statistic                                60.879
+#>   Degrees of freedom                                47
+#>   P-value (Chi-square)                           0.084
 #>   Test statistic for each group:
-#>     1                                           12.480
-#>     2                                           20.956
-#>     3                                           14.252
+#>     1                                           19.454
+#>     2                                           22.126
+#>     3                                           19.299
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                                59.251
+#>   Degrees of freedom                                47
+#>   P-value (Chi-square)                           0.108
+#>   Test statistic for each group:
+#>     1                                           19.750
+#>     2                                           19.750
+#>     3                                           19.750
 #> 
 #> $`Non-Invariant Items`
-#>   group lhs rhs       type
-#> 1     1   f  y1   loadings
-#> 2     1  y3     intercepts
-#> 3     3  y1     intercepts
-#> 4     2  y3     intercepts
+#> [1] lhs   rhs   group type 
+#> <0 rows> (or 0-length row.names)
 #> 
 ```

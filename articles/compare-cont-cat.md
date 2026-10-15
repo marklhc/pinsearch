@@ -7,7 +7,7 @@ treating Likert-scale items as either continuous or ordinal.
 
 library(pinsearch)
 library(lavaan)
-#> This is lavaan 0.7-2
+#> This is lavaan 0.7-3
 #> lavaan is FREE software! Please report any bugs.
 library(MASS, include.only = "mvrnorm")
 difR_ok <- suppressWarnings(
@@ -103,8 +103,9 @@ ps_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                     ordered = paste0("yy", 1:7))
 #> Warning: lavaan->lav_model_vcov():  
 #>    The variance-covariance matrix of the estimated parameters (vcov) does not 
-#>    appear to be positive definite! The smallest eigenvalue (= 4.614582e-17) 
-#>    is close to zero. This may be a symptom that the model is not identified.
+#>    appear to be positive definite! The smallest eigenvalue (= -9.419790e+07) 
+#>    is smaller than zero. This may be a symptom that the model is not 
+#>    identified.
 (dcat <- pin_effsize(ps_cat$`Partial Invariance Fit`))
 #>           yy2-f     yy4-f     yy5-f     yy7-f
 #> dmacs 0.1912212 0.1400285 0.1219134 0.2069972
@@ -139,8 +140,9 @@ ps2_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                      ordered = paste0("yy", 1:7))
 #> Warning: lavaan->lav_model_vcov():  
 #>    The variance-covariance matrix of the estimated parameters (vcov) does not 
-#>    appear to be positive definite! The smallest eigenvalue (= 6.895669e-17) 
-#>    is close to zero. This may be a symptom that the model is not identified.
+#>    appear to be positive definite! The smallest eigenvalue (= -2.444813e-09) 
+#>    is smaller than zero. This may be a symptom that the model is not 
+#>    identified.
 (dcat <- pin_effsize(ps2_cat$`Partial Invariance Fit`))
 #>           yy4-f    yy5-f
 #> dmacs 0.3463871 0.324468

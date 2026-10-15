@@ -14,7 +14,8 @@ dmacs(
   latent_sd = 1,
   uniqueness = NULL,
   ns = NULL,
-  item_weights = NULL
+  item_weights = NULL,
+  pooled_test_sd = NULL
 )
 
 dmacs_ordered(
@@ -25,7 +26,8 @@ dmacs_ordered(
   pooled_item_sd = NULL,
   latent_mean = 0,
   latent_sd = 1,
-  item_weights = NULL
+  item_weights = NULL,
+  pooled_test_sd = NULL
 )
 ```
 
@@ -64,7 +66,20 @@ dmacs_ordered(
 - item_weights:
 
   Default is `NULL`. Otherwise, one can specify a vector of length \\p\\
-  of weights; if so, test-level dMACS will be computed.
+  of weights; if so, test-level dMACS will be computed for the weighted
+  sum of the items (unit weights give the plain sum).
+
+- pooled_test_sd:
+
+  The pooled standard deviation of the weighted item sum. Only used when
+  `item_weights` is not `NULL`. If not supplied, it is approximated from
+  `loadings`, `pooled_item_sd`, and `latent_sd`, assuming the same
+  latent variance in both groups (and equal group pooling weights, or
+  the weights in `ns` when it has one entry per group). For
+  `dmacs_ordered()` and
+  [`fmacs_ordered()`](https://marklhc.github.io/pinsearch/reference/fmacs.md)
+  only the weighted sum of the item variances is used, as the cross-item
+  covariances are not identifiable from the inputs.
 
 - thresholds:
 
@@ -123,8 +138,8 @@ dmacs(rbind(nuf, nur),
       latent_mean = 0,
       latent_sd = 1,
       item_weights = c(1, 1, 1, 1))
-#>        item_sum
-#> dmacs 0.1118034
+#>         item_sum
+#> dmacs 0.07784989
 # Thresholds
 lambda <- rbind(c(.8, .5, .7, .5),
                 c(.8, .5, .4, .6))

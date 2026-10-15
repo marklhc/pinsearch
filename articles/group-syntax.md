@@ -41,7 +41,7 @@ search has something to find.
 ``` r
 
 library(lavaan)
-#> This is lavaan 0.7-2
+#> This is lavaan 0.7-3
 #> lavaan is FREE software! Please report any bugs.
 library(pinsearch)
 library(MASS, include.only = "mvrnorm")
@@ -86,7 +86,7 @@ final partial invariance model is
 ``` r
 
 summary(ps$`Partial Invariance Fit`)
-#> lavaan 0.7-2 ended normally after 27 iterations
+#> lavaan 0.7-3 ended normally after 27 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -105,6 +105,14 @@ summary(ps$`Partial Invariance Fit`)
 #>   Test statistic for each group:
 #>     short                                        3.817
 #>     long                                         2.735
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                                 6.631
+#>   Degrees of freedom                                11
+#>   P-value (Chi-square)                           0.828
+#>   Test statistic for each group:
+#>     short                                        3.316
+#>     long                                         3.316
 #> 
 #> Parameter Estimates:
 #> 
@@ -177,7 +185,7 @@ Effect sizes for the flagged item follow the usual workflow:
 pinSearch(mod, data = df, group = "group",
           type = "intercepts", effect_size = TRUE)
 #> $`Partial Invariance Fit`
-#> lavaan 0.7-2 ended normally after 27 iterations
+#> lavaan 0.7-3 ended normally after 27 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -196,6 +204,14 @@ pinSearch(mod, data = df, group = "group",
 #>   Test statistic for each group:
 #>     short                                        3.817
 #>     long                                         2.735
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                                 6.631
+#>   Degrees of freedom                                11
+#>   P-value (Chi-square)                           0.828
+#>   Test statistic for each group:
+#>     short                                        3.316
+#>     long                                         3.316
 #> 
 #> $`Non-Invariant Items`
 #>   group lhs rhs     type

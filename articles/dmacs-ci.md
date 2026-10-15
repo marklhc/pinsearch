@@ -4,7 +4,7 @@
 
 library(pinsearch)
 library(lavaan)
-#> This is lavaan 0.7-2
+#> This is lavaan 0.7-3
 #> lavaan is FREE software! Please report any bugs.
 set.seed(1131)
 ```
@@ -27,7 +27,7 @@ ps1 <-
     )
 ps1
 #> $`Partial Invariance Fit`
-#> lavaan 0.7-2 ended normally after 64 iterations
+#> lavaan 0.7-3 ended normally after 64 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -46,6 +46,14 @@ ps1
 #>   Test statistic for each group:
 #>     Pasteur                                     79.438
 #>     Grant-White                                 67.823
+#>                                                       
+#>   Browne's residual (NT model-based) test             
+#>   Test statistic                               141.919
+#>   Degrees of freedom                                67
+#>   P-value (Chi-square)                           0.000
+#>   Test statistic for each group:
+#>     Pasteur                                     73.553
+#>     Grant-White                                 68.366
 #> 
 #> $`Non-Invariant Items`
 #>   group lhs rhs       type

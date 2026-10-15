@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pinsearch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,8 +41,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="pinsearch-development-version">pinsearch (development version)<a class="anchor" aria-label="anchor" href="#pinsearch-development-version"></a></h2>
-<ul><li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
+<h2 class="pkg-version" data-toc-text="0.1.6.2" id="pinsearch-0162">pinsearch 0.1.6.2<a class="anchor" aria-label="anchor" href="#pinsearch-0162"></a></h2>
+<ul><li><p>Fixed the denominator of the test-level effect size in <code><a href="../reference/dmacs.html">dmacs()</a></code>, <code><a href="../reference/dmacs.html">dmacs_ordered()</a></code>, <code><a href="../reference/fmacs.html">fmacs()</a></code>, and <code><a href="../reference/fmacs.html">fmacs_ordered()</a></code> (via <code>item_weights</code>): it now uses the pooled standard deviation of the weighted item sum, including the cross-item covariances induced by the common factor and the correct (quadratic) weight scaling. <code><a href="../reference/es_lavaan.html">es_lavaan()</a></code>/<code><a href="../reference/es_lavaan.html">pin_effsize()</a></code> compute it exactly from the sample covariances for continuous indicators; for ordered indicators the observed-scale variance-only fallback is used, as <code>sampstat$cov</code> is on the latent-response scale there. A new <code>pooled_test_sd</code> argument allows passing this value directly (it takes precedence over the sample-based value).</p></li>
+<li><p>The test-level effect size in <code><a href="../reference/dmacs.html">dmacs()</a></code> and <code><a href="../reference/fmacs.html">fmacs()</a></code> now works when <code>loadings</code> is not supplied (as it already did at the item level).</p></li>
+<li><p>Added a <code>NEWS.md</code> file to track changes to the package.</p></li>
 </ul></div>
   </main></div>
 
