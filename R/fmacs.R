@@ -80,6 +80,10 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     }
     weights <- sweep(weights, MARGIN = 2, STATS = colSums(weights), FUN = "/")
     if (!is.null(item_weights)) {
+        # Normalize once (unit weights give the plain item sum); wsum() is
+        # scale-invariant and composite_sd() normalizes idempotently, so
+        # the numerator and the denominator use the same weights.
+        item_weights <- normalize_item_weights(item_weights)
         cn_out <- "item_sum"
         weights <- matrix(rowMeans(weights), ncol = 1)
         if (!is.null(pooled_test_sd)) {
