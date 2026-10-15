@@ -30,7 +30,9 @@
 #'   approximated from `loadings`, `pooled_item_sd`, and `latent_sd`,
 #'   assuming the same latent variance in both groups (and equal group
 #'   pooling weights, or the weights in `ns` when it has one entry per
-#'   group).
+#'   group). For `dmacs_ordered()` and `fmacs_ordered()` only the weighted
+#'   sum of the item variances is used, as the cross-item covariances are
+#'   not identifiable from the inputs.
 #'
 #' @return A 1 x p matrix of dMACS effect size. If `item_weights` is not
 #'   `NULL`, \eqn{p} = 1.
@@ -67,7 +69,8 @@ dmacs <- function(intercepts, loadings = NULL,
         if (!is.null(pooled_test_sd)) {
             pooled_sd <- pooled_test_sd
         } else {
-            pooled_sd <- composite_sd(loadings, pooled_item_sd, latent_sd,
+            # latent_sd[1], as in the item-level integral below
+            pooled_sd <- composite_sd(loadings, pooled_item_sd, latent_sd[1],
                                       item_weights, ns)
         }
         cn_out <- "item_sum"
@@ -409,7 +412,14 @@ es_lavaan <- function(object, ...) {
         alpha1 <- as.numeric(alpha1)
     }
     sv1 <- as.numeric(sqrt(diag(as.matrix(pars[[1]]$psi))))
-    if (is.null(list(...)$item_weights)) {
+    dots <- list(...)
+    item_weights <- dots$item_weights
+    # Consume so it is not forwarded again (it would collide with the
+    # explicit pooled_test_sd below); a user-supplied value takes
+    # precedence over the sample-based one.
+    user_test_sd <- dots$pooled_test_sd
+    dots$pooled_test_sd <- NULL
+    if (is.null(item_weights)) {
         ninv_ov <- ind_names[which(!inv_ind)]
         lmean <- rep(alpha1, each = length(ninv_ov))
         lsd <- rep(sv1, each = length(ninv_ov))
@@ -439,9 +449,11 @@ es_lavaan <- function(object, ...) {
     ns <- lavaan::lavInspect(object, "nobs")
     # Pooled SD of the weighted item sum, including all cross-item
     # covariances (w' Sigma w per group, pooled like the item SDs).
-    pooled_test_sd <- NULL
-    item_weights <- list(...)$item_weights
-    if (!is.null(item_weights)) {
+    # Only for continuous indicators: for ordered models sampstat$cov is
+    # on the latent-response scale, so the observed-scale variance-only
+    # fallback in dmacs_ordered()/fmacs_ordered() is used instead.
+    pooled_test_sd <- user_test_sd
+    if (!is.null(item_weights) && is.null(pooled_test_sd) && !ordered) {
         # Same composite-score scaling as in dmacs()/fmacs() (unit weights
         # give the plain item sum).
         w <- normalize_item_weights(item_weights)
@@ -463,15 +475,17 @@ es_lavaan <- function(object, ...) {
         } else {
             es_fun <- dmacs_ordered
         }
-        es_fun(
-            thresholds = thres_mat,
-            loadings = loading_mat,
-            latent_mean = lmean,
-            latent_sd = lsd,
-            pooled_item_sd = rep(pooled_item_sd, num_lvs),
-            pooled_test_sd = pooled_test_sd,
-            ...
-        )
+        do.call(es_fun, c(
+            list(
+                thresholds = thres_mat,
+                loadings = loading_mat,
+                latent_mean = lmean,
+                latent_sd = lsd,
+                pooled_item_sd = rep(pooled_item_sd, num_lvs),
+                pooled_test_sd = pooled_test_sd
+            ),
+            dots
+        ))
     } else {
         intercept_mat <- lapply(
             pars,
@@ -497,15 +511,17 @@ es_lavaan <- function(object, ...) {
                     function(x) x$lambda[ninv_ov, lv_names[k], drop = TRUE]
                 ))
                 colnames(lam_k) <- ninv_ov
-                out_k <- es_fun(
-                    intercepts = intercept_mat,
-                    loadings = lam_k,
-                    pooled_item_sd = pooled_item_sd,
-                    latent_mean = alpha1[k],
-                    latent_sd = sv1[k],
-                    pooled_test_sd = pooled_test_sd,
-                    ...
-                )
+                out_k <- do.call(es_fun, c(
+                    list(
+                        intercepts = intercept_mat,
+                        loadings = lam_k,
+                        pooled_item_sd = pooled_item_sd,
+                        latent_mean = alpha1[k],
+                        latent_sd = sv1[k],
+                        pooled_test_sd = pooled_test_sd
+                    ),
+                    dots
+                ))
                 if (ncol(out_k) > 0) {
                     colnames(out_k) <- paste0(
                         colnames(out_k), "-", lv_names[k]
@@ -514,15 +530,17 @@ es_lavaan <- function(object, ...) {
                 out_k
             }))
         } else {
-            es_fun(
-                intercepts = intercept_mat,
-                loadings = loading_mat,
-                pooled_item_sd = pooled_item_sd,
-                latent_mean = lmean,
-                latent_sd = lsd,
-                pooled_test_sd = pooled_test_sd,
-                ...
-            )
+            do.call(es_fun, c(
+                list(
+                    intercepts = intercept_mat,
+                    loadings = loading_mat,
+                    pooled_item_sd = pooled_item_sd,
+                    latent_mean = lmean,
+                    latent_sd = lsd,
+                    pooled_test_sd = pooled_test_sd
+                ),
+                dots
+            ))
         }
     }
 }

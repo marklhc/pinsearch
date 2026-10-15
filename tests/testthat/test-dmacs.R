@@ -169,6 +169,12 @@ test_that("Test-level dMACS uses the variance of the item sum", {
                               (rowSums(lambda)^2 - rowSums(lambda^2)))
     expect_equal(out4, matrix(sqrt(A^2 + B^2) / sqrt(4 + cov_part3), 1,
                               dimnames = list("dmacs", "item_sum")))
+
+    # a vector latent_sd is reduced to its first element, as in the
+    # item-level integral
+    out5 <- dmacs(nu, loadings = lambda, pooled_item_sd = rep(1, 4),
+                  latent_sd = c(1, 2), item_weights = rep(1, 4))
+    expect_equal(out5, out)
 })
 
 test_that("Test-level effect size works without loadings", {
@@ -204,6 +210,94 @@ test_that("es_lavaan() test-level dMACS uses the pooled sum-score SD", {
     expect_equal(pin_effsize(pf1, item_weights = 4:1),
                  matrix(abs(d), 1, dimnames = list("dmacs", "item_sum")),
                  tolerance = 0.001)
+})
+
+test_that("es_lavaan() accepts a user-supplied pooled_test_sd", {
+    lam <- rep(1, 4)
+    cov1 <- tcrossprod(lam) + diag(1, 4)
+    dimnames(cov1) <- list(paste0("x", 1:4), paste0("x", 1:4))
+    mean1 <- c(1, 0, 0, 0)
+    mean2 <- lam * .4 + c(0, 1, 0, 0)
+    pf1 <- cfa(' f =~ x1 + x2 + x3 + x4 ',
+               sample.cov = list(cov1, cov1),
+               sample.mean = list(mean1, mean2),
+               sample.nobs = c(10000, 10000),
+               std.lv = TRUE,
+               group = "school",
+               group.equal = c("loadings", "intercepts"),
+               group.partial = c("x1~1", "x2~1"))
+    w <- 4:1 * 4 / 10
+    # a user-supplied value takes precedence over the sample-based one
+    expect_equal(
+        pin_effsize(pf1, item_weights = 4:1, pooled_test_sd = 3),
+        matrix(abs(sum(w * c(-1, 1, 0, 0))) / 3, 1,
+               dimnames = list("dmacs", "item_sum")),
+        tolerance = 0.001
+    )
+    # without item_weights it is accepted (and ignored)
+    expect_equal(
+        pin_effsize(pf1, pooled_test_sd = 3),
+        pin_effsize(pf1),
+        ignore_attr = TRUE
+    )
+})
+
+test_that("es_lavaan() test level stays on the observed scale for ordered items", {
+    set.seed(42)
+    n <- 500
+    # y2|t2 differs across groups (DIF); everything else is invariant.
+    mkgrp <- function(th2b) {
+        eta <- rnorm(n)
+        u1 <- 0.9 * eta + rnorm(n, sd = sqrt(1 - 0.81))
+        u2 <- 0.7 * eta + rnorm(n, sd = sqrt(1 - 0.49))
+        u3 <- 0.8 * eta + rnorm(n, sd = sqrt(1 - 0.64))
+        data.frame(y1 = findInterval(u1, c(-Inf, -0.5, 0.3, Inf)),
+                   y2 = findInterval(u2, c(-Inf, -0.5, th2b, Inf)),
+                   y3 = findInterval(u3, c(-Inf, 0, 0.8, Inf)))
+    }
+    d1 <- mkgrp(0.5)
+    d2 <- mkgrp(0.1)
+    dat <- rbind(cbind(d1, grp = 1), cbind(d2, grp = 2))
+    for (v in c("y1", "y2", "y3")) {
+        dat[[v]] <- factor(dat[[v]], ordered = TRUE)
+    }
+    fit <- cfa("f =~ y1 + y2 + y3",
+               data = dat,
+               group = "grp",
+               ordered = c("y1", "y2", "y3"),
+               group.equal = c("loadings", "thresholds"),
+               group.partial = "y2|t2")
+    out <- es_lavaan(fit, item_weights = c(1, 1, 1))
+    # Reference: dmacs_ordered() with the fitted parameters and the
+    # observed-scale variance-only fallback denominator (sampstat$cov is
+    # on the latent-response scale for ordered models, so it must not be
+    # used for the sum-score SD).
+    pars <- lavInspect(fit, "est")
+    ss <- lavInspect(fit, "sampstat")
+    ns <- lavInspect(fit, "nobs")
+    items <- c("y1", "y2", "y3")
+    alpha1 <- if (is.null(pars[[1]]$alpha)) 0 else as.numeric(pars[[1]]$alpha)
+    sv1 <- sqrt(pars[[1]]$psi["f", "f"])
+    ref <- dmacs_ordered(
+        thresholds = to_mat_thresholds(pars, items, 1),
+        loadings = to_mat_loadings(pars, items),
+        pooled_item_sd = pooledsd_sampstat(ss, items, ns, ordered = TRUE),
+        latent_mean = alpha1,
+        latent_sd = sv1,
+        item_weights = c(1, 1, 1)
+    )
+    expect_equal(out, ref, tolerance = 1e-6)
+    # and the latent-response-scale denominator (sampstat$cov) would give
+    # a different value
+    sd_latent <- sqrt(vapply(ss, function(s) {
+        cov <- s$cov[items, items, drop = FALSE]
+        as.numeric(crossprod(rep(1, 3), cov %*% rep(1, 3)))
+    }, numeric(1)) %*% prop.table(ns))
+    sd_obs <- sqrt(sum(pooledsd_sampstat(ss, items, ns, ordered = TRUE)^2))
+    expect_false(isTRUE(all.equal(
+        as.numeric(out),
+        as.numeric(ref) * sd_obs / sd_latent
+    )))
 })
 
 # Multidimensional models (see #7, #4)

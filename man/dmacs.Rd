@@ -55,7 +55,9 @@ sum. Only used when \code{item_weights} is not \code{NULL}. If not supplied, it 
 approximated from \code{loadings}, \code{pooled_item_sd}, and \code{latent_sd},
 assuming the same latent variance in both groups (and equal group
 pooling weights, or the weights in \code{ns} when it has one entry per
-group).}
+group). For \code{dmacs_ordered()} and \code{fmacs_ordered()} only the weighted
+sum of the item variances is used, as the cross-item covariances are
+not identifiable from the inputs.}
 
 \item{thresholds}{A matrix with two rows for measurement thresholds. The
 matrix must have column names indicating to which item index each column
