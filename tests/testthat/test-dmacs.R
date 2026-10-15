@@ -293,7 +293,20 @@ test_that("es_lavaan() test level stays on the observed scale for ordered items"
         cov <- s$cov[items, items, drop = FALSE]
         as.numeric(crossprod(rep(1, 3), cov %*% rep(1, 3)))
     }, numeric(1)) %*% prop.table(ns))
-    sd_obs <- sqrt(sum(pooledsd_sampstat(ss, items, ns, ordered = TRUE)^2))
+    # Independently recover the observed-scale fallback from empirical
+    # category scores. Use population variances (divisor n), matching the
+    # category probabilities represented by the sample thresholds.
+    group_vars <- vapply(list(d1, d2), function(d) {
+        sum(vapply(d[items], function(x) mean(x^2) - mean(x)^2,
+                   numeric(1)))
+    }, numeric(1))
+    sd_obs <- sqrt(sum(group_vars * prop.table(ns)))
+    expect_equal(sd_obs,
+                 sqrt(sum(pooledsd_sampstat(ss, items, ns, ordered = TRUE)^2)),
+                 tolerance = 1e-6)
+    # The ordered dispatch also accepts an observed-scale user override.
+    expect_equal(es_lavaan(fit, item_weights = c(1, 1, 1), pooled_test_sd = 3),
+                 ref * sd_obs / 3, tolerance = 1e-6)
     expect_false(isTRUE(all.equal(
         as.numeric(out),
         as.numeric(ref) * sd_obs / sd_latent
@@ -444,6 +457,9 @@ test_that("es_lavaan() works with item_weights in multidimensional models", {
         )[1, ]
     }, numeric(1))
     expect_equal(as.numeric(out[1, ]), unname(expected), tolerance = 1e-6)
+    # Exercise the separate multidimensional forwarding path.
+    expect_equal(es_lavaan(fit, item_weights = w, pooled_test_sd = 3),
+                 out * as.numeric(test_sd) / 3, tolerance = 1e-6)
 })
 
 test_that("es_lavaan() computes correct values in multidimensional models (three groups)", {
@@ -547,6 +563,9 @@ test_that("es_lavaan() works with item_weights (three groups)", {
         )[1, ]
     }, numeric(1))
     expect_equal(as.numeric(out[1, ]), unname(expected), tolerance = 1e-6)
+    # The override must also reach fmacs() through the group-size wrapper.
+    expect_equal(es_lavaan(fit, item_weights = w, pooled_test_sd = 3),
+                 out * as.numeric(test_sd) / 3, tolerance = 1e-6)
 })
 
 # Ordered items
