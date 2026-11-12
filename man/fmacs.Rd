@@ -8,7 +8,7 @@
 fmacs(
   intercepts,
   loadings = NULL,
-  pooled_item_sd,
+  pooled_item_sd = NULL,
   num_obs = NULL,
   weights = 0 * intercepts + 1,
   group_factor = NULL,
@@ -56,9 +56,11 @@ contrast. For example, \code{c(1, 1, 2)} means contrasting Group 1 & 2 vs.
 Group 3. The default is to not combine any groups, meaning the
 omnibus effect is computed.}
 
-\item{contrast}{A \eqn{p \times k} contrast matrix where
-\code{colSums(contrast)} = 0. Default is \code{contr.sum(p)} if \code{group_factor} is
-not specified.}
+\item{contrast}{A \eqn{G \times k} contrast matrix where
+\code{colSums(contrast)} = 0. Default is \code{contr.sum(G)} if \code{group_factor} is
+not specified (with \eqn{G} groups). When \code{group_factor} is specified,
+the contrast compares weighted means within each level, with level weights
+equal to the sum of the weights for its constituent groups.}
 
 \item{latent_mean}{latent factor mean for the reference group. Default to 0.}
 
@@ -71,7 +73,9 @@ for the weighted sum of the items (unit weights give the plain sum).}
 \item{pooled_test_sd}{The pooled standard deviation of the weighted item
 sum. Only used when \code{item_weights} is not \code{NULL}. If not supplied, it is
 approximated from \code{loadings}, \code{pooled_item_sd}, and \code{latent_sd},
-assuming the same latent variance in all groups.}
+assuming the same latent variance in all groups. For \code{fmacs_ordered()},
+the fallback uses only the weighted item variances; cross-item covariances
+are not included because they are not identifiable from the inputs.}
 
 \item{thresholds}{A matrix with G rows for measurement thresholds. The
 matrix must have column names indicating to which item index each column
@@ -91,15 +95,18 @@ and intercepts.
 \details{
 The \eqn{f_\text{MACS}} effect size is defined as
 \deqn{f_{\text{MACS}, i} = \frac{1}{\mathit{SD}_{iP}}
-  \sqrt{\int [(\nu_{ij} - \bar{\nu}_j) +
-              (\lambda_{ij} - \bar{\lambda}_j) \eta]^2 f(\eta) d \eta}}
-where \eqn{\lambda} is the loading and \eqn{\nu} is the intercept,
-and j indexes group. The effect size reflects the square root of
+  \sqrt{\int \sum_{g=1}^G w_{gi} [(\nu_{ig} - \bar{\nu}_i) +
+              (\lambda_{ig} - \bar{\lambda}_i) \eta]^2
+              f(\eta) d \eta}}
+where \eqn{w_{gi}} is the normalized group weight for item \eqn{i},
+and \eqn{\bar{\nu}_i} and \eqn{\bar{\lambda}_i} are the corresponding
+weighted group means. \eqn{\lambda} is the loading and \eqn{\nu} is
+the intercept. The effect size reflects the square root of
 the ratio between the variance in observed item score due to
 measurement noninvariance and the variance of the observed item scores.
 \eqn{f_\text{MACS}} is analogous to the Cohen's f effect size. When there
 are two groups with equal sample sizes, \eqn{f_\text{MACS}} =
-\eqn{f_\text{MACS}} / 2
+\eqn{d_\text{MACS}} / 2
 }
 \examples{
 lambda <- rbind(c(.7, .8, .7, .9),

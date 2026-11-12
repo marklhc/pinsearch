@@ -188,6 +188,45 @@ test_that("Test-level effect size works without loadings", {
     expect_equal(as.vector(out2), as.vector(out) / 2)
 })
 
+test_that("test-level dMACS validates variance inputs and keeps uniqueness fallback", {
+    nu <- rbind(c(0.3, 0.8), c(0.5, 1))
+    expect_error(
+        dmacs(nu, item_weights = c(1, 1)),
+        "pooled_test_sd.*pooled_item_sd.*uniqueness"
+    )
+    out <- dmacs(nu, loadings = rbind(c(1, .5), c(1, .5)),
+                 item_weights = c(1, 1), uniqueness = c(1, 1),
+                 ns = c(100, 100))
+    expect_equal(as.numeric(out), .4 / sqrt(1.5^2 + 2), tolerance = 1e-12)
+    out_no_ns <- dmacs(nu, loadings = rbind(c(1, .5), c(1, .5)),
+                       item_weights = c(1, 1), uniqueness = c(1, 1))
+    expect_equal(out_no_ns, out, tolerance = 1e-12)
+
+    # Non-unit weights and group-specific uniquenesses: residual variances
+    # aggregate with squared weights, while factor covariances use the sum
+    # of the weighted loadings.
+    nu3 <- rbind(c(.1, .2, .4), c(.3, .5, .8))
+    lambda3 <- rbind(c(.8, .5, .2), c(.7, .6, .4))
+    uniqueness3 <- rbind(c(.4, .7, .9), c(.5, .6, .8))
+    w <- normalize_item_weights(c(2, 1, 1))
+    group_var <- as.numeric((lambda3 %*% w)^2 +
+                            uniqueness3 %*% (w^2))
+    dmean <- sum(w * (nu3[2, ] - nu3[1, ]))
+    dload <- sum(w * (lambda3[2, ] - lambda3[1, ]))
+    expected <- sqrt(dmean^2 + dload^2) / sqrt(mean(group_var))
+    out3 <- dmacs(nu3, loadings = lambda3, item_weights = c(2, 1, 1),
+                  uniqueness = uniqueness3, ns = c(100, 100))
+    expect_equal(as.numeric(out3), expected, tolerance = 1e-12)
+
+    thresholds <- rbind(c(-.5, .5), c(-.4, .6))
+    colnames(thresholds) <- c(1, 2)
+    expect_error(
+        dmacs_ordered(thresholds, loadings = rbind(c(.7, .8), c(.7, .8)),
+                      item_weights = c(1, 1)),
+        "pooled_test_sd.*pooled_item_sd"
+    )
+})
+
 test_that("es_lavaan() test-level dMACS uses the pooled sum-score SD", {
     lam <- rep(1, 4)
     cov1 <- tcrossprod(lam) + diag(1, 4)
