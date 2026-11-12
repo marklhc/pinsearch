@@ -317,6 +317,9 @@ composite_sd_from_uniqueness <- function(loadings, latent_sd, uniqueness,
     }
     residual_var <- as.numeric(uniqueness %*% (item_weights^2))
     composite_var <- composite_loading^2 * latent_sd[1:2]^2 + residual_var
+    if (is.null(ns)) {
+        return(sqrt(mean(composite_var)))
+    }
     sqrt(pooledvar(matrix(composite_var, ncol = 1), ns))
 }
 

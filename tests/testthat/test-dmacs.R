@@ -198,6 +198,9 @@ test_that("test-level dMACS validates variance inputs and keeps uniqueness fallb
                  item_weights = c(1, 1), uniqueness = c(1, 1),
                  ns = c(100, 100))
     expect_equal(as.numeric(out), .4 / sqrt(1.5^2 + 2), tolerance = 1e-12)
+    out_no_ns <- dmacs(nu, loadings = rbind(c(1, .5), c(1, .5)),
+                       item_weights = c(1, 1), uniqueness = c(1, 1))
+    expect_equal(out_no_ns, out, tolerance = 1e-12)
 
     # Non-unit weights and group-specific uniquenesses: residual variances
     # aggregate with squared weights, while factor covariances use the sum
