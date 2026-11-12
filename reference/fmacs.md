@@ -9,7 +9,7 @@ and intercepts.
 fmacs(
   intercepts,
   loadings = NULL,
-  pooled_item_sd,
+  pooled_item_sd = NULL,
   num_obs = NULL,
   weights = 0 * intercepts + 1,
   group_factor = NULL,
@@ -73,8 +73,11 @@ fmacs_ordered(
 
 - contrast:
 
-  A \\p \times k\\ contrast matrix where `colSums(contrast)` = 0.
-  Default is `contr.sum(p)` if `group_factor` is not specified.
+  A \\G \times k\\ contrast matrix where `colSums(contrast)` = 0.
+  Default is `contr.sum(G)` if `group_factor` is not specified (with
+  \\G\\ groups). When `group_factor` is specified, the contrast compares
+  weighted means within each level, with level weights equal to the sum
+  of the weights for its constituent groups.
 
 - latent_mean:
 
@@ -95,7 +98,9 @@ fmacs_ordered(
   The pooled standard deviation of the weighted item sum. Only used when
   `item_weights` is not `NULL`. If not supplied, it is approximated from
   `loadings`, `pooled_item_sd`, and `latent_sd`, assuming the same
-  latent variance in all groups.
+  latent variance in all groups. For `fmacs_ordered()`, the fallback
+  uses only the weighted item variances; cross-item covariances are not
+  included because they are not identifiable from the inputs.
 
 - thresholds:
 
@@ -117,14 +122,17 @@ A 1 x p matrix of fMACS effect size.
 ## Details
 
 The \\f\_\text{MACS}\\ effect size is defined as \$\$f\_{\text{MACS}, i}
-= \frac{1}{\mathit{SD}\_{iP}} \sqrt{\int \[(\nu\_{ij} - \bar{\nu}\_j) +
-(\lambda\_{ij} - \bar{\lambda}\_j) \eta\]^2 f(\eta) d \eta}\$\$ where
-\\\lambda\\ is the loading and \\\nu\\ is the intercept, and j indexes
-group. The effect size reflects the square root of the ratio between the
-variance in observed item score due to measurement noninvariance and the
-variance of the observed item scores. \\f\_\text{MACS}\\ is analogous to
-the Cohen's f effect size. When there are two groups with equal sample
-sizes, \\f\_\text{MACS}\\ = \\f\_\text{MACS}\\ / 2
+= \frac{1}{\mathit{SD}\_{iP}} \sqrt{\int \sum\_{g=1}^G w\_{gi}
+\[(\nu\_{ig} - \bar{\nu}\_i) + (\lambda\_{ig} - \bar{\lambda}\_i)
+\eta\]^2 f(\eta) d \eta}\$\$ where \\w\_{gi}\\ is the normalized group
+weight for item \\i\\, and \\\bar{\nu}\_i\\ and \\\bar{\lambda}\_i\\ are
+the corresponding weighted group means. \\\lambda\\ is the loading and
+\\\nu\\ is the intercept. The effect size reflects the square root of
+the ratio between the variance in observed item score due to measurement
+noninvariance and the variance of the observed item scores.
+\\f\_\text{MACS}\\ is analogous to the Cohen's f effect size. When there
+are two groups with equal sample sizes, \\f\_\text{MACS}\\ =
+\\d\_\text{MACS}\\ / 2
 
 ## Examples
 
