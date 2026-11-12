@@ -134,6 +134,108 @@ test_that("Error without 'pooled_sd' argument", {
     # Can compute for ordered . . .
 })
 
+test_that("test-level fMACS requires an SD input", {
+    expect_error(fmacs(nu, loadings = lambda, item_weights = rep(1, 3)),
+                 "pooled_test_sd.*pooled_item_sd")
+    expect_error(
+        fmacs_ordered(tau, loadings = lambda, item_weights = rep(1, 3)),
+        "pooled_test_sd.*pooled_item_sd"
+    )
+})
+
+test_that("group_factor uses sample-weighted means within levels", {
+    intercepts <- matrix(c(0, 2, 0), ncol = 1)
+    loadings <- matrix(0, nrow = 3, ncol = 1)
+    grouped <- fmacs(intercepts, loadings = loadings,
+                     pooled_item_sd = 1, num_obs = c(1, 3, 4),
+                     group_factor = c(1, 1, 2))
+    expect_equal(as.numeric(grouped), .75, tolerance = 1e-10)
+
+    thresholds <- matrix(c(.2, -1, 0), ncol = 1,
+                         dimnames = list(NULL, "1"))
+    ordered_loadings <- matrix(c(0, 1, 0), nrow = 3, ncol = 1)
+    ordered <- fmacs_ordered(
+        thresholds, loadings = ordered_loadings, pooled_item_sd = 1,
+        num_obs = c(1, 3, 4), group_factor = c(1, 1, 2)
+    )
+    expected <- stats::integrate(function(eta) {
+        level1 <- .25 * stats::pnorm(-.2) + .75 * stats::pnorm(eta + 1)
+        level2 <- stats::pnorm(0)
+        (.25 * (level1 - level2)^2) * stats::dnorm(eta)
+    }, -Inf, Inf)$value
+    expect_equal(as.numeric(ordered), sqrt(expected), tolerance = 1e-6)
+})
+
+test_that("group_factor supports multiple levels and item-specific weights", {
+    group <- c(1, 1, 2, 3)
+    weights <- matrix(c(1, 3, 2, 4,
+                        4, 1, 3, 2), nrow = 4)
+    intercepts <- cbind(c(0, 2, 1, 4), c(3, 0, 2, 1))
+    loadings <- matrix(0, nrow = 4, ncol = 2)
+    out <- fmacs(intercepts, loadings = loadings,
+                 pooled_item_sd = c(1, 1), weights = weights,
+                 group_factor = group)
+    expected <- vapply(seq_len(2), function(j) {
+        wg <- weights[, j] / sum(weights[, j])
+        means <- vapply(1:3, function(k) {
+            sum(wg[group == k] * intercepts[group == k, j]) /
+                sum(wg[group == k])
+        }, numeric(1))
+        level_w <- vapply(1:3, function(k) sum(wg[group == k]), numeric(1))
+        grand <- sum(level_w * means)
+        sqrt(sum(level_w * (means - grand)^2))
+    }, numeric(1))
+    expect_equal(as.numeric(out), expected, tolerance = 1e-12)
+
+    # The test-level path combines item responses first and uses the
+    # normalized average of the item-specific group weights.
+    test_intercepts <- cbind(c(0, 2, 1), c(3, 0, 2))
+    test_loadings <- cbind(c(.2, .8, .4), c(.5, .1, .7))
+    test_out <- fmacs(
+        test_intercepts, loadings = test_loadings, pooled_test_sd = 1,
+        num_obs = c(1, 3, 2), item_weights = c(1, 2),
+        group_factor = c(1, 1, 2)
+    )
+    composite_int <- as.numeric(test_intercepts %*% c(2 / 3, 4 / 3))
+    composite_load <- as.numeric(test_loadings %*% c(2 / 3, 4 / 3))
+    group_w <- c(2 / 3, 1 / 3)
+    level_int <- c((composite_int[1] + 3 * composite_int[2]) / 4,
+                   composite_int[3])
+    level_load <- c((composite_load[1] + 3 * composite_load[2]) / 4,
+                    composite_load[3])
+    expected_test <- sqrt(sum(group_w * (level_int - sum(group_w * level_int))^2) +
+                          sum(group_w * (level_load - sum(group_w * level_load))^2))
+    expect_equal(as.numeric(test_out), expected_test, tolerance = 1e-12)
+})
+
+test_that("ordered test-level fMACS honors group_factor weights", {
+    group <- c(1, 1, 2)
+    num_obs <- c(1, 3, 2)
+    thresholds <- rbind(c(.2, -.5), c(-1, .3), c(0, -.2))
+    colnames(thresholds) <- c("1", "2")
+    loadings <- rbind(c(0, .4), c(1, .2), c(.3, .8))
+    out <- fmacs_ordered(
+        thresholds, loadings = loadings, pooled_test_sd = 1,
+        num_obs = num_obs, group_factor = group, item_weights = c(1, 2)
+    )
+    wg <- num_obs / sum(num_obs)
+    expected <- stats::integrate(function(eta) {
+        vapply(eta, function(x) {
+            item_mean <- sapply(1:2, function(j) {
+                stats::pnorm(loadings[, j] * x - thresholds[, j])
+            })
+            # normalize_item_weights(c(1, 2)) is (2/3, 4/3).
+            composite <- as.numeric(item_mean %*% c(2 / 3, 4 / 3))
+            level1 <- sum(wg[1:2] * composite[1:2]) / sum(wg[1:2])
+            level2 <- composite[3]
+            level_w <- c(sum(wg[1:2]), wg[3])
+            grand <- sum(level_w * c(level1, level2))
+            sum(level_w * (c(level1, level2) - grand)^2)
+        }, numeric(1)) * stats::dnorm(eta)
+    }, -Inf, Inf)$value
+    expect_equal(as.numeric(out), sqrt(expected), tolerance = 1e-6)
+})
+
 # fmacs(matrix(c(9, 5, 7, 11)), pooled_item_sd = 1,
 #       num_obs = c(10, 5, 16, 9))
 

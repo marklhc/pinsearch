@@ -5,15 +5,18 @@
 #'
 #' The \eqn{f_\text{MACS}} effect size is defined as
 #' \deqn{f_{\text{MACS}, i} = \frac{1}{\mathit{SD}_{iP}}
-#'   \sqrt{\int [(\nu_{ij} - \bar{\nu}_j) +
-#'               (\lambda_{ij} - \bar{\lambda}_j) \eta]^2 f(\eta) d \eta}}
-#'   where \eqn{\lambda} is the loading and \eqn{\nu} is the intercept,
-#'   and j indexes group. The effect size reflects the square root of
+#'   \sqrt{\int \sum_{g=1}^G w_{gi} [(\nu_{ig} - \bar{\nu}_i) +
+#'               (\lambda_{ig} - \bar{\lambda}_i) \eta]^2
+#'               f(\eta) d \eta}}
+#'   where \eqn{w_{gi}} is the normalized group weight for item \eqn{i},
+#'   and \eqn{\bar{\nu}_i} and \eqn{\bar{\lambda}_i} are the corresponding
+#'   weighted group means. \eqn{\lambda} is the loading and \eqn{\nu} is
+#'   the intercept. The effect size reflects the square root of
 #'   the ratio between the variance in observed item score due to
 #'   measurement noninvariance and the variance of the observed item scores.
 #'   \eqn{f_\text{MACS}} is analogous to the Cohen's f effect size. When there
 #'   are two groups with equal sample sizes, \eqn{f_\text{MACS}} =
-#'   \eqn{f_\text{MACS}} / 2
+#'   \eqn{d_\text{MACS}} / 2
 #'
 #' @param loadings A \eqn{G \times p} matrix of factor loadings, where p
 #'   is the number of items and G is the number of groups.
@@ -29,9 +32,11 @@
 #'   contrast. For example, `c(1, 1, 2)` means contrasting Group 1 & 2 vs.
 #'   Group 3. The default is to not combine any groups, meaning the
 #'   omnibus effect is computed.
-#' @param contrast A \eqn{p \times k} contrast matrix where
-#'   `colSums(contrast)` = 0. Default is `contr.sum(p)` if `group_factor` is
-#'   not specified.
+#' @param contrast A \eqn{G \times k} contrast matrix where
+#'   `colSums(contrast)` = 0. Default is `contr.sum(G)` if `group_factor` is
+#'   not specified (with \eqn{G} groups). When `group_factor` is specified,
+#'   the contrast compares weighted means within each level, with level weights
+#'   equal to the sum of the weights for its constituent groups.
 #' @param latent_mean latent factor mean for the reference group. Default to 0.
 #' @param latent_sd latent factor SD for the reference group. Default to 1.
 #' @param item_weights Default is `NULL`. Otherwise, one can specify a vector
@@ -40,7 +45,9 @@
 #' @param pooled_test_sd The pooled standard deviation of the weighted item
 #'   sum. Only used when `item_weights` is not `NULL`. If not supplied, it is
 #'   approximated from `loadings`, `pooled_item_sd`, and `latent_sd`,
-#'   assuming the same latent variance in all groups.
+#'   assuming the same latent variance in all groups. For `fmacs_ordered()`,
+#'   the fallback uses only the weighted item variances; cross-item covariances
+#'   are not included because they are not identifiable from the inputs.
 #'
 #' @return A 1 x p matrix of fMACS effect size.
 #'
@@ -65,7 +72,7 @@
 #'       latent_mean = 0,
 #'       latent_sd = 1)
 #' @export
-fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
+fmacs <- function(intercepts, loadings = NULL, pooled_item_sd = NULL,
                   # Allow weighted vs. unweighted options
                   # Accept character and matrix input?
                   num_obs = NULL,
@@ -88,6 +95,8 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
         weights <- matrix(rowMeans(weights), ncol = 1)
         if (!is.null(pooled_test_sd)) {
             pooled_sd <- pooled_test_sd
+        } else if (is.null(pooled_item_sd)) {
+            stop("Supply `pooled_test_sd` or `pooled_item_sd` for test-level fMACS.")
         } else {
             pooled_sd <- composite_sd(loadings, pooled_item_sd, latent_sd[1],
                                       item_weights,
@@ -107,13 +116,15 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
         pooled_sd <- pooled_item_sd
         cn_out <- colnames(loadings)
     }
+    if (is.null(pooled_sd)) {
+        stop("Supply `pooled_item_sd` to compute fMACS.")
+    }
     # total_obs <- colSums(num_obs)
+    group_levels <- NULL
     if (!is.null(group_factor)) {
         stopifnot(nrow(intercepts) == nrow(loadings),
                   length(group_factor) == nrow(intercepts))
-        fac <- as.factor(group_factor)
-        contrasts(fac) <- contr.sum(nlevels(fac)) / as.numeric(table(fac))
-        contrast <- model.matrix(~ fac)[, -1, drop = FALSE]
+        group_levels <- as.integer(factor(group_factor))
     }
     contrast <- as.matrix(contrast)
     if (any(colSums(contrast) != 0)) {
@@ -129,11 +140,13 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
         latent_sd <- rep(latent_sd, ncol(loadings))
     }
     integral <- vapply(seq_len(ncol(weights)), FUN = function(j) {
+        contrast_j <- if (is.null(group_levels)) contrast else
+            weighted_group_contrast(group_levels, weights[, j])
         inv_ss_cont <- solve(
-            crossprod(contrast, contrast / weights[, j])
+            crossprod(contrast_j, contrast_j / weights[, j])
         )
-        cload <- crossprod(contrast, loadings[, j])
-        cint <- crossprod(contrast, intercepts[, j])
+        cload <- crossprod(contrast_j, loadings[, j])
+        cint <- crossprod(contrast_j, intercepts[, j])
         vload <- crossprod(cload, inv_ss_cont %*% cload)
         vint <- crossprod(cint, inv_ss_cont %*% cint)
         cp <- crossprod(cload, inv_ss_cont %*% cint)
@@ -143,6 +156,20 @@ fmacs <- function(intercepts, loadings = NULL, pooled_item_sd,
     out <- sqrt(integral) / pooled_sd
     out <- matrix(out, nrow = 1, dimnames = list("fmacs", cn_out))
     suppress_zero_loadings(out)
+}
+
+weighted_group_contrast <- function(group, weights) {
+    levels <- sort(unique(group))
+    level_contrast <- contr.sum(length(levels))
+    level_weights <- vapply(levels, function(k) sum(weights[group == k]),
+                            numeric(1))
+    out <- matrix(0, nrow = length(group), ncol = ncol(level_contrast))
+    for (i in seq_along(levels)) {
+        idx <- which(group == levels[i])
+        out[idx, ] <- outer(weights[idx] / level_weights[i],
+                            level_contrast[i, ])
+    }
+    out
 }
 
 #' @rdname fmacs
@@ -191,12 +218,11 @@ fmacs_ordered <- function(thresholds, loadings,
         stop("thresholds should have column names to indicate which thresholds",
              " are for which items")
     }
+    group_levels <- NULL
     if (!is.null(group_factor)) {
         stopifnot(nrow(thresholds) == nrow(loadings),
                   length(group_factor) == nrow(thresholds))
-        fac <- as.factor(group_factor)
-        contrasts(fac) <- contr.sum(nlevels(fac)) / as.numeric(table(fac))
-        contrast <- model.matrix(~ fac)[, -1, drop = FALSE]
+        group_levels <- as.integer(factor(group_factor))
     }
     contrast <- as.matrix(contrast)
     if (any(colSums(contrast) != 0)) {
@@ -233,6 +259,8 @@ fmacs_ordered <- function(thresholds, loadings,
         item_weights <- normalize_item_weights(item_weights)
         if (!is.null(pooled_test_sd)) {
             pooled_sd <- pooled_test_sd
+        } else if (is.null(pooled_item_sd)) {
+            stop("Supply `pooled_test_sd` or `pooled_item_sd` for test-level fMACS.")
         } else {
             # Only the variance part of the sum score; the cross-item
             # covariances are not identifiable from the inputs here.
@@ -240,6 +268,9 @@ fmacs_ordered <- function(thresholds, loadings,
         }
         cn_out <- "item_sum"
         weights <- rowMeans(weights)
+        if (!is.null(group_levels)) {
+            contrast <- weighted_group_contrast(group_levels, weights)
+        }
         inv_ss_cont <- solve(
             crossprod(contrast, contrast / weights)
         )
@@ -263,21 +294,26 @@ fmacs_ordered <- function(thresholds, loadings,
         cn_out <- colnames(loadings)
         integrals <- rep(NA, ncol(loadings))
         for (j in seq_along(integrals)) {
+            contrast_j <- if (is.null(group_levels)) contrast else
+                weighted_group_contrast(group_levels, weights[, j])
             inv_ss_cont <- solve(
-                crossprod(contrast, contrast / weights[, j])
+                crossprod(contrast_j, contrast_j / weights[, j])
             )
             integrals[j] <- stats::integrate(
                 function(x) {
                     exp_y <- compute_exp_y(
                         j, thresholds, thres_list, loadings, eta = x
                     )
-                    cexp_y <- crossprod(contrast, exp_y)
+                    cexp_y <- crossprod(contrast_j, exp_y)
                     colSums(cexp_y * (inv_ss_cont %*% cexp_y)) *
                         stats::dnorm(x, mean = latent_mean, sd = latent_sd)
                 },
                 lower = -Inf, upper = Inf
             )$value
         }
+    }
+    if (is.null(pooled_sd)) {
+        stop("Supply `pooled_item_sd` to compute fMACS.")
     }
     out <- matrix(sqrt(integrals) / pooled_sd, nrow = 1)
     colnames(out) <- cn_out

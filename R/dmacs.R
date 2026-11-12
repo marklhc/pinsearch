@@ -72,6 +72,14 @@ dmacs <- function(intercepts, loadings = NULL,
         item_weights <- normalize_item_weights(item_weights)
         if (!is.null(pooled_test_sd)) {
             pooled_sd <- pooled_test_sd
+        } else if (is.null(pooled_item_sd)) {
+            if (is.null(uniqueness)) {
+                pooled_sd <- NULL
+            } else {
+                pooled_sd <- composite_sd_from_uniqueness(
+                    loadings, latent_sd, uniqueness, item_weights, ns
+                )
+            }
         } else {
             # latent_sd[1], as in the item-level integral below
             pooled_sd <- composite_sd(loadings, pooled_item_sd, latent_sd[1],
@@ -106,6 +114,9 @@ dmacs <- function(intercepts, loadings = NULL,
         pooled_sd <- sqrt(
             implied_pooledvar_linear(ns, loadings, latent_sd, uniqueness)
         )
+    }
+    if (is.null(pooled_sd)) {
+        stop("Supply `pooled_test_sd`, `pooled_item_sd`, or `uniqueness` for test-level dMACS.")
     }
     out <- sqrt(integral) / pooled_sd
     rownames(out) <- "dmacs"
@@ -201,6 +212,8 @@ dmacs_ordered <- function(thresholds, loadings,
         item_weights <- normalize_item_weights(item_weights)
         if (!is.null(pooled_test_sd)) {
             pooled_sd <- pooled_test_sd
+        } else if (is.null(pooled_item_sd)) {
+            stop("Supply `pooled_test_sd` or `pooled_item_sd` for test-level dMACS.")
         } else {
             # Only the variance part of the sum score; the cross-item
             # covariances are not identifiable from the inputs here.
@@ -274,6 +287,37 @@ implied_pooledvar_linear <- function(ns, ld, lat_sd, uniq) {
     uniq <- as.matrix(uniq)
     vars <- ld^2 * lat_sd^2 + uniq
     pooledvar(vars, ns)
+}
+
+# Pooled SD of a weighted item sum when item uniquenesses are supplied
+# instead of pooled item SDs. The composite residual variance uses squared
+# item weights, while the common-factor component uses the weighted loading.
+composite_sd_from_uniqueness <- function(loadings, latent_sd, uniqueness,
+                                         item_weights, ns = NULL) {
+    n_items <- length(item_weights)
+    if (is.null(dim(uniqueness))) {
+        uniqueness <- matrix(rep(uniqueness, each = 2), nrow = 2)
+    } else {
+        uniqueness <- as.matrix(uniqueness)
+    }
+    if (ncol(uniqueness) != n_items || nrow(uniqueness) != 2) {
+        stop("`uniqueness` must be a vector of length p or a 2 x p matrix.")
+    }
+    if (is.null(loadings)) {
+        composite_loading <- rep(0, 2)
+    } else {
+        loadings <- as.matrix(loadings)
+        if (!identical(dim(loadings), dim(uniqueness))) {
+            stop("`loadings` and `uniqueness` must have matching dimensions.")
+        }
+        composite_loading <- as.numeric(loadings %*% item_weights)
+    }
+    if (length(latent_sd) == 1) {
+        latent_sd <- rep(latent_sd, 2)
+    }
+    residual_var <- as.numeric(uniqueness %*% (item_weights^2))
+    composite_var <- composite_loading^2 * latent_sd[1:2]^2 + residual_var
+    sqrt(pooledvar(matrix(composite_var, ncol = 1), ns))
 }
 
 pooledsd_sampstat <- function(sampstat, ninv_ov, ns, ordered) {
