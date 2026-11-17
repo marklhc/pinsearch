@@ -209,9 +209,9 @@ ps1$`Partial Invariance Fit` |>
 
 ## Effect Size
 
-The package supports the $`d_\text{MACS}`$ effect size statistics by
+The package supports the \\d\_\text{MACS}\\ effect size statistics by
 [Nye and Drasgow (2011)](https://doi.org/10.1037/a0022955) for
-noninvariant items, and the generalization to an $`f_\text{bias}`$
+noninvariant items, and the generalization to an \\f\_\text{bias}\\
 statistic for more than two groups.
 
 These can be obtained by setting the `effect_size = TRUE` argument:

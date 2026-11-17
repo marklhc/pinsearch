@@ -200,4 +200,4 @@ t(rbind(f_omni, f_gender, f_eth, f_int)) |>
 | Item 14 |    0.19 |   0.09 |      0.12 |               0.12 |
 | Item 15 |    0.14 |   0.07 |      0.09 |               0.08 |
 
-$`f_\text{MACS}`$ effect sizes {.table}
+\\f\_\text{MACS}\\ effect sizes {.table}

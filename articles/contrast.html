@@ -5,7 +5,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Using Contrasts • pinsearch</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -62,7 +68,7 @@
       <h1>Using Contrasts</h1>
                         <h4 data-toc-skip class="author">Mark Lai</h4>
             
-            <h4 data-toc-skip class="date">2026-11-12</h4>
+            <h4 data-toc-skip class="date">2026-11-17</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/marklhc/pinsearch/blob/master/vignettes/contrast.rmd" class="external-link"><code>vignettes/contrast.rmd</code></a></small>
       <div class="d-none name"><code>contrast.rmd</code></div>
@@ -391,8 +397,8 @@
 <span>    <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>, caption <span class="op">=</span> <span class="st">"$f_\\text{MACS}$ effect sizes"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <caption>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mtext mathvariant="normal">MACS</mtext></msub><annotation encoding="application/x-tex">f_\text{MACS}</annotation></semantics></math>
-effect sizes</caption>
+<span class="math inline">\(f_\text{MACS}\)</span> effect
+sizes</caption>
 <thead><tr class="header">
 <th align="left"></th>
 <th align="right">Overall</th>
