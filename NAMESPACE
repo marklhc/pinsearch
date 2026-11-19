@@ -9,7 +9,7 @@ export(pinSearch)
 export(pin_effsize)
 export(type2op)
 importFrom(stats,
-  `contrasts<-`,
+  "contrasts<-",
   contr.sum,
   model.matrix
 )

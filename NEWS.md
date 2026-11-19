@@ -1,4 +1,7 @@
-# pinsearch 0.1.6.2
+# pinsearch 0.1.7
+
+* The test-level effect size in `dmacs()` and `dmacs_ordered()` now handles
+  missing group sample sizes.
 
 * Fixed the denominator of the test-level effect size in `dmacs()`,
   `dmacs_ordered()`, `fmacs()`, and `fmacs_ordered()` (via `item_weights`):
