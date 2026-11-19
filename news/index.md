@@ -1,6 +1,12 @@
 # Changelog
 
-## pinsearch 0.1.6.2
+## pinsearch 0.1.7
+
+- The test-level effect size in
+  [`dmacs()`](https://marklhc.github.io/pinsearch/reference/dmacs.md)
+  and
+  [`dmacs_ordered()`](https://marklhc.github.io/pinsearch/reference/dmacs.md)
+  now handles missing group sample sizes.
 
 - Fixed the denominator of the test-level effect size in
   [`dmacs()`](https://marklhc.github.io/pinsearch/reference/dmacs.md),

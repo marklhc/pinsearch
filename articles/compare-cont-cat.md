@@ -95,20 +95,20 @@ contfit <- cfa(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                group.partial = c("yy2~1", "yy4~1",
                                  "yy5~1", "yy7~1"))
 (dcont <- pin_effsize(contfit))
-#>           yy2-f      yy4-f     yy5-f     yy7-f
-#> dmacs 0.1323244 0.07678316 0.1554562 0.1391742
+#>           yy2-f     yy4-f     yy5-f     yy7-f
+#> dmacs 0.2444819 0.1496836 0.1179358 0.2280557
 
 ps_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                     data = df, group = "group", type = "thresholds",
                     ordered = paste0("yy", 1:7))
 #> Warning: lavaan->lav_model_vcov():  
 #>    The variance-covariance matrix of the estimated parameters (vcov) does not 
-#>    appear to be positive definite! The smallest eigenvalue (= -4.369630e+08) 
+#>    appear to be positive definite! The smallest eigenvalue (= -1.697840e+08) 
 #>    is smaller than zero. This may be a symptom that the model is not 
 #>    identified.
 (dcat <- pin_effsize(ps_cat$`Partial Invariance Fit`))
-#>           yy2-f     yy4-f     yy5-f    yy7-f
-#> dmacs 0.2096126 0.1432835 0.1678112 0.174389
+#>           yy2-f     yy4-f     yy5-f     yy7-f
+#> dmacs 0.2951261 0.1831989 0.1365525 0.2211196
 ```
 
 ``` r
@@ -118,10 +118,10 @@ data.frame(
         categorical = dcat[1, ],
         population = dpop[c(2, 4, 5, 7)])
 )
-#>                 yy2.f      yy4.f     yy5.f     yy7.f
-#> continuous  0.1323244 0.07678316 0.1554562 0.1391742
-#> categorical 0.2096126 0.14328353 0.1678112 0.1743890
-#> population  0.2555382 0.14381700 0.1449711 0.1696835
+#>                 yy2.f     yy4.f     yy5.f     yy7.f
+#> continuous  0.2444819 0.1496836 0.1179358 0.2280557
+#> categorical 0.2951261 0.1831989 0.1365525 0.2211196
+#> population  0.2555382 0.1438170 0.1449711 0.1696835
 ```
 
 Compared to Mantel-Haenszel (MH)
@@ -140,12 +140,12 @@ ps2_cat <- pinSearch(' f =~ yy1 + yy2 + yy3 + yy4 + yy5 + yy6 + yy7 ',
                      ordered = paste0("yy", 1:7))
 #> Warning: lavaan->lav_model_vcov():  
 #>    The variance-covariance matrix of the estimated parameters (vcov) does not 
-#>    appear to be positive definite! The smallest eigenvalue (= -3.165635e-09) 
+#>    appear to be positive definite! The smallest eigenvalue (= -1.547837e-07) 
 #>    is smaller than zero. This may be a symptom that the model is not 
 #>    identified.
 (dcat <- pin_effsize(ps2_cat$`Partial Invariance Fit`))
 #>           yy4-f     yy5-f
-#> dmacs 0.4131203 0.4990898
+#> dmacs 0.5027007 0.4027353
 ```
 
 ``` r
@@ -159,7 +159,7 @@ if (difR_ok) {
 #> 
 #> Results based on asymptotic inference 
 #>  
-#> Convergence reached after 3 iterations
+#> Convergence reached after 2 iterations
 #> 
 #> Matching variable: test score 
 #>  
@@ -170,13 +170,13 @@ if (difR_ok) {
 #> Mantel-Haenszel Chi-square statistic: 
 #>  
 #>     Stat.   P-value    
-#> yy1  1.9084  0.1671    
-#> yy2  1.2261  0.2682    
-#> yy3  3.3184  0.0685 .  
-#> yy4 34.5758  0.0000 ***
-#> yy5 51.0250  0.0000 ***
-#> yy6  0.2706  0.6029    
-#> yy7  0.0039  0.9501    
+#> yy1  0.3551  0.5512    
+#> yy2  0.1474  0.7010    
+#> yy3  0.0080  0.9287    
+#> yy4 48.1852  0.0000 ***
+#> yy5 34.5013  0.0000 ***
+#> yy6  0.1548  0.6939    
+#> yy7  0.0145  0.9042    
 #> 
 #> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1  
 #> 
@@ -196,13 +196,13 @@ if (difR_ok) {
 #>  'C': large effect 
 #>  
 #>     alphaMH deltaMH  
-#> yy1  1.3780 -0.7535 A
-#> yy2  1.3147 -0.6430 A
-#> yy3  0.6520  1.0053 B
-#> yy4  3.2668 -2.7820 C
-#> yy5  4.3771 -3.4695 C
-#> yy6  0.8653  0.3399 A
-#> yy7  0.9625  0.0897 A
+#> yy1  1.1706 -0.3701 A
+#> yy2  0.8830  0.2924 A
+#> yy3  1.0055 -0.0129 A
+#> yy4  4.1963 -3.3704 C
+#> yy5  3.3505 -2.8414 C
+#> yy6  0.8908  0.2718 A
+#> yy7  1.0532 -0.1217 A
 #> 
 #> Effect size codes: 0 'A' 1.0 'B' 1.5 'C' 
 #>  (for absolute values of 'deltaMH') 
