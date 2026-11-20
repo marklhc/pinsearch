@@ -1,5 +1,7 @@
 # Changelog
 
+## pinsearch (development version)
+
 ## pinsearch 0.1.7
 
 CRAN release: 2026-11-19
