@@ -1,3 +1,5 @@
+# pinsearch (development version)
+
 # pinsearch 0.1.7
 
 * The test-level effect size in `dmacs()` and `dmacs_ordered()` now handles
