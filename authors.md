@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/marklhc/pinsearch/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/marklhc/pinsearch/blob/v0.1.7/DESCRIPTION)
 
 Lai M (2026). *pinsearch: Specification Search for Partial Factorial
 Invariance*. R package version 0.1.7,

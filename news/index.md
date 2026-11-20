@@ -2,6 +2,8 @@
 
 ## pinsearch 0.1.7
 
+CRAN release: 2026-11-19
+
 - The test-level effect size in
   [`dmacs()`](https://marklhc.github.io/pinsearch/reference/dmacs.md)
   and

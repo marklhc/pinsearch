@@ -43,11 +43,11 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/marklhc/pinsearch/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/marklhc/pinsearch/blob/v0.1.7/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.7" id="pinsearch-017">pinsearch 0.1.7<a class="anchor" aria-label="anchor" href="#pinsearch-017"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.7" id="pinsearch-017">pinsearch 0.1.7<a class="anchor" aria-label="anchor" href="#pinsearch-017"></a></h2><p class="text-muted">CRAN release: 2026-11-19</p>
 <ul><li><p>The test-level effect size in <code><a href="../reference/dmacs.html">dmacs()</a></code> and <code><a href="../reference/dmacs.html">dmacs_ordered()</a></code> now handles missing group sample sizes.</p></li>
 <li><p>Fixed the denominator of the test-level effect size in <code><a href="../reference/dmacs.html">dmacs()</a></code>, <code><a href="../reference/dmacs.html">dmacs_ordered()</a></code>, <code><a href="../reference/fmacs.html">fmacs()</a></code>, and <code><a href="../reference/fmacs.html">fmacs_ordered()</a></code> (via <code>item_weights</code>): it now uses the pooled standard deviation of the weighted item sum, including the cross-item covariances induced by the common factor and the correct (quadratic) weight scaling. <code><a href="../reference/es_lavaan.html">es_lavaan()</a></code>/<code><a href="../reference/es_lavaan.html">pin_effsize()</a></code> compute it exactly from the sample covariances for continuous indicators; for ordered indicators the observed-scale variance-only fallback is used, as <code>sampstat$cov</code> is on the latent-response scale there. A new <code>pooled_test_sd</code> argument allows passing this value directly (it takes precedence over the sample-based value).</p></li>
 <li><p>The test-level effect size in <code><a href="../reference/dmacs.html">dmacs()</a></code> and <code><a href="../reference/fmacs.html">fmacs()</a></code> now works when <code>loadings</code> is not supplied (as it already did at the item level).</p></li>
